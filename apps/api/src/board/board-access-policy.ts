@@ -3,7 +3,13 @@ import { BoardActionForbiddenError } from './errors/board-action-forbidden.error
 import { BoardNotFoundError } from './errors/board-not-found.error.js';
 import type { Membership } from './membership.entity.js';
 
-export type BoardAction = 'view-board' | 'edit-content' | 'rename-board' | 'delete-board';
+export type BoardAction =
+  | 'view-board'
+  | 'edit-content'
+  | 'rename-board'
+  | 'delete-board'
+  | 'manage-members'
+  | 'leave-board';
 
 const ROLES_BY_ACTION: Record<BoardAction, readonly BoardRole[]> = {
   'view-board': ['owner', 'member'],
@@ -11,6 +17,9 @@ const ROLES_BY_ACTION: Record<BoardAction, readonly BoardRole[]> = {
   'edit-content': ['owner', 'member'],
   'rename-board': ['owner'],
   'delete-board': ['owner'],
+  'manage-members': ['owner'],
+  // Sans transfert de propriété, un board ne doit pas perdre son owner.
+  'leave-board': ['member'],
 };
 
 /** Seul endroit qui décide de ce qu'un rôle permet sur un board. */

@@ -1,9 +1,9 @@
 import type { ColumnRequest, CreateCardRequest, UpdateCardRequest } from '@handle-it/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getBoardKey } from '../boards/board-keys';
 import { useBoardContentGateway } from './board-content-gateway-context';
 
-export const getBoardKey = (boardId: string) => ['boards', boardId];
-const getCardKey = (boardId: string, cardId: string) => ['boards', boardId, 'cards', cardId];
+const getCardKey = (boardId: string, cardId: string) => [...getBoardKey(boardId), 'cards', cardId];
 
 export function useBoardView(boardId: string) {
   const gateway = useBoardContentGateway();

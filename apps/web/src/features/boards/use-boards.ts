@@ -1,8 +1,7 @@
 import type { BoardRequest } from '@handle-it/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { BOARDS_KEY } from './board-keys';
 import { useBoardGateway } from './board-gateway-context';
-
-const BOARDS_KEY = ['boards'];
 
 /** Boards de l'utilisateur connecté. */
 export function useBoards() {

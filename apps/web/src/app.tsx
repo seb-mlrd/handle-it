@@ -14,6 +14,11 @@ import { CardPanel } from './features/board-view/card-panel';
 import { BoardGateway } from './features/boards/board-gateway';
 import { BoardGatewayContext } from './features/boards/board-gateway-context';
 import { BoardsPage } from './features/boards/boards.page';
+import { INVITATION_PATH } from './features/invitation/invitation-link';
+import { InvitationPage } from './features/invitation/invitation.page';
+import { MemberGateway } from './features/members/member-gateway';
+import { MemberGatewayContext } from './features/members/member-gateway-context';
+import { MembersPanel } from './features/members/members-panel';
 import { ApiClient } from './shared/http/api-client';
 
 const queryClient = createQueryClient();
@@ -21,6 +26,7 @@ const queryClient = createQueryClient();
 const apiClient = new ApiClient((...request) => fetch(...request));
 const authGateway = new AuthGateway(apiClient);
 const boardGateway = new BoardGateway(apiClient);
+const memberGateway = new MemberGateway(apiClient);
 const boardContentGateway = new BoardContentGateway(apiClient);
 
 export function App() {
@@ -29,21 +35,25 @@ export function App() {
       <AuthGatewayContext value={authGateway}>
         <BoardGatewayContext value={boardGateway}>
           <BoardContentGatewayContext value={boardContentGateway}>
-            <BrowserRouter>
-              <Routes>
-                <Route element={<GuestRoute />}>
-                  <Route path="/login" element={<LogInPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                </Route>
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/" element={<BoardsPage />} />
-                  <Route path="/boards/:boardId" element={<BoardViewPage />}>
-                    <Route path="cards/:cardId" element={<CardPanel />} />
+            <MemberGatewayContext value={memberGateway}>
+              <BrowserRouter>
+                <Routes>
+                  <Route element={<GuestRoute />}>
+                    <Route path="/login" element={<LogInPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
                   </Route>
-                </Route>
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </BrowserRouter>
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/" element={<BoardsPage />} />
+                    <Route path={INVITATION_PATH} element={<InvitationPage />} />
+                    <Route path="/boards/:boardId" element={<BoardViewPage />}>
+                      <Route path="cards/:cardId" element={<CardPanel />} />
+                      <Route path="members" element={<MembersPanel />} />
+                    </Route>
+                  </Route>
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </BrowserRouter>
+            </MemberGatewayContext>
           </BoardContentGatewayContext>
         </BoardGatewayContext>
       </AuthGatewayContext>

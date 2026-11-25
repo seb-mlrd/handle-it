@@ -2,7 +2,7 @@ import { type ColumnViewResponse, columnRequestSchema } from '@handle-it/contrac
 import { type ReactNode, useState } from 'react';
 import { SingleFieldForm } from '../../shared/forms/single-field-form';
 import { Button } from '../../shared/ui/button';
-import { ConfirmDeleteDialog } from '../../shared/ui/confirm-delete-dialog';
+import { ConfirmDialog } from '../../shared/ui/confirm-dialog';
 import { useDeleteColumn, useRenameColumn } from './use-board-content';
 
 interface ColumnHeaderProps {
@@ -52,9 +52,10 @@ export function ColumnHeader({ boardId, column, handle }: ColumnHeaderProps) {
         </Button>
       </div>
       {openPanel === 'delete' && (
-        <ConfirmDeleteDialog
+        <ConfirmDialog
           title={`Supprimer « ${column.name} » ?`}
           consequence="La colonne et toutes ses cartes seront supprimées. Cette action est définitive."
+          confirmLabel="Supprimer"
           error={deleteColumn.error}
           isPending={deleteColumn.isPending}
           confirm={() => deleteColumn.mutate(undefined, { onSuccess: close })}

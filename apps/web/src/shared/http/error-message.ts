@@ -10,6 +10,7 @@ const MESSAGES: Partial<Record<ApiErrorCode, string>> = {
   NOT_FOUND: "Cet élément n'existe plus.",
   UNAUTHENTICATED: 'Ta session a expiré. Reconnecte-toi.',
   CONFLICT: "Quelqu'un vient de modifier cet élément. Réessaie.",
+  INVITATION_INVALID: "Cette invitation n'est plus valable.",
   TOO_MANY_REQUESTS: 'Trop de tentatives. Réessaie dans quelques minutes.',
   UNREACHABLE: 'Le serveur ne répond pas. Vérifie ta connexion puis réessaie.',
 };

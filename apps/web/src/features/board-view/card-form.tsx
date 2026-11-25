@@ -2,7 +2,7 @@ import { type CardResponse, updateCardRequestSchema } from '@handle-it/contracts
 import { useState } from 'react';
 import { useSchemaForm } from '../../shared/forms/use-schema-form';
 import { Button } from '../../shared/ui/button';
-import { ConfirmDeleteDialog } from '../../shared/ui/confirm-delete-dialog';
+import { ConfirmDialog } from '../../shared/ui/confirm-dialog';
 import { FormAlert } from '../../shared/ui/form-alert';
 import { TextArea } from '../../shared/ui/text-area';
 import { TextField } from '../../shared/ui/text-field';
@@ -59,9 +59,10 @@ export function CardForm({ boardId, card, markAsDirty, close }: CardFormProps) {
         </div>
       </form>
       {isConfirmingDelete && (
-        <ConfirmDeleteDialog
+        <ConfirmDialog
           title={`Supprimer « ${card.title} » ?`}
           consequence="Cette action est définitive."
+          confirmLabel="Supprimer"
           error={deleteCard.error}
           isPending={deleteCard.isPending}
           confirm={() => deleteCard.mutate(undefined, { onSuccess: close })}

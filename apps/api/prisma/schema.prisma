@@ -43,6 +43,7 @@ model Board {
   createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   memberships Membership[]
   columns     Column[]
+  invitations Invitation[]
 
   @@map("boards")
 }
@@ -81,4 +82,16 @@ model Card {
 
   @@unique([columnId, rank])
   @@map("cards")
+}
+
+model Invitation {
+  id        String   @id @db.Uuid
+  boardId   String   @map("board_id") @db.Uuid
+  tokenHash String   @unique @map("token_hash")
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@index([boardId])
+  @@index([expiresAt])
+  @@map("invitations")
 }

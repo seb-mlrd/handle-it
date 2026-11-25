@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useBoardContentGateway } from './board-content-gateway-context';
 import { type Columns, describeCardMove, describeColumnMove } from './board-order';
 import type { DragItem } from './drag-item';
-import { getBoardKey } from './use-board-content';
+import { getBoardKey } from '../boards/board-keys';
 
 interface Move {
   readonly item: DragItem;

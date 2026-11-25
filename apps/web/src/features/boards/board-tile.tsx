@@ -1,12 +1,11 @@
-import { type BoardResponse, type BoardRole, boardRequestSchema } from '@handle-it/contracts';
+import { type BoardResponse, boardRequestSchema } from '@handle-it/contracts';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { SingleFieldForm } from '../../shared/forms/single-field-form';
 import { Button } from '../../shared/ui/button';
-import { ConfirmDeleteDialog } from '../../shared/ui/confirm-delete-dialog';
+import { ConfirmDialog } from '../../shared/ui/confirm-dialog';
+import { ROLE_LABELS } from './role-labels';
 import { useDeleteBoard, useRenameBoard } from './use-boards';
-
-const ROLE_LABELS: Record<BoardRole, string> = { owner: 'Propriétaire', member: 'Membre' };
 
 interface BoardTileProps {
   readonly board: BoardResponse;
@@ -60,9 +59,10 @@ export function BoardTile({ board }: BoardTileProps) {
         </>
       )}
       {openPanel === 'delete' && (
-        <ConfirmDeleteDialog
+        <ConfirmDialog
           title={`Supprimer « ${board.name} » ?`}
           consequence="Le tableau et tout son contenu seront supprimés pour tous ses membres. Cette action est définitive."
+          confirmLabel="Supprimer"
           error={deleteBoard.error}
           isPending={deleteBoard.isPending}
           confirm={() => deleteBoard.mutate(undefined, { onSuccess: close })}

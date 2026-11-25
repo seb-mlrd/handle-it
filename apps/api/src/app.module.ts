@@ -7,6 +7,9 @@ import { EnvironmentModule } from './config/environment.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { HealthModule } from './health/health.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { InvitationModule } from './invitation/invitation.module.js';
+import { MemberModule } from './member/member.module.js';
+import { SharedModule } from './shared/shared.module.js';
 import { HttpModule } from './shared/http/http.module.js';
 
 @Module({
@@ -14,6 +17,9 @@ import { HttpModule } from './shared/http/http.module.js';
     EnvironmentModule,
     DatabaseModule,
     HttpModule,
+    SharedModule,
+    MemberModule,
+    InvitationModule,
     AuthModule,
     BoardModule,
     ColumnModule,

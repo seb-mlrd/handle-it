@@ -4,17 +4,18 @@ import { Button } from './button';
 import { FormAlert } from './form-alert';
 import { Modal } from './modal';
 
-interface ConfirmDeleteDialogProps {
+interface ConfirmDialogProps {
   readonly title: string;
   readonly consequence: string;
+  readonly confirmLabel: string;
   readonly error: unknown;
   readonly isPending: boolean;
   readonly confirm: () => void;
   readonly close: () => void;
 }
 
-/** Demande confirmation avant une suppression définitive. */
-export function ConfirmDeleteDialog(props: ConfirmDeleteDialogProps) {
+/** Demande confirmation avant une action sans retour. */
+export function ConfirmDialog(props: ConfirmDialogProps) {
   const titleId = useId();
   return (
     <Modal titleId={titleId} close={props.close}>
@@ -28,7 +29,7 @@ export function ConfirmDeleteDialog(props: ConfirmDeleteDialogProps) {
           Annuler
         </Button>
         <Button variant="danger" disabled={props.isPending} onClick={props.confirm}>
-          {props.isPending ? 'Suppression…' : 'Supprimer'}
+          {props.confirmLabel}
         </Button>
       </div>
     </Modal>
