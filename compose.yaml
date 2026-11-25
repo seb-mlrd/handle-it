@@ -1,0 +1,20 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: ${POSTGRES_DB:?}
+    ports:
+      # Port décalé pour cohabiter avec un PostgreSQL déjà présent, accessible en local seulement.
+      - '127.0.0.1:5433:5432'
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  database-data:

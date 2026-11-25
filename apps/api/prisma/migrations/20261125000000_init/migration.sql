@@ -1,0 +1,1 @@
+-- Migration d'amorçage : les premières tables arrivent avec l'authentification.

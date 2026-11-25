@@ -17,3 +17,6 @@ test-results/
 # Système et journaux
 .DS_Store
 *.log
+
+# Client Prisma généré
+**/generated/
