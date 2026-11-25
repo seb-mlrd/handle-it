@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BoardModule } from './board/board.module.js';
+import { BoardViewModule } from './board-view/board-view.module.js';
+import { CardModule } from './card/card.module.js';
 import { ColumnModule } from './column/column.module.js';
 import { EnvironmentModule } from './config/environment.module.js';
 import { DatabaseModule } from './database/database.module.js';
@@ -15,6 +17,8 @@ import { HttpModule } from './shared/http/http.module.js';
     AuthModule,
     BoardModule,
     ColumnModule,
+    CardModule,
+    BoardViewModule,
     HealthModule,
   ],
 })

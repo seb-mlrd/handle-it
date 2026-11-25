@@ -33,6 +33,14 @@ export class PrismaBoardRepository extends BoardRepository {
     return records.map(({ board, role }) => ({ board: new Board(board.id, board.name), role }));
   }
 
+  override async findById(boardId: string): Promise<Board | null> {
+    const record = await this.prismaService.board.findUnique({
+      where: { id: boardId },
+      select: { name: true },
+    });
+    return record && new Board(boardId, record.name);
+  }
+
   override async findMembership(boardId: string, userId: string): Promise<Membership | null> {
     const record = await this.prismaService.membership.findUnique({
       where: { boardId_userId: { boardId, userId } },

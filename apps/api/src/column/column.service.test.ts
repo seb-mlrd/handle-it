@@ -6,21 +6,10 @@ import { Membership } from '../board/membership.entity.js';
 import { RankConflictError } from '../shared/ranking/rank-conflict.error.js';
 import { Rank } from '../shared/ranking/rank.value-object.js';
 import { ColumnService } from './column.service.js';
+import { createBoardRepository, createColumnRepository } from '../testing/repositories.js';
 
-const boards = {
-  add: vi.fn(),
-  findAllByUser: vi.fn(),
-  findMembership: vi.fn(),
-  update: vi.fn(),
-  delete: vi.fn(),
-};
-const columns = {
-  add: vi.fn(),
-  findAllByBoard: vi.fn(),
-  findLastRank: vi.fn(),
-  rename: vi.fn(),
-  delete: vi.fn(),
-};
+const boards = createBoardRepository();
+const columns = createColumnRepository();
 const service = new ColumnService(columns, new BoardAccessService(boards, new BoardAccessPolicy()));
 const request = { name: 'À faire' };
 

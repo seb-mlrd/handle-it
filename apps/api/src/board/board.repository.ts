@@ -7,6 +7,7 @@ export abstract class BoardRepository {
   abstract add(board: Board, creator: Membership): Promise<void>;
   /** Renvoie les boards de l'utilisateur, du plus récent au plus ancien. */
   abstract findAllByUser(userId: string): Promise<BoardWithRole[]>;
+  abstract findById(boardId: string): Promise<Board | null>;
   abstract findMembership(boardId: string, userId: string): Promise<Membership | null>;
   /** Lève `BoardNotFoundError` si le board a disparu. */
   abstract update(board: Board): Promise<void>;

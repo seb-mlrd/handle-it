@@ -16,6 +16,12 @@ if (existsSync(ENVIRONMENT_FILE)) {
 const databaseUrl = new URL(process.env['DATABASE_URL'] ?? '');
 databaseUrl.pathname += E2E_DATABASE_SUFFIX;
 
+// En local, le mode développement révèle les défauts que seul StrictMode provoque ;
+// la CI vérifie la version construite, celle qui sera mise en ligne.
+const WEB_COMMAND = process.env['CI']
+  ? `pnpm run build && pnpm exec vite preview --port ${WEB_PORT}`
+  : `pnpm exec vite --port ${WEB_PORT}`;
+
 export default defineConfig({
   testDir: 'e2e',
   outputDir: 'test-results',
@@ -30,9 +36,12 @@ export default defineConfig({
       env: { DATABASE_URL: databaseUrl.href, PORT: String(API_PORT), WEB_ORIGIN },
     },
     {
-      command: `pnpm run build && pnpm exec vite preview --port ${WEB_PORT}`,
+      command: WEB_COMMAND,
       url: WEB_ORIGIN,
-      env: { API_URL: `http://localhost:${API_PORT}` },
+      env: {
+        API_URL: `http://localhost:${API_PORT}`,
+        VITE_CACHE_DIRECTORY: 'node_modules/.vite-e2e',
+      },
     },
   ],
 });

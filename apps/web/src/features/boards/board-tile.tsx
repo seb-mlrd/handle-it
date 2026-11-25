@@ -1,8 +1,10 @@
-import type { BoardResponse, BoardRole } from '@handle-it/contracts';
+import { type BoardResponse, type BoardRole, boardRequestSchema } from '@handle-it/contracts';
 import { useState } from 'react';
+import { Link } from 'react-router';
+import { SingleFieldForm } from '../../shared/forms/single-field-form';
 import { Button } from '../../shared/ui/button';
-import { DeleteBoardDialog } from './delete-board-dialog';
-import { RenameBoardForm } from './rename-board-form';
+import { ConfirmDeleteDialog } from '../../shared/ui/confirm-delete-dialog';
+import { useDeleteBoard, useRenameBoard } from './use-boards';
 
 const ROLE_LABELS: Record<BoardRole, string> = { owner: 'Propriétaire', member: 'Membre' };
 
@@ -13,14 +15,28 @@ interface BoardTileProps {
 export function BoardTile({ board }: BoardTileProps) {
   const [openPanel, setOpenPanel] = useState<'rename' | 'delete' | null>(null);
   const close = () => setOpenPanel(null);
+  const renameBoard = useRenameBoard(board.id);
+  const deleteBoard = useDeleteBoard(board.id);
   return (
     <li className="flex flex-col gap-4 rounded-card border border-line bg-surface p-4">
       {openPanel === 'rename' ? (
-        <RenameBoardForm board={board} close={close} />
+        <SingleFieldForm
+          schema={boardRequestSchema}
+          label="Nom du tableau"
+          fieldName="name"
+          submitLabel="Enregistrer"
+          defaultValue={board.name}
+          submit={(request) => renameBoard.mutateAsync(request).then(close)}
+          close={close}
+        />
       ) : (
         <>
           <div className="grow">
-            <h2 className="text-lg font-semibold wrap-anywhere">{board.name}</h2>
+            <h2 className="text-lg font-semibold wrap-anywhere">
+              <Link to={`/boards/${board.id}`} className="hover:underline">
+                {board.name}
+              </Link>
+            </h2>
             <p className="text-sm text-muted">{ROLE_LABELS[board.role]}</p>
           </div>
           {board.role === 'owner' && (
@@ -43,7 +59,16 @@ export function BoardTile({ board }: BoardTileProps) {
           )}
         </>
       )}
-      {openPanel === 'delete' && <DeleteBoardDialog board={board} close={close} />}
+      {openPanel === 'delete' && (
+        <ConfirmDeleteDialog
+          title={`Supprimer « ${board.name} » ?`}
+          consequence="Le tableau et tout son contenu seront supprimés pour tous ses membres. Cette action est définitive."
+          error={deleteBoard.error}
+          isPending={deleteBoard.isPending}
+          confirm={() => deleteBoard.mutate(undefined, { onSuccess: close })}
+          close={close}
+        />
+      )}
     </li>
   );
 }

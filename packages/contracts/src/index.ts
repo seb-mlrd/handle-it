@@ -24,3 +24,21 @@ export {
   columnResponseSchema,
   type ColumnResponse,
 } from './column/dto/column-response.dto.js';
+export {
+  createCardRequestSchema,
+  type CreateCardRequest,
+} from './card/dto/create-card-request.dto.js';
+export {
+  updateCardRequestSchema,
+  type UpdateCardRequest,
+} from './card/dto/update-card-request.dto.js';
+export {
+  cardResponseSchema,
+  type CardResponse,
+  type CardSummaryResponse,
+} from './card/dto/card-response.dto.js';
+export {
+  boardViewResponseSchema,
+  type BoardViewResponse,
+  type ColumnViewResponse,
+} from './board/dto/board-view-response.dto.js';

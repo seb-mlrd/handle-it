@@ -4,6 +4,7 @@
     "module": "NodeNext",
     "rootDir": "src",
     "outDir": "dist",
+    "lib": ["ES2024"],
     "experimentalDecorators": true,
     "types": ["node"]
   },

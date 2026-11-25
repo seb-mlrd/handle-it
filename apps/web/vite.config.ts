@@ -7,6 +7,8 @@ const API_URL = process.env['API_URL'] ?? 'http://localhost:3001';
 const proxy = { '/api': API_URL };
 
 export default defineConfig({
+  // Un cache à part évite de perturber un `pnpm dev` déjà lancé.
+  cacheDir: process.env['VITE_CACHE_DIRECTORY'] ?? 'node_modules/.vite',
   plugins: [react(), tailwindcss()],
   server: { port: 5173, strictPort: true, proxy },
   preview: { strictPort: true, proxy },

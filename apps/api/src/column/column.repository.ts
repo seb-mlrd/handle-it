@@ -5,6 +5,7 @@ import type { Column } from './column.entity.js';
 export abstract class ColumnRepository {
   /** Lève `RankConflictError` si le rang est pris, `BoardNotFoundError` si le board a disparu. */
   abstract add(column: Column): Promise<void>;
+  abstract exists(boardId: string, columnId: string): Promise<boolean>;
   /** Renvoie les colonnes dans l'ordre de leur rang. */
   abstract findAllByBoard(boardId: string): Promise<Column[]>;
   abstract findLastRank(boardId: string): Promise<Rank | null>;

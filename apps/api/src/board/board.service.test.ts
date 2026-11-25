@@ -5,14 +5,9 @@ import { BoardService } from './board.service.js';
 import { BoardActionForbiddenError } from './errors/board-action-forbidden.error.js';
 import { BoardNotFoundError } from './errors/board-not-found.error.js';
 import { Membership } from './membership.entity.js';
+import { createBoardRepository } from '../testing/repositories.js';
 
-const repository = {
-  add: vi.fn(),
-  findAllByUser: vi.fn(),
-  findMembership: vi.fn(),
-  update: vi.fn(),
-  delete: vi.fn(),
-};
+const repository = createBoardRepository();
 const service = new BoardService(
   repository,
   new BoardAccessService(repository, new BoardAccessPolicy()),

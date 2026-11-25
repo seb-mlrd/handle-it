@@ -7,6 +7,10 @@ import { LogInPage } from './features/auth/log-in.page';
 import { ProtectedRoute } from './features/auth/protected-route';
 import { RegisterPage } from './features/auth/register.page';
 import { createQueryClient } from './features/auth/create-query-client';
+import { BoardContentGateway } from './features/board-view/board-content-gateway';
+import { BoardContentGatewayContext } from './features/board-view/board-content-gateway-context';
+import { BoardViewPage } from './features/board-view/board-view.page';
+import { CardPanel } from './features/board-view/card-panel';
 import { BoardGateway } from './features/boards/board-gateway';
 import { BoardGatewayContext } from './features/boards/board-gateway-context';
 import { BoardsPage } from './features/boards/boards.page';
@@ -17,24 +21,30 @@ const queryClient = createQueryClient();
 const apiClient = new ApiClient((...request) => fetch(...request));
 const authGateway = new AuthGateway(apiClient);
 const boardGateway = new BoardGateway(apiClient);
+const boardContentGateway = new BoardContentGateway(apiClient);
 
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthGatewayContext value={authGateway}>
         <BoardGatewayContext value={boardGateway}>
-          <BrowserRouter>
-            <Routes>
-              <Route element={<GuestRoute />}>
-                <Route path="/login" element={<LogInPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-              </Route>
-              <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<BoardsPage />} />
-              </Route>
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </BrowserRouter>
+          <BoardContentGatewayContext value={boardContentGateway}>
+            <BrowserRouter>
+              <Routes>
+                <Route element={<GuestRoute />}>
+                  <Route path="/login" element={<LogInPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                </Route>
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/" element={<BoardsPage />} />
+                  <Route path="/boards/:boardId" element={<BoardViewPage />}>
+                    <Route path="cards/:cardId" element={<CardPanel />} />
+                  </Route>
+                </Route>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
+          </BoardContentGatewayContext>
         </BoardGatewayContext>
       </AuthGatewayContext>
     </QueryClientProvider>

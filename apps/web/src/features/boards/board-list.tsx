@@ -1,19 +1,11 @@
-import { getErrorMessage } from '../../shared/http/error-message';
-import { Button } from '../../shared/ui/button';
+import { LoadError } from '../../shared/ui/load-error';
 import { BoardTile } from './board-tile';
 import { useBoards } from './use-boards';
 
 export function BoardList() {
   const { data: boards, error, isFetching, refetch } = useBoards();
   if (!boards && error) {
-    return (
-      <div className="flex flex-col items-start gap-4">
-        <p role="alert">{getErrorMessage(error)}</p>
-        <Button disabled={isFetching} onClick={() => void refetch()}>
-          Réessayer
-        </Button>
-      </div>
-    );
+    return <LoadError error={error} isRetrying={isFetching} retry={refetch} />;
   }
   if (!boards) {
     return (

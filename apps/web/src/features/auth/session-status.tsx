@@ -1,5 +1,4 @@
-import { getErrorMessage } from '../../shared/http/error-message';
-import { Button } from '../../shared/ui/button';
+import { LoadError } from '../../shared/ui/load-error';
 import { useCurrentUser } from './use-current-user';
 
 interface SessionStatusProps {
@@ -19,11 +18,8 @@ export function SessionStatus({ retry }: SessionStatusProps) {
     );
   }
   return (
-    <main className="flex flex-col items-start gap-4 p-6">
-      <p role="alert">{getErrorMessage(error)}</p>
-      <Button disabled={isFetching} onClick={() => void retry()}>
-        Réessayer
-      </Button>
+    <main className="p-6">
+      <LoadError error={error} isRetrying={isFetching} retry={retry} />
     </main>
   );
 }

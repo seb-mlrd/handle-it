@@ -18,5 +18,6 @@ import { PrismaColumnRepository } from './prisma-column.repository.js';
       inject: [ColumnRepository, BoardAccessService],
     },
   ],
+  exports: [ColumnRepository],
 })
 export class ColumnModule {}

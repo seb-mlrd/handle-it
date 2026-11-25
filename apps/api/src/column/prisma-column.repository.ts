@@ -37,6 +37,10 @@ export class PrismaColumnRepository extends ColumnRepository {
     }
   }
 
+  override async exists(boardId: string, columnId: string): Promise<boolean> {
+    return (await this.prismaService.column.count({ where: { id: columnId, boardId } })) > 0;
+  }
+
   override async findAllByBoard(boardId: string): Promise<Column[]> {
     const records = await this.prismaService.column.findMany({
       where: { boardId },
