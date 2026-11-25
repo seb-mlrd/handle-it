@@ -9,6 +9,7 @@ describe('Environment', () => {
     const environment = Environment.fromVariables({ ...VALID, PORT: '4000' });
     expect(environment.getDatabaseUrl()).toBe(DATABASE_URL);
     expect(environment.getPort()).toBe(4000);
+    expect(environment.getAuthAttemptsLimit()).toBe(10);
   });
 
   it('utilise le port par défaut', () => {

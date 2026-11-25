@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { Environment } from '../config/environment.js';
 import { SessionModule } from '../session/session.module.js';
 import { SessionService } from '../session/session.service.js';
 import { UserModule } from '../user/user.module.js';
@@ -12,14 +13,18 @@ import { AuthService } from './auth.service.js';
 import { PasswordHasher } from './password-hasher.js';
 import { SessionCookie } from './session-cookie.js';
 
-const MAX_ATTEMPTS = 10;
 const ATTEMPTS_WINDOW_MILLISECONDS = 15 * 60 * 1000;
 
 @Module({
   imports: [
     UserModule,
     SessionModule,
-    ThrottlerModule.forRoot([{ limit: MAX_ATTEMPTS, ttl: ATTEMPTS_WINDOW_MILLISECONDS }]),
+    ThrottlerModule.forRootAsync({
+      inject: [Environment],
+      useFactory: (environment: Environment) => [
+        { limit: environment.getAuthAttemptsLimit(), ttl: ATTEMPTS_WINDOW_MILLISECONDS },
+      ],
+    }),
   ],
   controllers: [AuthController],
   providers: [

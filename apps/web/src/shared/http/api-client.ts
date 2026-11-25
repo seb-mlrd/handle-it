@@ -20,6 +20,11 @@ export class ApiClient {
     return this.parse(await this.send('PATCH', path, body), schema);
   }
 
+  /** Envoie une modification dont la réponse est vide. */
+  async patchWithoutResult(path: string, body: unknown): Promise<void> {
+    await this.send('PATCH', path, body);
+  }
+
   async delete(path: string): Promise<void> {
     await this.send('DELETE', path);
   }

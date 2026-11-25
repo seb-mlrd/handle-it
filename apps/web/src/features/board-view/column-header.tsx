@@ -1,5 +1,5 @@
 import { type ColumnViewResponse, columnRequestSchema } from '@handle-it/contracts';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { SingleFieldForm } from '../../shared/forms/single-field-form';
 import { Button } from '../../shared/ui/button';
 import { ConfirmDeleteDialog } from '../../shared/ui/confirm-delete-dialog';
@@ -8,9 +8,10 @@ import { useDeleteColumn, useRenameColumn } from './use-board-content';
 interface ColumnHeaderProps {
   readonly boardId: string;
   readonly column: ColumnViewResponse;
+  readonly handle: ReactNode;
 }
 
-export function ColumnHeader({ boardId, column }: ColumnHeaderProps) {
+export function ColumnHeader({ boardId, column, handle }: ColumnHeaderProps) {
   const [openPanel, setOpenPanel] = useState<'rename' | 'delete' | null>(null);
   const close = () => setOpenPanel(null);
   const renameColumn = useRenameColumn(boardId, column.id);
@@ -30,7 +31,10 @@ export function ColumnHeader({ boardId, column }: ColumnHeaderProps) {
   }
   return (
     <div>
-      <h2 className="px-1 text-lg font-semibold wrap-anywhere">{column.name}</h2>
+      <div className="flex items-start justify-between gap-2">
+        <h2 className="px-1 py-2 text-lg font-semibold wrap-anywhere">{column.name}</h2>
+        {handle}
+      </div>
       <div className="flex">
         <Button
           variant="ghost"

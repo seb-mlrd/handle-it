@@ -7,6 +7,8 @@ import {
   type ColumnResponse,
   columnResponseSchema,
   type CreateCardRequest,
+  type MoveCardRequest,
+  type MoveColumnRequest,
   type UpdateCardRequest,
 } from '@handle-it/contracts';
 import type { ApiClient } from '../../shared/http/api-client';
@@ -32,6 +34,11 @@ export class BoardContentGateway {
     return this.apiClient.delete(`/boards/${boardId}/columns/${columnId}`);
   }
 
+  moveColumn(boardId: string, columnId: string, request: MoveColumnRequest): Promise<void> {
+    const path = `/boards/${boardId}/columns/${columnId}/position`;
+    return this.apiClient.patchWithoutResult(path, request);
+  }
+
   createCard(boardId: string, columnId: string, request: CreateCardRequest): Promise<CardResponse> {
     const path = `/boards/${boardId}/columns/${columnId}/cards`;
     return this.apiClient.post(path, request, cardResponseSchema);
@@ -44,6 +51,11 @@ export class BoardContentGateway {
   updateCard(boardId: string, cardId: string, request: UpdateCardRequest): Promise<CardResponse> {
     const path = `/boards/${boardId}/cards/${cardId}`;
     return this.apiClient.patch(path, request, cardResponseSchema);
+  }
+
+  moveCard(boardId: string, cardId: string, request: MoveCardRequest): Promise<void> {
+    const path = `/boards/${boardId}/cards/${cardId}/position`;
+    return this.apiClient.patchWithoutResult(path, request);
   }
 
   deleteCard(boardId: string, cardId: string): Promise<void> {

@@ -33,7 +33,12 @@ export default defineConfig({
       command: 'pnpm run build && pnpm exec prisma migrate deploy && node dist/main.js',
       cwd: '../api',
       url: `http://localhost:${API_PORT}/api/health`,
-      env: { DATABASE_URL: databaseUrl.href, PORT: String(API_PORT), WEB_ORIGIN },
+      env: {
+        DATABASE_URL: databaseUrl.href,
+        PORT: String(API_PORT),
+        WEB_ORIGIN,
+        AUTH_ATTEMPTS_LIMIT: '1000',
+      },
     },
     {
       command: WEB_COMMAND,

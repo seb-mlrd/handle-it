@@ -28,7 +28,7 @@ export function BoardViewPage() {
         ) : board ? (
           <>
             <h1 className="px-6 text-display font-bold wrap-anywhere">{board.name}</h1>
-            <BoardColumns board={board} />
+            <BoardColumns boardId={board.id} />
             <Outlet />
           </>
         ) : error ? (
