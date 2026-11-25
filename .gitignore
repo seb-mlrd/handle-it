@@ -1,1 +1,19 @@
+# Configuration et plan de travail locaux
 .claude
+
+# Dépendances et fichiers générés
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Système et journaux
+.DS_Store
+*.log
