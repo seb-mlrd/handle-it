@@ -1,9 +1,9 @@
-export { healthResponseSchema, type HealthResponse } from './health/health-response.js';
-export { registerRequestSchema, type RegisterRequest } from './auth/register-request.js';
-export { logInRequestSchema, type LogInRequest } from './auth/log-in-request.js';
-export { userResponseSchema, type UserResponse } from './auth/user-response.js';
+export { healthResponseSchema, type HealthResponse } from './health/dto/health-response.dto.js';
+export { registerRequestSchema, type RegisterRequest } from './auth/dto/register-request.dto.js';
+export { logInRequestSchema, type LogInRequest } from './auth/dto/log-in-request.dto.js';
+export { userResponseSchema, type UserResponse } from './auth/dto/user-response.dto.js';
 export {
   errorResponseSchema,
   type ErrorCode,
   type ErrorResponse,
-} from './errors/error-response.js';
+} from './errors/dto/error-response.dto.js';

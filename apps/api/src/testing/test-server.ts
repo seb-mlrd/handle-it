@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
-import { AppModule } from '../app-module.js';
+import { AppModule } from '../app.module.js';
 import { configureApplication } from '../configure-application.js';
-import { PrismaService } from '../database/prisma-service.js';
+import { PrismaService } from '../database/prisma.service.js';
 
 export const WEB_ORIGIN = 'http://localhost:5173';
 

@@ -1,7 +1,7 @@
 import type { ErrorCode, ErrorResponse } from '@handle-it/contracts';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { DomainError, type DomainErrorKind } from '../domain/domain-error.js';
-import { InvalidRequestException } from './invalid-request-exception.js';
+import { DomainError, type DomainErrorKind } from '../errors/domain.error.js';
+import { InvalidRequestException } from './invalid-request.exception.js';
 
 const STATUS_BY_KIND: Record<DomainErrorKind, HttpStatus> = {
   invalid: HttpStatus.BAD_REQUEST,
