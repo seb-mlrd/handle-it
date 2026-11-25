@@ -20,3 +20,5 @@ export const errorResponseSchema = z.object({
 });
 
 export type ErrorResponse = z.infer<typeof errorResponseSchema>;
+
+export type FieldErrors = NonNullable<ErrorResponse['fieldErrors']>;

@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Lint, types, tests et build
+    name: Lint, types, tests, build et parcours E2E
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -40,3 +40,5 @@ jobs:
       - run: pnpm --filter @handle-it/api run database:deploy
       - run: pnpm test
       - run: pnpm build
+      - run: pnpm --filter @handle-it/web exec playwright install --with-deps chromium
+      - run: pnpm e2e

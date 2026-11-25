@@ -1,0 +1,46 @@
+@import 'tailwindcss';
+
+/* Tokens de design : chaque couleur porte sa valeur claire puis sombre. */
+@theme {
+  --color-*: initial;
+  --color-canvas: light-dark(#f3f5f4, #131615);
+  --color-surface: light-dark(#ffffff, #1c201e);
+  --color-ink: light-dark(#191d1b, #edf1ee);
+  --color-muted: light-dark(#565f5a, #a5afa9);
+  --color-line: light-dark(#d5dbd7, #343a37);
+  --color-control: light-dark(#78827c, #77817b);
+  --color-accent: light-dark(#f5bd1f, #f5bd1f);
+  --color-accent-strong: light-dark(#e3aa05, #ffd04d);
+  --color-on-accent: light-dark(#191d1b, #191d1b);
+  --color-danger: light-dark(#b3261e, #ff9c93);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --text-display: 2rem;
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.02em;
+
+  --spacing: 0.25rem;
+  --radius-control: 0.5rem;
+  --radius-card: 0.75rem;
+}
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+  }
+
+  /* Edge ajoute son propre œil, en double avec le nôtre. */
+  ::-ms-reveal {
+    display: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}

@@ -6,4 +6,7 @@ export {
   errorResponseSchema,
   type ErrorCode,
   type ErrorResponse,
+  type FieldErrors,
 } from './errors/dto/error-response.dto.js';
+export { groupFieldErrors } from './errors/group-field-errors.js';
+export { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from './auth/password-limits.js';

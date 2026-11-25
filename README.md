@@ -28,16 +28,18 @@ pnpm dev
 
 ## Commandes
 
-| Commande                                            | Rôle                                 |
-| --------------------------------------------------- | ------------------------------------ |
-| `pnpm dev`                                          | Lancer l'API et le front             |
-| `pnpm lint`                                         | Vérifier le code et le formatage     |
-| `pnpm format`                                       | Formater le code                     |
-| `pnpm typecheck`                                    | Vérifier les types                   |
-| `pnpm test`                                         | Lancer les tests (base démarrée)     |
-| `pnpm build`                                        | Construire le projet                 |
-| `pnpm --filter @handle-it/api run database:migrate` | Créer une migration en développement |
-| `docker compose down`                               | Arrêter la base, données conservées  |
+| Commande                                                        | Rôle                                     |
+| --------------------------------------------------------------- | ---------------------------------------- |
+| `pnpm dev`                                                      | Lancer l'API et le front                 |
+| `pnpm lint`                                                     | Vérifier le code et le formatage         |
+| `pnpm format`                                                   | Formater le code                         |
+| `pnpm typecheck`                                                | Vérifier les types                       |
+| `pnpm test`                                                     | Lancer les tests (base démarrée)         |
+| `pnpm e2e`                                                      | Lancer les parcours E2E (base démarrée)  |
+| `pnpm build`                                                    | Construire le projet                     |
+| `pnpm --filter @handle-it/api run database:migrate`             | Créer une migration en développement     |
+| `pnpm --filter @handle-it/web exec playwright install chromium` | Installer le navigateur des parcours E2E |
+| `docker compose down`                                           | Arrêter la base, données conservées      |
 
 ## Structure
 

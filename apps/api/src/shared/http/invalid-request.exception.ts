@@ -1,7 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import type { ErrorResponse } from '@handle-it/contracts';
-
-export type FieldErrors = NonNullable<ErrorResponse['fieldErrors']>;
+import type { FieldErrors } from '@handle-it/contracts';
 
 export class InvalidRequestException extends BadRequestException {
   constructor(private readonly fieldErrors: FieldErrors) {
