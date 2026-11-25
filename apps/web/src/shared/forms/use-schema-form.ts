@@ -7,6 +7,8 @@ import { getErrorMessage } from '../http/error-message';
 interface SchemaFormOptions<Input> {
   readonly schema: z.ZodType<Input>;
   readonly submit: (input: Input) => Promise<unknown>;
+  /** Vide le formulaire après un envoi réussi. */
+  readonly resetOnSuccess?: boolean;
   /** Codes d'erreur à afficher sous un champ plutôt qu'en tête du formulaire. */
   readonly fieldByErrorCode?: Partial<Record<ApiErrorCode, string>>;
 }
@@ -44,6 +46,7 @@ export function useSchemaForm<Input>(options: SchemaFormOptions<Input>) {
     setIsPending(true);
     try {
       await options.submit(result.data);
+      if (options.resetOnSuccess) formReference.current?.reset();
     } catch (error) {
       showFailure(error);
     } finally {

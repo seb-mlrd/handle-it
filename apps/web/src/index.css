@@ -12,6 +12,7 @@
   --color-accent: light-dark(#f5bd1f, #f5bd1f);
   --color-accent-strong: light-dark(#e3aa05, #ffd04d);
   --color-on-accent: light-dark(#191d1b, #191d1b);
+  --color-on-danger: light-dark(#ffffff, #191d1b);
   --color-danger: light-dark(#b3261e, #ff9c93);
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;

@@ -28,6 +28,7 @@ export class TestServer {
     });
     configureApplication(application);
     await application.listen(0, '127.0.0.1');
+    await application.get(PrismaService).board.deleteMany();
     await application.get(PrismaService).user.deleteMany();
     return new TestServer(application, await application.getUrl());
   }

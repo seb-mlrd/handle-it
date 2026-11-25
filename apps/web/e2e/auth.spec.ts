@@ -1,24 +1,14 @@
 import { randomUUID } from 'node:crypto';
-import { expect, type Page, test } from '@playwright/test';
-
-const PASSWORD = 'mot-de-passe-long';
-
-async function register(page: Page, email: string) {
-  await page.goto('/register');
-  await page.getByLabel('Nom', { exact: true }).fill('Ada');
-  await page.getByLabel('E-mail').fill(email);
-  await page.getByLabel('Mot de passe', { exact: true }).fill(PASSWORD);
-  await page.getByLabel('Confirmer le mot de passe', { exact: true }).fill(PASSWORD);
-  await page.getByRole('button', { name: 'Créer un compte' }).click();
-}
+import { expect, test } from '@playwright/test';
+import { PASSWORD, register } from './register';
 
 test('inscription, session conservée, déconnexion puis connexion', async ({ page, context }) => {
   const email = `${randomUUID()}@example.com`;
   await register(page, email);
-  await expect(page.getByRole('heading', { name: 'Bonjour Ada' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Mes tableaux' })).toBeVisible();
 
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Bonjour Ada' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Mes tableaux' })).toBeVisible();
 
   const [cookie] = await context.cookies();
   await page.getByRole('button', { name: 'Se déconnecter' }).click();
@@ -32,7 +22,7 @@ test('inscription, session conservée, déconnexion puis connexion', async ({ pa
   await page.getByLabel('E-mail').fill(email);
   await page.getByLabel('Mot de passe', { exact: true }).fill(PASSWORD);
   await page.getByRole('button', { name: 'Se connecter' }).click();
-  await expect(page.getByRole('heading', { name: 'Bonjour Ada' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Mes tableaux' })).toBeVisible();
 });
 
 test('sans session, une page protégée ramène à la connexion', async ({ page }) => {

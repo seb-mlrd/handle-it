@@ -1,10 +1,11 @@
 import type { ButtonHTMLAttributes } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary';
+type ButtonVariant = 'primary' | 'secondary' | 'danger';
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: 'bg-accent text-on-accent hover:bg-accent-strong',
   secondary: 'border border-control bg-surface hover:bg-canvas',
+  danger: 'bg-danger text-on-danger hover:opacity-90',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

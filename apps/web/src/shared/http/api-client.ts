@@ -16,6 +16,14 @@ export class ApiClient {
     return this.parse(await this.send('POST', path, body), schema);
   }
 
+  async patch<Output>(path: string, body: unknown, schema: z.ZodType<Output>): Promise<Output> {
+    return this.parse(await this.send('PATCH', path, body), schema);
+  }
+
+  async delete(path: string): Promise<void> {
+    await this.send('DELETE', path);
+  }
+
   /** Envoie une écriture dont la réponse est vide. */
   async postWithoutResult(path: string): Promise<void> {
     await this.send('POST', path);
