@@ -42,7 +42,8 @@ function createContext() {
     },
   };
   const passwordHasher = {
-    hash: vi.fn(async (password: string) => `empreinte:${password}`),
+    hash: async (password: string) => `empreinte:${password}`,
+    simulateVerification: vi.fn(async () => undefined),
     verify: async (hash: string, password: string) => hash === `empreinte:${password}`,
   };
   const tokenService = {
@@ -98,9 +99,9 @@ describe('LogIn', () => {
     await expect(attempt).rejects.toThrow(InvalidCredentialsError);
   });
 
-  it('hache aussi pour un compte inconnu, avec la même erreur', async () => {
+  it('simule la vérification pour un compte inconnu, avec la même erreur', async () => {
     await expect(context.logIn.execute(REQUEST)).rejects.toThrow(InvalidCredentialsError);
-    expect(context.passwordHasher.hash).toHaveBeenCalledOnce();
+    expect(context.passwordHasher.simulateVerification).toHaveBeenCalledOnce();
   });
 
   it('purge les sessions expirées', async () => {

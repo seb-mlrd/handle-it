@@ -18,7 +18,7 @@ export class LogIn {
     const user = await this.userRepository.findByEmail(Email.create(request.email));
     if (!user) {
       // Même coût que pour un compte existant : le temps de réponse ne révèle rien.
-      await this.passwordHasher.hash(request.password);
+      await this.passwordHasher.simulateVerification(request.password);
       throw new InvalidCredentialsError();
     }
     if (!(await this.passwordHasher.verify(user.getPasswordHash(), request.password))) {
