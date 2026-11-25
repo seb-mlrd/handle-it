@@ -34,7 +34,7 @@ pnpm dev
 | `pnpm lint`                                         | Vérifier le code et le formatage     |
 | `pnpm format`                                       | Formater le code                     |
 | `pnpm typecheck`                                    | Vérifier les types                   |
-| `pnpm test`                                         | Lancer les tests                     |
+| `pnpm test`                                         | Lancer les tests (base démarrée)     |
 | `pnpm build`                                        | Construire le projet                 |
 | `pnpm --filter @handle-it/api run database:migrate` | Créer une migration en développement |
 | `docker compose down`                               | Arrêter la base, données conservées  |

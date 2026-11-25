@@ -1,5 +1,6 @@
 import { Controller, Get, HttpStatus, Inject, Res } from '@nestjs/common';
 import type { HealthResponse } from '@handle-it/contracts';
+import { PublicRoute } from '../../shared/http/public-route.js';
 import { CheckHealth } from '../application/check-health.js';
 
 interface StatusResponse {
@@ -12,6 +13,7 @@ export class HealthController {
 
   /** Répond 503 si l'API ne peut pas servir de requêtes. */
   @Get()
+  @PublicRoute()
   async getHealth(@Res({ passthrough: true }) response: StatusResponse): Promise<HealthResponse> {
     const health = await this.checkHealth.execute();
     if (health.status === 'unavailable') {

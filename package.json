@@ -12,7 +12,7 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "typecheck": "pnpm --filter @handle-it/contracts run build && pnpm -r run typecheck",
-    "test": "pnpm --filter @handle-it/contracts run build && vitest run"
+    "test": "pnpm --filter @handle-it/contracts run build && pnpm --filter @handle-it/api run generate && vitest run"
   },
   "devDependencies": {
     "eslint": "^10.15.0",
