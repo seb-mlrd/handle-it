@@ -4,13 +4,18 @@ import { BoardAccessService } from '../board/board-access.service.js';
 import { BoardNotFoundError } from '../board/errors/board-not-found.error.js';
 import { Membership } from '../board/membership.entity.js';
 import { RankConflictError } from '../shared/ranking/rank-conflict.error.js';
+import { RankPlacer } from '../shared/ranking/rank-placer.js';
 import { Rank } from '../shared/ranking/rank.value-object.js';
 import { ColumnService } from './column.service.js';
 import { createBoardRepository, createColumnRepository } from '../testing/repositories.js';
 
 const boards = createBoardRepository();
 const columns = createColumnRepository();
-const service = new ColumnService(columns, new BoardAccessService(boards, new BoardAccessPolicy()));
+const service = new ColumnService(
+  columns,
+  new BoardAccessService(boards, new BoardAccessPolicy()),
+  new RankPlacer(),
+);
 const request = { name: 'À faire' };
 
 beforeEach(() => {
@@ -41,6 +46,11 @@ describe('ColumnService', () => {
       () => service.list('eve', 'board'),
       () => service.create('eve', 'board', request),
       () => service.rename('eve', 'board', 'colonne', request),
+      () =>
+        service.move('eve', 'board', 'colonne', {
+          previousColumnId: null,
+          nextColumnId: null,
+        }),
       () => service.delete('eve', 'board', 'colonne'),
     ];
     for (const attempt of attempts) {

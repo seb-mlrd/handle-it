@@ -4,6 +4,8 @@ import {
   createCardRequestSchema,
   type UpdateCardRequest,
   updateCardRequestSchema,
+  type MoveCardRequest,
+  moveCardRequestSchema,
 } from '@handle-it/contracts';
 import {
   Body,
@@ -58,6 +60,18 @@ export class CardController {
     @Body(new ZodValidationPipe(updateCardRequestSchema)) request: UpdateCardRequest,
   ): Promise<CardResponse> {
     return presentCard(await this.cardService.update(user.getId(), boardId, cardId, request));
+  }
+
+  /** Déplace une carte. */
+  @Patch('cards/:cardId/position')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async move(
+    @CurrentUser() user: User,
+    @Param('boardId', uuidPipe) boardId: string,
+    @Param('cardId', uuidPipe) cardId: string,
+    @Body(new ZodValidationPipe(moveCardRequestSchema)) request: MoveCardRequest,
+  ): Promise<void> {
+    await this.cardService.move(user.getId(), boardId, cardId, request);
   }
 
   /** Supprime une carte. */

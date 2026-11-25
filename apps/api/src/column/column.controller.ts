@@ -1,4 +1,10 @@
-import { type ColumnRequest, columnRequestSchema, type ColumnResponse } from '@handle-it/contracts';
+import {
+  type ColumnRequest,
+  columnRequestSchema,
+  type ColumnResponse,
+  type MoveColumnRequest,
+  moveColumnRequestSchema,
+} from '@handle-it/contracts';
 import {
   Body,
   Controller,
@@ -52,6 +58,18 @@ export class ColumnController {
     @Body(columnRequestPipe) request: ColumnRequest,
   ): Promise<ColumnResponse> {
     return presentColumn(await this.columnService.rename(user.getId(), boardId, columnId, request));
+  }
+
+  /** Déplace une colonne. */
+  @Patch(':columnId/position')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async move(
+    @CurrentUser() user: User,
+    @Param('boardId', uuidPipe) boardId: string,
+    @Param('columnId', uuidPipe) columnId: string,
+    @Body(new ZodValidationPipe(moveColumnRequestSchema)) request: MoveColumnRequest,
+  ): Promise<void> {
+    await this.columnService.move(user.getId(), boardId, columnId, request);
   }
 
   /** Supprime une colonne. */

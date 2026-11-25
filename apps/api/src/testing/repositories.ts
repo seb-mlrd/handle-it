@@ -12,6 +12,9 @@ export const createBoardRepository = () => ({
 
 export const createColumnRepository = () => ({
   add: vi.fn(),
+  areOnBoard: vi.fn(),
+  getList: vi.fn(),
+  move: vi.fn(),
   exists: vi.fn(),
   findAllByBoard: vi.fn(),
   findLastRank: vi.fn(),

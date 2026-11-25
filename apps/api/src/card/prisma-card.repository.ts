@@ -6,9 +6,11 @@ import { PrismaService } from '../database/prisma.service.js';
 import type { Prisma } from '../generated/prisma/client.js';
 import { RankConflictError } from '../shared/ranking/rank-conflict.error.js';
 import { Rank } from '../shared/ranking/rank.value-object.js';
+import type { RankedList } from '../shared/ranking/ranked-list.js';
 import { Card } from './card.entity.js';
 import { CardRepository } from './card.repository.js';
 import type { CardSummary } from './card-summary.js';
+import { PrismaCardList } from './prisma-card-list.js';
 import { CardNotFoundError } from './errors/card-not-found.error.js';
 
 const CARD_FIELDS = {
@@ -40,9 +42,7 @@ export class PrismaCardRepository extends CardRepository {
         select: { id: true },
       });
     } catch (error) {
-      if (isUniqueViolation(error)) throw new RankConflictError();
-      if (isForeignKeyViolation(error)) throw new ColumnNotFoundError();
-      throw error;
+      throw this.translate(error);
     }
   }
 
@@ -60,6 +60,27 @@ export class PrismaCardRepository extends CardRepository {
       select: CARD_FIELDS,
     });
     return record && this.toCard(record);
+  }
+
+  override async areOnBoard(boardId: string, cardIds: readonly string[]): Promise<boolean> {
+    const where = { id: { in: [...cardIds] }, column: { boardId } };
+    return (await this.prismaService.card.count({ where })) === cardIds.length;
+  }
+
+  override getList(columnId: string): RankedList {
+    return new PrismaCardList(this.prismaService, columnId);
+  }
+
+  override async move(
+    boardId: string,
+    cardId: string,
+    columnId: string,
+    rank: Rank,
+  ): Promise<void> {
+    const { count } = await this.updatePosition(boardId, cardId, columnId, rank);
+    if (count === 0) {
+      throw new CardNotFoundError();
+    }
   }
 
   override async findLastRank(columnId: string): Promise<Rank | null> {
@@ -94,6 +115,23 @@ export class PrismaCardRepository extends CardRepository {
     if (count === 0) {
       throw new CardNotFoundError();
     }
+  }
+
+  private async updatePosition(boardId: string, cardId: string, columnId: string, rank: Rank) {
+    try {
+      return await this.prismaService.card.updateMany({
+        where: this.onBoard(boardId, cardId),
+        data: { columnId, rank: rank.getValue() },
+      });
+    } catch (error) {
+      throw this.translate(error);
+    }
+  }
+
+  private translate(error: unknown): unknown {
+    if (isUniqueViolation(error)) return new RankConflictError();
+    if (isForeignKeyViolation(error)) return new ColumnNotFoundError();
+    return error;
   }
 
   private onBoard(boardId: string, cardId: string) {

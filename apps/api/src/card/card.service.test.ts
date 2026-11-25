@@ -6,6 +6,7 @@ import { Membership } from '../board/membership.entity.js';
 import { ColumnNotFoundError } from '../column/errors/column-not-found.error.js';
 import { createBoardRepository, createColumnRepository } from '../testing/repositories.js';
 import { RankConflictError } from '../shared/ranking/rank-conflict.error.js';
+import { RankPlacer } from '../shared/ranking/rank-placer.js';
 import { Rank } from '../shared/ranking/rank.value-object.js';
 import { CardService } from './card.service.js';
 import { CardNotFoundError } from './errors/card-not-found.error.js';
@@ -17,11 +18,14 @@ const cards = {
   findSummariesByBoard: vi.fn(),
   find: vi.fn(),
   findLastRank: vi.fn(),
+  areOnBoard: vi.fn(),
+  getList: vi.fn(),
+  move: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
 };
 const access = new BoardAccessService(boards, new BoardAccessPolicy());
-const service = new CardService(cards, columns, access);
+const service = new CardService(cards, columns, access, new RankPlacer());
 const request = { title: 'Pain' };
 
 beforeEach(() => {
@@ -66,6 +70,12 @@ describe('CardService', () => {
       () => service.get('eve', 'board', 'carte'),
       () => service.create('eve', 'board', 'colonne', request),
       () => service.update('eve', 'board', 'carte', { ...request, description: '' }),
+      () =>
+        service.move('eve', 'board', 'carte', {
+          columnId: 'colonne',
+          previousCardId: null,
+          nextCardId: null,
+        }),
       () => service.delete('eve', 'board', 'carte'),
     ];
     for (const attempt of attempts) {

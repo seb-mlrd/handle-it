@@ -1,8 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import type { CreateCardRequest, UpdateCardRequest } from '@handle-it/contracts';
+import type { CreateCardRequest, MoveCardRequest, UpdateCardRequest } from '@handle-it/contracts';
 import type { BoardAccessService } from '../board/board-access.service.js';
 import type { ColumnRepository } from '../column/column.repository.js';
 import { ColumnNotFoundError } from '../column/errors/column-not-found.error.js';
+import { getNeighbourIds } from '../shared/ranking/get-neighbour-ids.js';
+import type { RankPlacer } from '../shared/ranking/rank-placer.js';
 import { Rank } from '../shared/ranking/rank.value-object.js';
 import { retryOnRankConflict } from '../shared/ranking/retry-on-rank-conflict.js';
 import { Card } from './card.entity.js';
@@ -17,6 +19,7 @@ export class CardService {
     private readonly cardRepository: CardRepository,
     private readonly columnRepository: ColumnRepository,
     private readonly boardAccessService: BoardAccessService,
+    private readonly rankPlacer: RankPlacer,
   ) {}
 
   /** Renvoie une carte avec sa description. */
@@ -56,6 +59,33 @@ export class CardService {
   ): Promise<Card> {
     await this.boardAccessService.authorize(userId, boardId, 'edit-content');
     return this.cardRepository.update(boardId, cardId, request);
+  }
+
+  /** Place une carte entre deux voisines, dans sa colonne ou une autre du même board. */
+  async move(
+    userId: string,
+    boardId: string,
+    cardId: string,
+    request: MoveCardRequest,
+  ): Promise<void> {
+    await this.boardAccessService.authorize(userId, boardId, 'edit-content');
+    const placement = {
+      itemId: cardId,
+      previousItemId: request.previousCardId,
+      nextItemId: request.nextCardId,
+    };
+    const neighbourIds = getNeighbourIds(placement);
+    if (!(await this.columnRepository.exists(boardId, request.columnId))) {
+      throw new ColumnNotFoundError();
+    }
+    if (!(await this.cardRepository.areOnBoard(boardId, [cardId, ...neighbourIds]))) {
+      throw new CardNotFoundError();
+    }
+    const list = this.cardRepository.getList(request.columnId);
+    await retryOnRankConflict(async () => {
+      const rank = await this.rankPlacer.place(list, placement);
+      await this.cardRepository.move(boardId, cardId, request.columnId, rank);
+    });
   }
 
   async delete(userId: string, boardId: string, cardId: string): Promise<void> {

@@ -42,3 +42,8 @@ export {
   type BoardViewResponse,
   type ColumnViewResponse,
 } from './board/dto/board-view-response.dto.js';
+export { moveCardRequestSchema, type MoveCardRequest } from './card/dto/move-card-request.dto.js';
+export {
+  moveColumnRequestSchema,
+  type MoveColumnRequest,
+} from './column/dto/move-column-request.dto.js';

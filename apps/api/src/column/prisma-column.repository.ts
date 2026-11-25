@@ -5,8 +5,10 @@ import { PrismaService } from '../database/prisma.service.js';
 import type { Prisma } from '../generated/prisma/client.js';
 import { RankConflictError } from '../shared/ranking/rank-conflict.error.js';
 import { Rank } from '../shared/ranking/rank.value-object.js';
+import type { RankedList } from '../shared/ranking/ranked-list.js';
 import { Column } from './column.entity.js';
 import { ColumnRepository } from './column.repository.js';
+import { PrismaColumnList } from './prisma-column-list.js';
 import { ColumnNotFoundError } from './errors/column-not-found.error.js';
 
 const COLUMN_FIELDS = { id: true, boardId: true, name: true, rank: true } as const;
@@ -50,6 +52,22 @@ export class PrismaColumnRepository extends ColumnRepository {
     return records.map((record) => this.toColumn(record));
   }
 
+  override async areOnBoard(boardId: string, columnIds: readonly string[]): Promise<boolean> {
+    const where = { id: { in: [...columnIds] }, boardId };
+    return (await this.prismaService.column.count({ where })) === columnIds.length;
+  }
+
+  override getList(boardId: string): RankedList {
+    return new PrismaColumnList(this.prismaService, boardId);
+  }
+
+  override async move(boardId: string, columnId: string, rank: Rank): Promise<void> {
+    const { count } = await this.updateRank(boardId, columnId, rank);
+    if (count === 0) {
+      throw new ColumnNotFoundError();
+    }
+  }
+
   override async findLastRank(boardId: string): Promise<Rank | null> {
     const record = await this.prismaService.column.findFirst({
       where: { boardId },
@@ -77,6 +95,17 @@ export class PrismaColumnRepository extends ColumnRepository {
     });
     if (count === 0) {
       throw new ColumnNotFoundError();
+    }
+  }
+
+  private async updateRank(boardId: string, columnId: string, rank: Rank) {
+    try {
+      return await this.prismaService.column.updateMany({
+        where: { id: columnId, boardId },
+        data: { rank: rank.getValue() },
+      });
+    } catch (error) {
+      throw isUniqueViolation(error) ? new RankConflictError() : error;
     }
   }
 
