@@ -21,3 +21,14 @@ describe.each(['rename-board', 'delete-board'] as const)('BoardAccessPolicy : %s
     expect(() => policy.authorize(null, action)).toThrow(BoardNotFoundError);
   });
 });
+
+describe.each(['view-board', 'edit-content'] as const)('BoardAccessPolicy : %s', (action) => {
+  it.each(['owner', 'member'] as const)('autorise le rôle %s', (role) => {
+    const membership = new Membership('board', 'ada', role);
+    expect(policy.authorize(membership, action)).toBe(membership);
+  });
+
+  it("cache l'existence du board à un non-membre", () => {
+    expect(() => policy.authorize(null, action)).toThrow(BoardNotFoundError);
+  });
+});

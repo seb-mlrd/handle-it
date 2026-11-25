@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BoardAccessPolicy } from './board-access-policy.js';
+import { BoardAccessService } from './board-access.service.js';
 import { BoardService } from './board.service.js';
 import { BoardActionForbiddenError } from './errors/board-action-forbidden.error.js';
 import { BoardNotFoundError } from './errors/board-not-found.error.js';
@@ -12,7 +13,10 @@ const repository = {
   update: vi.fn(),
   delete: vi.fn(),
 };
-const service = new BoardService(repository, new BoardAccessPolicy());
+const service = new BoardService(
+  repository,
+  new BoardAccessService(repository, new BoardAccessPolicy()),
+);
 
 beforeEach(() => {
   vi.resetAllMocks();

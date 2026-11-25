@@ -3,9 +3,12 @@ import { BoardActionForbiddenError } from './errors/board-action-forbidden.error
 import { BoardNotFoundError } from './errors/board-not-found.error.js';
 import type { Membership } from './membership.entity.js';
 
-export type BoardAction = 'rename-board' | 'delete-board';
+export type BoardAction = 'view-board' | 'edit-content' | 'rename-board' | 'delete-board';
 
 const ROLES_BY_ACTION: Record<BoardAction, readonly BoardRole[]> = {
+  'view-board': ['owner', 'member'],
+  // Colonnes et cartes : tout membre les gère.
+  'edit-content': ['owner', 'member'],
   'rename-board': ['owner'],
   'delete-board': ['owner'],
 };

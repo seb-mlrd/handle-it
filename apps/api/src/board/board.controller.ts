@@ -11,14 +11,13 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { z } from 'zod';
 import { CurrentUser } from '../auth/current-user.decorator.js';
+import { uuidPipe } from '../shared/http/uuid.pipe.js';
 import { ZodValidationPipe } from '../shared/http/zod-validation.pipe.js';
 import type { User } from '../user/user.entity.js';
 import { presentBoard } from './board.presenter.js';
 import { BoardService } from './board.service.js';
 
-const boardIdPipe = new ZodValidationPipe(z.uuid());
 const boardRequestPipe = new ZodValidationPipe(boardRequestSchema);
 
 @Controller('boards')
@@ -44,7 +43,7 @@ export class BoardController {
   @Patch(':boardId')
   async rename(
     @CurrentUser() user: User,
-    @Param('boardId', boardIdPipe) boardId: string,
+    @Param('boardId', uuidPipe) boardId: string,
     @Body(boardRequestPipe) request: BoardRequest,
   ): Promise<BoardResponse> {
     return presentBoard(await this.boardService.rename(user.getId(), boardId, request));
@@ -55,7 +54,7 @@ export class BoardController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @CurrentUser() user: User,
-    @Param('boardId', boardIdPipe) boardId: string,
+    @Param('boardId', uuidPipe) boardId: string,
   ): Promise<void> {
     await this.boardService.delete(user.getId(), boardId);
   }

@@ -18,3 +18,9 @@ export {
   type BoardResponse,
   type BoardRole,
 } from './board/dto/board-response.dto.js';
+export { columnRequestSchema, type ColumnRequest } from './column/dto/column-request.dto.js';
+export {
+  columnListResponseSchema,
+  columnResponseSchema,
+  type ColumnResponse,
+} from './column/dto/column-response.dto.js';

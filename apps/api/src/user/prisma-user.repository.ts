@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { isUniqueViolation } from '../database/prisma-errors.js';
 import { PrismaService } from '../database/prisma.service.js';
-import { Prisma } from '../generated/prisma/client.js';
+import type { Prisma } from '../generated/prisma/client.js';
 import { UserRepository } from './user.repository.js';
 import { Email } from './email.value-object.js';
 import { EmailAlreadyUsedError } from './errors/email-already-used.error.js';
 import { User } from './user.entity.js';
 
-const UNIQUE_CONSTRAINT_CODE = 'P2002';
 const USER_FIELDS = { id: true, email: true, displayName: true, passwordHash: true } as const;
 
 type UserRecord = Prisma.UserGetPayload<{ select: typeof USER_FIELDS }>;
@@ -29,7 +29,7 @@ export class PrismaUserRepository extends UserRepository {
         select: { id: true },
       });
     } catch (error) {
-      throw this.isUniqueViolation(error) ? new EmailAlreadyUsedError() : error;
+      throw isUniqueViolation(error) ? new EmailAlreadyUsedError() : error;
     }
   }
 
@@ -41,12 +41,6 @@ export class PrismaUserRepository extends UserRepository {
   override async findById(id: string): Promise<User | null> {
     return this.toUser(
       await this.prismaService.user.findUnique({ where: { id }, select: USER_FIELDS }),
-    );
-  }
-
-  private isUniqueViolation(error: unknown): boolean {
-    return (
-      error instanceof Prisma.PrismaClientKnownRequestError && error.code === UNIQUE_CONSTRAINT_CODE
     );
   }
 

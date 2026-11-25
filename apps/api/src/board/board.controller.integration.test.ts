@@ -1,17 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { BoardResponse } from '@handle-it/contracts';
+import { addMember, registerUser } from '../testing/accounts.js';
 import { TestServer } from '../testing/test-server.js';
 
 let server: TestServer;
 let ada: string;
 let bob: string;
-
-async function register(name: string): Promise<string> {
-  const body = { email: `${name}@example.com`, displayName: name, password: 'mot-de-passe-long' };
-  const response = await server.send('POST', '/auth/register', { body });
-  return response.headers.get('set-cookie')?.split(';')[0] ?? '';
-}
 
 const create = (cookie: string, name = 'Maison') =>
   server.send('POST', '/boards', { cookie, body: { name } });
@@ -23,18 +18,10 @@ async function list(cookie: string) {
   return (await response.json()) as BoardResponse[];
 }
 
-async function addBobAsMember(boardId: string) {
-  const database = server.getDatabase();
-  const { id: userId } = await database.user.findUniqueOrThrow({
-    where: { email: 'bob@example.com' },
-  });
-  await database.membership.create({ data: { boardId, userId, role: 'member' } });
-}
-
 beforeEach(async () => {
   server = await TestServer.start();
-  ada = await register('ada');
-  bob = await register('bob');
+  ada = await registerUser(server, 'ada');
+  bob = await registerUser(server, 'bob');
 });
 afterEach(async () => {
   await server.stop();
@@ -70,7 +57,7 @@ describe('création et liste', () => {
 
   it('montre à un membre les boards partagés, avec son rôle', async () => {
     const board = await readBoard(await create(ada));
-    await addBobAsMember(board.id);
+    await addMember(server, board.id, 'bob');
     expect(await list(bob)).toEqual([{ ...board, role: 'member' }]);
   });
 
@@ -101,7 +88,7 @@ describe('renommage et suppression', () => {
   });
 
   it('sont interdits à un membre', async () => {
-    await addBobAsMember(board.id);
+    await addMember(server, board.id, 'bob');
     expect((await server.send('PATCH', path, { cookie: bob, body })).status).toBe(403);
     expect((await server.send('DELETE', path, { cookie: bob })).status).toBe(403);
     expect(await list(ada)).toEqual([board]);

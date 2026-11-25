@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { BoardRequest } from '@handle-it/contracts';
 import { Board } from './board.entity.js';
 import type { BoardRepository } from './board.repository.js';
-import type { BoardAccessPolicy, BoardAction } from './board-access-policy.js';
+import type { BoardAccessService } from './board-access.service.js';
 import type { BoardWithRole } from './board-with-role.js';
 import { Membership } from './membership.entity.js';
 
@@ -10,7 +10,7 @@ import { Membership } from './membership.entity.js';
 export class BoardService {
   constructor(
     private readonly boardRepository: BoardRepository,
-    private readonly boardAccessPolicy: BoardAccessPolicy,
+    private readonly boardAccessService: BoardAccessService,
   ) {}
 
   /** Crée un board dont l'utilisateur devient l'owner. */
@@ -27,23 +27,14 @@ export class BoardService {
   }
 
   async rename(userId: string, boardId: string, request: BoardRequest): Promise<BoardWithRole> {
-    const membership = await this.authorize(userId, boardId, 'rename-board');
+    const membership = await this.boardAccessService.authorize(userId, boardId, 'rename-board');
     const board = new Board(boardId, request.name);
     await this.boardRepository.update(board);
     return { board, role: membership.getRole() };
   }
 
   async delete(userId: string, boardId: string): Promise<void> {
-    await this.authorize(userId, boardId, 'delete-board');
+    await this.boardAccessService.authorize(userId, boardId, 'delete-board');
     await this.boardRepository.delete(boardId);
-  }
-
-  private async authorize(
-    userId: string,
-    boardId: string,
-    action: BoardAction,
-  ): Promise<Membership> {
-    const membership = await this.boardRepository.findMembership(boardId, userId);
-    return this.boardAccessPolicy.authorize(membership, action);
   }
 }

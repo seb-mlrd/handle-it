@@ -42,6 +42,7 @@ model Board {
   name        String
   createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   memberships Membership[]
+  columns     Column[]
 
   @@map("boards")
 }
@@ -56,4 +57,15 @@ model Membership {
   @@id([boardId, userId])
   @@index([userId])
   @@map("memberships")
+}
+
+model Column {
+  id      String @id @db.Uuid
+  boardId String @map("board_id") @db.Uuid
+  name    String
+  rank    String
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, rank])
+  @@map("columns")
 }
