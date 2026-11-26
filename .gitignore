@@ -20,3 +20,7 @@ test-results/
 
 # Client Prisma généré
 **/generated/
+
+# Atelier de la page vitrine (historiques et captures du skill de design)
+apps/web/landing-work/
+apps/web/public/decouvrir/.taste-skill/

@@ -148,6 +148,15 @@ describe('protections transverses', () => {
     expect(response.status).toBe(200);
   });
 
+  it.each(['/health', '/inconnue'])('pose les en-têtes de sécurité sur %s', async (path) => {
+    const { headers } = await server.send('GET', path);
+    expect(headers.get('x-content-type-options')).toBe('nosniff');
+    expect(headers.get('x-frame-options')).toBe('DENY');
+    expect(headers.get('cache-control')).toBe('no-store');
+    expect(headers.get('content-security-policy')).toContain("frame-ancestors 'none'");
+    expect(headers.get('x-powered-by')).toBeNull();
+  });
+
   it('renvoie le format commun pour une route inconnue', async () => {
     const response = await server.send('GET', '/inconnue');
     expect(response.status).toBe(404);

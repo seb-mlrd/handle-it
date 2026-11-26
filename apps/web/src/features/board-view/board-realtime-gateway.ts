@@ -6,7 +6,7 @@ import {
   REALTIME_MESSAGES,
   REALTIME_PATH,
 } from '@handle-it/contracts';
-import { io, type Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 
 export type ConnectionStatus = 'connecting' | 'live' | 'offline';
 
@@ -33,16 +33,29 @@ const UNAUTHENTICATED_MESSAGE = 'UNAUTHENTICATED';
 export class BoardRealtimeGateway {
   /** Suit un board jusqu'à l'appel de la fonction renvoyée. */
   follow(boardId: string, listener: BoardRealtimeListener): () => void {
-    const socket = io({
-      path: REALTIME_PATH,
-      transports: ['websocket'],
-      forceNew: true,
-      timeout: CONNECTION_TIMEOUT_MILLISECONDS,
-      reconnectionDelayMax: MAX_RECONNECTION_DELAY_MILLISECONDS,
-    });
-    const subscription = new BoardSubscription(socket, boardId, listener);
-    subscription.start();
-    return () => subscription.stop();
+    let subscription: BoardSubscription | null = null;
+    let isStopped = false;
+    listener.onStatus('connecting');
+    // Chargé à la demande : seules les pages d'un board en ont besoin.
+    import('socket.io-client').then(
+      ({ io }) => {
+        if (isStopped) return;
+        const socket = io({
+          path: REALTIME_PATH,
+          transports: ['websocket'],
+          forceNew: true,
+          timeout: CONNECTION_TIMEOUT_MILLISECONDS,
+          reconnectionDelayMax: MAX_RECONNECTION_DELAY_MILLISECONDS,
+        });
+        subscription = new BoardSubscription(socket, boardId, listener);
+        subscription.start();
+      },
+      () => listener.onStatus('offline'),
+    );
+    return () => {
+      isStopped = true;
+      subscription?.stop();
+    };
   }
 }
 
@@ -57,7 +70,6 @@ class BoardSubscription {
   ) {}
 
   start(): void {
-    this.listener.onStatus('connecting');
     this.socket.on('connect', () => void this.join());
     this.socket.on('connect_error', (error) => this.handleRefusal(error));
     this.socket.on('disconnect', () => this.handleLoss());

@@ -7,6 +7,7 @@ import { LoadError } from '../../shared/ui/load-error';
 import { AppHeader } from '../layout/app-header';
 import { readInvitationToken } from './invitation-link';
 import { useAcceptInvitation, useInvitationPreview } from './use-invitation';
+import { MAIN_CONTENT_ID } from '../layout/skip-link';
 
 // Un lien tronqué est refusé comme mal formé : pour l'invité, c'est le même cas.
 const INVALID_CODES: readonly ApiErrorCode[] = ['INVITATION_INVALID', 'INVALID_REQUEST'];
@@ -27,7 +28,11 @@ export function InvitationPage() {
     <>
       <title>Invitation · Handle It</title>
       <AppHeader />
-      <main className="mx-auto flex max-w-xl flex-col items-start gap-6 px-6 py-10">
+      <main
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
+        className="mx-auto flex max-w-xl flex-col items-start gap-6 px-6 py-10"
+      >
         {isInvalidLink(preview.error) || isInvalidLink(acceptInvitation.error) ? (
           <>
             <h1 className="text-display font-bold">Invitation non valable</h1>

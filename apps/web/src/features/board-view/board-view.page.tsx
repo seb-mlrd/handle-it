@@ -4,6 +4,7 @@ import { LoadError } from '../../shared/ui/load-error';
 import { AppHeader } from '../layout/app-header';
 import { BoardContent } from './board-content';
 import { useBoardView } from './use-board-content';
+import { MAIN_CONTENT_ID } from '../layout/skip-link';
 
 // Une adresse mal formée est refusée comme invalide : pour l'utilisateur, c'est le même cas.
 const MISSING_CODES: readonly ApiErrorCode[] = ['NOT_FOUND', 'INVALID_REQUEST'];
@@ -17,14 +18,19 @@ export function BoardViewPage() {
     <div className="flex h-dvh flex-col">
       <title>{`${(!isMissing && board?.name) || 'Tableau'} · Handle It`}</title>
       <AppHeader />
-      <main className="flex min-h-0 grow flex-col gap-4 py-6">
+      <main
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
+        className="outline-none flex min-h-0 grow flex-col gap-4 py-6"
+      >
         <Link to="/" className="mx-6 self-start text-muted underline">
           Mes tableaux
         </Link>
         {isMissing ? (
-          <p role="alert" className="px-6">
-            Ce tableau n'existe pas, ou tu n'y as pas accès.
-          </p>
+          <div className="flex flex-col gap-2 px-6">
+            <h1 className="text-display font-bold">Tableau introuvable</h1>
+            <p role="alert">Ce tableau n'existe pas, ou tu n'y as pas accès.</p>
+          </div>
         ) : board ? (
           <BoardContent board={board} />
         ) : error ? (

@@ -26,7 +26,7 @@ test('inscription, session conservée, déconnexion puis connexion', async ({ pa
 });
 
 test('sans session, une page protégée ramène à la connexion', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/boards/00000000-0000-4000-8000-000000000000');
   await expect(page).toHaveURL('/login');
   await expect(page.getByRole('heading', { name: 'Se connecter' })).toBeVisible();
 });
@@ -70,7 +70,7 @@ test('des identifiants faux affichent une alerte', async ({ page }) => {
 
 test('un serveur injoignable propose de réessayer', async ({ page }) => {
   await page.route('**/api/auth/me', (route) => route.abort());
-  await page.goto('/');
+  await page.goto('/boards/00000000-0000-4000-8000-000000000000');
   await expect(page.getByRole('alert')).toContainText('Le serveur ne répond pas');
   await page.unroute('**/api/auth/me');
   await page.getByRole('button', { name: 'Réessayer' }).click();
@@ -97,4 +97,18 @@ test('l’œil affiche puis masque le mot de passe sans effacer la saisie', asyn
   await page.getByRole('button', { name: 'Masquer' }).click();
   await expect(password).toHaveAttribute('type', 'password');
   await expect(page).toHaveURL('/login');
+});
+
+test('un visiteur qui arrive sur l’accueil voit la vitrine, puis peut créer un compte', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page).toHaveURL('/decouvrir');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Tableaux de tâches à plusieurs',
+  );
+  await page.getByRole('main').getByRole('link', { name: 'Créer un compte' }).click();
+  await expect(page).toHaveURL('/register');
+  await page.getByRole('link', { name: 'Handle It' }).click();
+  await expect(page).toHaveURL('/decouvrir');
 });

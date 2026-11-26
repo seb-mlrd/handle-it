@@ -1,0 +1,898 @@
+<!doctype html>
+<html
+  lang="fr"
+  data-type="software"
+  data-radius="soft"
+  data-ground="sand"
+  data-buttons="arrow"
+  data-motion
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Handle It : tableaux de tâches partagés, mis à jour en direct</title>
+    <meta
+      name="description"
+      content="Crée des tableaux, des colonnes et des cartes, invite qui tu veux par un lien, et vois chaque déplacement des autres membres en moins d’une seconde."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Handle It : tableaux de tâches partagés, mis à jour en direct"
+    />
+    <meta
+      property="og:description"
+      content="Des tableaux, des colonnes et des cartes à plusieurs, synchronisés en moins d’une seconde."
+    />
+    <meta property="og:image" content="/decouvrir/share.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/decouvrir/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#f3f5f4" />
+    <!-- <link rel="canonical" href="https://[domaine à venir, étape 6.3]/decouvrir/"> -->
+    <meta name="site-kind" content="software" />
+    <meta name="page-type" content="software" />
+    <script>
+      document.documentElement.classList.add('mo-js');
+      setTimeout(() => document.documentElement.classList.add('mo-safe'), 2500);
+    </script>
+    <link rel="modulepreload" href="/decouvrir/assets/moments/moments.js" />
+    <link rel="modulepreload" href="/decouvrir/assets/moments/lib.js" />
+    <link rel="modulepreload" href="/decouvrir/assets/moments/iris-opens/moment.js" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400..700&family=Funnel+Sans:wght@400..600&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/decouvrir/assets/system.css" />
+    <link rel="stylesheet" href="/decouvrir/assets/ui/cards.css" />
+    <link rel="stylesheet" href="/decouvrir/assets/motion/motion.css" />
+    <link rel="stylesheet" href="/decouvrir/assets/backgrounds/backgrounds.css" />
+    <link rel="stylesheet" href="/decouvrir/assets/layout/layout.css" />
+    <link rel="stylesheet" href="/decouvrir/assets/icons/icon.css" />
+    <link rel="stylesheet" href="/decouvrir/assets/ui/window/fragment.css" />
+    <style>
+      :root {
+        --p-bg: #f3f5f4;
+        --p-surface: #ffffff;
+        --p-ink: #191d1b;
+        --p-muted: #565f5a;
+        --p-accent: #f5bd1f;
+        --p-accent-ink: #111111;
+        --p-action: #191d1b;
+        --p-action-ink: #f3f5f4;
+        --p-inv-bg: #191d1b;
+        --p-inv-surface: #252927;
+        --p-inv-ink: #f3f5f4;
+        --p-inv-muted: #989b99;
+        --p-inv-accent: #f5bd1f;
+        --p-inv-accent-ink: #111111;
+        --p-inv-action: #f5bd1f;
+        --p-inv-action-ink: #111111;
+        --font-display: 'Funnel Display', system-ui, sans-serif;
+        --font-text: 'Funnel Sans', system-ui, sans-serif;
+        --font-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+        --display-weight: 400;
+        --display-tracking: -0.03em;
+        --display-tracking-xl: -0.04em;
+        --ly-scale: 0.98;
+      }
+
+      /* Le tableau de Handle It, dessiné comme dans l'application : colonnes grises, cartes claires, carte en cours en jaune. */
+      .hi-board {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        padding: 16px;
+        align-items: start;
+      }
+      .hi-col {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 12px;
+        background: #eef1ef;
+        border: 1px solid #d5dbd7;
+        min-width: 0;
+      }
+      .hi-col__title {
+        margin: 0 2px 2px;
+        font: 500 14px/1.3 var(--font-text);
+        color: #191d1b;
+      }
+      .hi-card {
+        padding: 9px 11px;
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #d5dbd7;
+        font: 400 14px/1.35 var(--font-text);
+        color: #191d1b;
+      }
+      .hi-card.is-moved {
+        background: #f5bd1f;
+        border-color: #e3aa05;
+      }
+      .hi-card small {
+        display: block;
+        margin-top: 4px;
+        font-size: 13px;
+        color: #3b3f3d;
+      }
+      .hi-sync {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 16px 16px;
+        font: 500 13px/1.3 var(--font-text);
+        color: #3b3f3d;
+      }
+      .hi-sync::before {
+        content: '';
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #f5bd1f;
+        border: 1px solid #b58600;
+      }
+      .hero__window .d-win {
+        background: #fff;
+        color: #191d1b;
+      }
+      .hero__window .d-win__bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: #3b3f3d;
+        border-bottom: 1px solid #e3e7e4;
+      }
+      .hero__window .d-win__bar b {
+        color: #191d1b;
+        font-weight: 500;
+      }
+      .hero__window .d-win__bar .sp {
+        flex: 1;
+      }
+      .hero__window {
+        background: radial-gradient(90% 70% at 50% 0%, #fbe7a6, #f3f5f4 70%);
+      }
+      @media (max-width: 639px) {
+        .hi-board {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .hi-board > .hi-col:nth-child(3) {
+          display: none;
+        }
+        .hero__window .d-win__bar .sp ~ span {
+          display: none;
+        }
+      }
+
+      /* app-frame : la liste des tableaux à gauche, le tableau ouvert à droite (recette sections-library). */
+      .app.ui {
+        display: grid;
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+        margin-top: var(--s-7);
+        background: var(--u-bg);
+        border: 1px solid var(--u-border);
+        border-radius: var(--u-r);
+        box-shadow: var(--u-shadow);
+      }
+      .app > .app__pane {
+        position: relative;
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .app > .app__pane + .app__pane {
+        border-left: 1px solid var(--u-line);
+      }
+      .app > .app__pane > .ui-panel {
+        width: 100%;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .app > .app__pane::after {
+        content: '';
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 64px;
+        background: linear-gradient(transparent, var(--u-bg));
+        pointer-events: none;
+      }
+      .app__head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--u-line);
+        font: 500 15px/1.3 var(--font-text);
+      }
+      .app__head span {
+        font-weight: 400;
+        color: #3b3f3d;
+      }
+      @media (min-width: 1024px) and (max-width: 1279px) {
+        .app.ui {
+          grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+        }
+      }
+      @media (max-width: 1023px) {
+        .app.ui {
+          grid-template-columns: minmax(0, 1fr);
+          grid-template-rows: auto minmax(0, 1fr);
+        }
+        .app > .app__pane--list {
+          max-height: 252px;
+        }
+        .app > .app__pane--list::after {
+          display: none;
+        }
+        .app .ui-win__side {
+          display: none;
+        }
+        .app .ui-win__body {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .app > .app__pane + .app__pane {
+          border-left: 0;
+          border-top: 1px solid var(--u-line);
+        }
+      }
+      @media (max-width: 639px) {
+        .app.ui {
+          grid-template-rows: minmax(0, 1fr);
+        }
+        .app > .app__pane--list {
+          display: none;
+        }
+        .app > .app__pane + .app__pane {
+          border-top: 0;
+        }
+      }
+
+      /* Panneaux des quatre fonctions : de petits morceaux d'interface posés sur le fond éclairé. */
+      #fonctions .panel {
+        --p-h: 240px;
+      }
+      @media (max-width: 639px) {
+        #fonctions .panel {
+          --p-h: 200px;
+        }
+      }
+      /* La maquette monte depuis le bas du cadre, coupée par son fondu : jamais un widget seul au milieu. */
+      .hi-mini {
+        position: absolute;
+        left: 50%;
+        top: 48px;
+        bottom: -32px;
+        align-content: start;
+        width: min(440px, calc(100% - 48px));
+        transform: translateX(-50%);
+        display: grid;
+        gap: 10px;
+        padding: 16px;
+        border-radius: 12px;
+        background: #fff;
+        border: 1px solid #d5dbd7;
+        color: #191d1b;
+        font: 400 14px/1.4 var(--font-text);
+      }
+      .hi-mini .hi-card.is-focus {
+        outline: 2px solid #191d1b;
+        outline-offset: 2px;
+      }
+      .hi-mini .hi-say {
+        font-size: 13px;
+        color: #3b3f3d;
+      }
+      .hi-field {
+        display: grid;
+        gap: 6px;
+      }
+      .hi-field b {
+        font-weight: 500;
+        font-size: 13px;
+      }
+      .hi-input {
+        padding: 9px 11px;
+        border: 1px solid #78827c;
+        border-radius: 8px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .hi-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 0;
+        border-bottom: 1px solid #e3e7e4;
+      }
+      .hi-row:last-child {
+        border-bottom: 0;
+      }
+      .hi-row span {
+        color: #3b3f3d;
+        font-size: 13px;
+      }
+      .hi-btn {
+        padding: 6px 12px;
+        border: 1px solid #78827c;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .hi-state {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .hi-state i {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        border: 2px solid #78827c;
+      }
+      .hi-state.is-live i {
+        background: #f5bd1f;
+        border-color: #b58600;
+      }
+
+      /* Thème sombre de l'application, montré dans la section sur le clavier. */
+      .hi-dark {
+        background: #131615;
+        border-color: #343a37;
+      }
+      #clavier .hi-mini {
+        width: min(520px, calc(100% - 48px));
+      }
+      .hi-dark .hi-col {
+        background: #1c201e;
+        border-color: #343a37;
+      }
+      .hi-dark .hi-col__title {
+        color: #edf1ee;
+      }
+      .hi-dark .hi-card {
+        background: #131615;
+        border-color: #343a37;
+        color: #edf1ee;
+      }
+      .hi-dark .hi-card.is-focus {
+        outline: 2px solid #edf1ee;
+        outline-offset: 2px;
+      }
+      .hi-dark .hi-card.is-moved {
+        background: #f5bd1f;
+        color: #191d1b;
+      }
+      .hi-dark .hi-say {
+        color: #a5afa9;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- type: software
+     deal: hero centred, nav nav-centre, close close-type, footer footer-columns, rhythm space, buttons arrow, mark dots, grounds topglow (cadre du héros)
+     palette: couleurs propres de l'application (start.mjs brand), la palette tirée card-pastels jurait avec l'accent jaune de l'app
+     moments: iris-opens sur #clavier -->
+
+    <header class="nav nav--centre">
+      <div class="wrap nav__bar">
+        <a class="skip-link" href="#top">Aller au contenu</a>
+        <a class="nav__logo" href="#top"
+          ><span class="mark" data-mark="dots" aria-hidden="true"></span>Handle It</a
+        >
+        <nav class="nav__links" aria-label="Principale">
+          <div class="nav__item"><a class="nav__link" href="#apercu">Aperçu</a></div>
+          <div class="nav__item"><a class="nav__link" href="#fonctions">Fonctions</a></div>
+          <div class="nav__item"><a class="nav__link" href="#clavier">Clavier</a></div>
+          <div class="nav__item"><a class="nav__link" href="#questions">Questions</a></div>
+        </nav>
+        <div class="nav__actions">
+          <a class="nav__link" href="/login">Se connecter</a>
+          <a class="btn btn--primary" href="/register">Créer un compte</a>
+        </div>
+        <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path
+              d="M2 5h14M2 13h14"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero hero--centred" data-enter aria-labelledby="hero-h">
+        <div class="wrap">
+          <div class="hero-text">
+            <div class="hero__c">
+              <a class="pill" href="#fonctions"
+                ><span>Invitations par lien</span
+                ><span class="muted">Valables 1 heure à 7 jours</span></a
+              >
+              <h1 id="hero-h" aria-label="Tableaux de tâches à plusieurs">
+                Tableaux de tâches à plusieurs
+              </h1>
+              <p class="hero__lead">
+                Des colonnes et des cartes que tu déplaces à la souris, au doigt ou au clavier. Les
+                autres membres voient chaque déplacement en moins d’une seconde.
+              </p>
+              <div class="btn-row">
+                <a class="btn btn--primary" href="/register">Créer un compte</a
+                ><a class="btn btn--secondary" href="/login">Se connecter</a>
+              </div>
+            </div>
+            <div
+              class="hero__window"
+              role="img"
+              aria-label="Un tableau Handle It : la carte « Réserver le train » passe de la colonne À faire à la colonne En cours, et l’écran indique qu’il est en direct"
+            >
+              <div class="ly-piece d-win" aria-hidden="true">
+                <div class="d-win__bar">
+                  <span class="d-win__dots"><i></i><i></i><i></i></span
+                  ><span><b>Week-end à Annecy</b> · 3 colonnes</span><span class="sp"></span
+                  ><span>En direct</span>
+                </div>
+                <div data-ly-steps="900">
+                  <div class="hi-board">
+                    <div class="hi-col">
+                      <p class="hi-col__title">À faire</p>
+                      <div class="hi-card">Acheter les billets de bateau</div>
+                      <div class="hi-card">Prévoir le pique-nique</div>
+                    </div>
+                    <div class="hi-col">
+                      <p class="hi-col__title">En cours</p>
+                      <div class="hi-card">Comparer deux locations</div>
+                      <div class="hi-card is-moved" data-step>
+                        Réserver le train<small>Déplacée à l’instant</small>
+                      </div>
+                    </div>
+                    <div class="hi-col">
+                      <p class="hi-col__title">Fait</p>
+                      <div class="hi-card">Fixer les dates</div>
+                    </div>
+                  </div>
+                  <p class="hi-sync" data-step>Synchronisé chez tous les membres</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="apercu" aria-labelledby="apercu-h">
+        <div class="wrap">
+          <div class="grid">
+            <h2 id="apercu-h" class="span-5">Tes tableaux et le tableau ouvert</h2>
+            <p class="span-6 start-7 muted t-lead">
+              Chaque tableau avec ton rôle, puis ses colonnes et ses cartes : glisse une carte,
+              renomme une colonne, ouvre une carte pour écrire sa description.
+              <a class="link" href="#questions">Lire les questions</a>
+            </p>
+          </div>
+          <div
+            class="ui app fill"
+            role="img"
+            aria-label="La liste des tableaux de l’utilisateur à côté du tableau Rentrée, ouvert sur ses trois colonnes"
+          >
+            <div class="app__pane app__pane--list">
+              <div
+                class="ui ui-panel ui-win"
+                data-ui="window"
+                data-open="Ouvert"
+                data-work="Ouvert"
+                data-done="Ouvert"
+              >
+                <div class="ui-win__bar">
+                  <span class="ui-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                  <span class="ui-win__crumb">Handle It <i>/</i> <b>Mes tableaux</b></span>
+                  <span class="ui-spacer"></span>
+                </div>
+                <div class="ui-win__body">
+                  <nav class="ui-win__side" aria-hidden="true">
+                    <span class="ui-win__nav is-on">Tableaux<em>9</em></span>
+                    <span class="ui-win__nav">Partagés<em>6</em></span>
+                  </nav>
+                  <div class="ui-win__main">
+                    <div class="ui-win__cols" aria-hidden="true">
+                      <span>Tableau</span><span>Contenu</span><span>Rôle</span><span></span>
+                    </div>
+                    <ul class="ui-win__rows">
+                      <li class="ui-win__row">
+                        <span class="ui-avatar" data-tone="1">R</span
+                        ><span class="ui-win__who">Rentrée</span
+                        ><span class="ui-win__sub">3 colonnes · 14 cartes</span
+                        ><span class="ui-win__st">Propriétaire</span
+                        ><span class="ui-win__age"></span>
+                      </li>
+                      <li class="ui-win__row">
+                        <span class="ui-avatar" data-tone="2">W</span
+                        ><span class="ui-win__who">Week-end à Annecy</span
+                        ><span class="ui-win__sub">3 colonnes · 6 cartes</span
+                        ><span class="ui-win__st">Membre</span><span class="ui-win__age"></span>
+                      </li>
+                      <li class="ui-win__row">
+                        <span class="ui-avatar" data-tone="3">D</span
+                        ><span class="ui-win__who">Déménagement</span
+                        ><span class="ui-win__sub">4 colonnes · 31 cartes</span
+                        ><span class="ui-win__st">Propriétaire</span
+                        ><span class="ui-win__age"></span>
+                      </li>
+                      <li class="ui-win__row">
+                        <span class="ui-avatar" data-tone="4">A</span
+                        ><span class="ui-win__who">Association du quartier</span
+                        ><span class="ui-win__sub">5 colonnes · 22 cartes</span
+                        ><span class="ui-win__st">Membre</span><span class="ui-win__age"></span>
+                      </li>
+                      <li class="ui-win__row">
+                        <span class="ui-avatar" data-tone="5">C</span
+                        ><span class="ui-win__who">Cuisine à refaire</span
+                        ><span class="ui-win__sub">3 colonnes · 9 cartes</span
+                        ><span class="ui-win__st">Propriétaire</span
+                        ><span class="ui-win__age"></span>
+                      </li>
+                      <li class="ui-win__row">
+                        <span class="ui-avatar" data-tone="1">M</span
+                        ><span class="ui-win__who">Mariage</span
+                        ><span class="ui-win__sub">4 colonnes · 40 cartes</span
+                        ><span class="ui-win__st">Membre</span><span class="ui-win__age"></span>
+                      </li>
+                      <li class="ui-win__row">
+                        <span class="ui-avatar" data-tone="2">J</span
+                        ><span class="ui-win__who">Jardin partagé</span
+                        ><span class="ui-win__sub">3 colonnes · 12 cartes</span
+                        ><span class="ui-win__st">Membre</span><span class="ui-win__age"></span>
+                      </li>
+                      <li class="ui-win__row">
+                        <span class="ui-avatar" data-tone="3">L</span
+                        ><span class="ui-win__who">Lectures de l’année</span
+                        ><span class="ui-win__sub">2 colonnes · 18 cartes</span
+                        ><span class="ui-win__st">Propriétaire</span
+                        ><span class="ui-win__age"></span>
+                      </li>
+                      <li class="ui-win__row">
+                        <span class="ui-avatar" data-tone="4">V</span
+                        ><span class="ui-win__who">Vide-grenier</span
+                        ><span class="ui-win__sub">3 colonnes · 7 cartes</span
+                        ><span class="ui-win__st">Membre</span><span class="ui-win__age"></span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="app__pane app__pane--open">
+              <div class="app__head">Rentrée <span>· Propriétaire · En direct</span></div>
+              <div class="hi-board">
+                <div class="hi-col">
+                  <p class="hi-col__title">À faire</p>
+                  <div class="hi-card">Acheter les fournitures</div>
+                  <div class="hi-card">Remplir la fiche de cantine</div>
+                  <div class="hi-card">Prendre rendez-vous chez le dentiste</div>
+                  <div class="hi-card">Couvrir les livres</div>
+                  <div class="hi-card">Inscription au judo</div>
+                  <div class="hi-card">Commander la carte de bus</div>
+                  <div class="hi-card">Trier les vêtements trop petits</div>
+                </div>
+                <div class="hi-col">
+                  <p class="hi-col__title">En cours</p>
+                  <div class="hi-card is-moved">
+                    Étiqueter les affaires<small>Déplacée à l’instant</small>
+                  </div>
+                  <div class="hi-card">Chercher un cartable</div>
+                  <div class="hi-card">Organiser le covoiturage</div>
+                  <div class="hi-card">Réviser les tables de 7</div>
+                  <div class="hi-card">Préparer le bureau</div>
+                </div>
+                <div class="hi-col">
+                  <p class="hi-col__title">Fait</p>
+                  <div class="hi-card">Imprimer l’emploi du temps</div>
+                  <div class="hi-card">Payer l’assurance scolaire</div>
+                  <div class="hi-card">Acheter les chaussures</div>
+                  <div class="hi-card">Signer le règlement</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section g2" id="fonctions" aria-labelledby="fonctions-h">
+        <div class="wrap">
+          <div class="group">
+            <div class="section-head">
+              <h2 id="fonctions-h">
+                Ce que fait Handle It. <span class="muted">Quatre gestes, sans réglage.</span>
+              </h2>
+            </div>
+            <div class="grid">
+              <article class="card card--row card--open span-6 m-nolift">
+                <h3 class="t-card">Déplace les cartes au clavier</h3>
+                <p>
+                  Espace pour prendre une carte, les flèches pour la porter, Espace pour la poser.
+                  Chaque étape est lue aux lecteurs d’écran.
+                </p>
+                <div class="panel frame--lit" data-visual>
+                  <div class="stage stage--fade-b">
+                    <div
+                      class="hi-mini"
+                      role="img"
+                      aria-label="Une carte entourée par le focus clavier, avec l’annonce de sa nouvelle position"
+                    >
+                      <p class="hi-say">
+                        Carte Réserver le train : dans la colonne En cours, position 1 sur 5.
+                      </p>
+                      <div class="hi-card is-focus">Réserver le train</div>
+                      <div class="hi-card">Comparer deux locations</div>
+                      <div class="hi-card">Acheter les billets de bateau</div>
+                      <div class="hi-card">Prévoir le pique-nique</div>
+                      <div class="hi-card">Fixer les dates</div>
+                      <div class="hi-card">Trouver un parking</div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <article class="card card--row card--open span-6 m-nolift">
+                <h3 class="t-card">Invite par un lien à usage unique</h3>
+                <p>
+                  Choisis sa durée : une heure, un jour ou sept jours. Le lien ne sert qu’à une
+                  personne, puis il ne mène plus nulle part.
+                </p>
+                <div class="panel frame--lit" data-visual>
+                  <div class="stage stage--fade-b">
+                    <div
+                      class="hi-mini"
+                      role="img"
+                      aria-label="Le panneau d’invitation : la durée de validité, le lien créé et son temps restant"
+                    >
+                      <div class="hi-field">
+                        <b>Durée de validité</b>
+                        <div class="hi-input">1 jour</div>
+                      </div>
+                      <div class="hi-field">
+                        <b>Lien d’invitation</b>
+                        <div class="hi-input">/invitation#token=i6qSXKThP_sxw…</div>
+                      </div>
+                      <div class="hi-row">
+                        <span>Lien actif encore 24 heures</span
+                        ><span class="hi-btn">Copier le lien</span>
+                      </div>
+                      <p class="hi-say">Liens en cours</p>
+                      <div class="hi-row"><span>Lien actif encore 7 jours</span></div>
+                      <div class="hi-row"><span>Lien actif encore 3 jours</span></div>
+                      <div class="hi-row"><span>Lien actif encore 52 minutes</span></div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+          <div class="grid">
+            <article class="card card--row card--open span-6 m-nolift">
+              <h3 class="t-card">Retire un membre en un clic</h3>
+              <p>
+                Il perd l’accès aussitôt, même avec le tableau ouvert, et les liens d’invitation
+                encore actifs sont annulés.
+              </p>
+              <div class="panel frame--lit" data-visual>
+                <div class="stage stage--fade-b">
+                  <div
+                    class="hi-mini"
+                    role="img"
+                    aria-label="La liste des membres d’un tableau, avec un bouton Retirer à côté de chaque membre"
+                  >
+                    <div class="hi-row"><b>Toi</b><span>Propriétaire</span></div>
+                    <div class="hi-row">
+                      <b>Membre invité en juin</b><span class="hi-btn">Retirer</span>
+                    </div>
+                    <div class="hi-row">
+                      <b>Membre invité hier</b><span class="hi-btn">Retirer</span>
+                    </div>
+                    <div class="hi-row">
+                      <b>Membre invité en mai</b><span class="hi-btn">Retirer</span>
+                    </div>
+                    <div class="hi-row">
+                      <b>Membre invité en avril</b><span class="hi-btn">Retirer</span>
+                    </div>
+                    <div class="hi-row">
+                      <b>Membre invité en mars</b><span class="hi-btn">Retirer</span>
+                    </div>
+                    <div class="hi-row">
+                      <b>Membre invité en février</b><span class="hi-btn">Retirer</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="card card--row card--open span-6 m-nolift">
+              <h3 class="t-card">Rattrape les changements après une coupure</h3>
+              <p>
+                Hors ligne, l’écran l’indique. À la reconnexion, le tableau se recharge avec ce que
+                les autres ont modifié.
+              </p>
+              <div class="panel frame--lit" data-visual>
+                <div class="stage stage--fade-b">
+                  <div
+                    class="hi-mini"
+                    role="img"
+                    aria-label="L’indicateur de connexion passe de Hors ligne à En direct"
+                  >
+                    <div class="hi-state"><i></i>Hors ligne, reconnexion…</div>
+                    <div class="hi-state is-live"><i></i>En direct</div>
+                    <p class="hi-say">Rattrapé à la reconnexion</p>
+                    <div class="hi-row"><span>Carte « Prévoir le pique-nique » ajoutée</span></div>
+                    <div class="hi-row"><span>Colonne « Fait » renommée</span></div>
+                    <div class="hi-row"><span>Carte « Fixer les dates » déplacée</span></div>
+                    <div class="hi-row"><span>Carte « Trouver un parking » supprimée</span></div>
+                    <div class="hi-row"><span>Colonne « Idées » ajoutée</span></div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="section ground-inverse"
+        id="clavier"
+        data-moment="iris-opens"
+        data-moment-opts='{"from": "base"}'
+        aria-labelledby="clavier-h"
+      >
+        <div class="wrap">
+          <div class="grid">
+            <div class="span-5 stack-4">
+              <h2 id="clavier-h">Utilisable sans souris</h2>
+              <p class="t-lead">
+                Chaque écran se parcourt au clavier, et un lien d’évitement mène droit au contenu.
+                Le thème clair ou sombre suit celui de ton système.
+              </p>
+              <p>Contraste vérifié sur chaque écran, en clair et en sombre.</p>
+              <p>Animations coupées si ton système le demande.</p>
+              <p>Mise en page testée de 320 à 1 280 pixels de large.</p>
+            </div>
+            <div class="frame frame--split span-6 start-7" data-visual>
+              <div class="stage stage--fade-br">
+                <div
+                  class="hi-mini hi-dark"
+                  role="img"
+                  aria-label="Le tableau en thème sombre, une carte prise au clavier pendant son déplacement"
+                >
+                  <div
+                    class="hi-board"
+                    style="padding: 0; grid-template-columns: repeat(2, minmax(0, 1fr))"
+                  >
+                    <div class="hi-col">
+                      <p class="hi-col__title">À faire</p>
+                      <div class="hi-card">Acheter les billets</div>
+                      <div class="hi-card is-focus">Réserver le train</div>
+                      <div class="hi-card">Prévoir le pique-nique</div>
+                      <div class="hi-card">Trouver un parking</div>
+                    </div>
+                    <div class="hi-col">
+                      <p class="hi-col__title">En cours</p>
+                      <div class="hi-card">Comparer deux locations</div>
+                      <div class="hi-card">Fixer les dates</div>
+                    </div>
+                  </div>
+                  <p class="hi-say">
+                    Déplacement commencé : carte Réserver le train. Utilise les flèches, puis Espace
+                    pour déposer.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="questions" aria-labelledby="questions-h">
+        <div class="wrap">
+          <div class="grid">
+            <div class="span-5 stack-4">
+              <h2 id="questions-h">Questions</h2>
+              <p class="muted">
+                Ce que Handle It fait aujourd’hui, et ce qu’il ne fait pas encore.
+              </p>
+            </div>
+            <div class="faq span-6 start-7">
+              <div class="faq__item">
+                <h3>Faut-il installer quelque chose ?</h3>
+                <p>
+                  Non. Handle It fonctionne dans le navigateur, sur ordinateur, tablette ou
+                  téléphone.
+                </p>
+              </div>
+              <div class="faq__item">
+                <h3>Deux personnes déplacent la même carte ?</h3>
+                <p>
+                  Les deux déplacements sont enregistrés l’un après l’autre. La carte finit à un
+                  seul endroit, le même pour tout le monde.
+                </p>
+              </div>
+              <div class="faq__item">
+                <h3>Puis-je inviter par e-mail ?</h3>
+                <p>Pas encore. Tu copies le lien et tu l’envoies par le moyen de ton choix.</p>
+              </div>
+              <div class="faq__item">
+                <h3>Y a-t-il des étiquettes ou des échéances ?</h3>
+                <p>
+                  Pas dans cette version : une carte a un titre et une description, rien de plus.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer closing" id="contact" aria-labelledby="close-h">
+      <div class="wrap">
+        <div class="closing__cta close--type">
+          <div class="section-head">
+            <h2 id="close-h">Ton premier tableau partagé</h2>
+            <p>Il suffit d’une adresse e-mail et d’un mot de passe de 12 caractères.</p>
+          </div>
+          <a class="btn btn--primary btn--xl btn--wide" href="/register"
+            >Créer un compte<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true">
+              <path class="m-arrow__stem" d="M1 6h8" />
+              <path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5" /></svg
+          ></a>
+        </div>
+        <div class="closing__links">
+          <div class="grid">
+            <div class="span-4 stack-4">
+              <a class="nav__logo" href="#top"
+                ><span class="mark" data-mark="dots" aria-hidden="true"></span>Handle It</a
+              >
+              <p class="footer__lede">Des tableaux de tâches partagés, en direct.</p>
+            </div>
+            <div class="span-2 footer__col">
+              <h3>Aperçu</h3>
+              <ul>
+                <li><a href="#apercu">Tableaux</a></li>
+              </ul>
+            </div>
+            <div class="span-2 footer__col">
+              <h3>Fonctions</h3>
+              <ul>
+                <li><a href="#fonctions">Invitations</a></li>
+              </ul>
+            </div>
+            <div class="span-2 footer__col">
+              <h3>Clavier</h3>
+              <ul>
+                <li><a href="#clavier">Accessibilité</a></li>
+              </ul>
+            </div>
+            <div class="span-2 footer__col">
+              <h3>Questions</h3>
+              <ul>
+                <li><a href="#questions">Réponses</a></li>
+                <li><a href="/login">Se connecter</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer__legal">
+            <span>&copy; 2026 Handle It</span>
+            <div class="socials"></div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/decouvrir/assets/system.js"></script>
+    <script type="module" src="/decouvrir/assets/motion/motion.js"></script>
+    <script type="module" src="/decouvrir/assets/layout/layout.js"></script>
+  </body>
+</html>
