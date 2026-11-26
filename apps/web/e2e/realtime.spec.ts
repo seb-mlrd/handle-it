@@ -77,8 +77,7 @@ test.beforeEach(async ({ page, browser }) => {
 test.afterEach(() => guest.context().close());
 
 test('un déplacement apparaît chez l’autre en moins d’une seconde', async ({ page }) => {
-  await drag(guest, getCard(guest, 'un'), getCard(guest, 'quatre'), 0.2);
-  const droppedAt = Date.now();
+  const droppedAt = await drag(guest, getCard(guest, 'un'), getCard(guest, 'quatre'), 0.2);
   await expectOrder(page, ['A deux trois', 'B un quatre']);
   expect(Date.now() - droppedAt).toBeLessThan(MAX_DELAY_MILLISECONDS);
   await expectOrder(guest, ['A deux trois', 'B un quatre']);
