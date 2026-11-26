@@ -47,10 +47,17 @@ function createContext() {
     generate: () => `jeton-${++tokenCount}`,
     hash: (token: string) => `sha:${token}`,
   };
+  const sessionDisconnector = { disconnect: vi.fn() };
   const clock = { now: () => now };
-  const sessionService = new SessionService(sessionRepository, tokenService, clock);
+  const sessionService = new SessionService(
+    sessionRepository,
+    tokenService,
+    clock,
+    sessionDisconnector,
+  );
   return {
     passwordHasher,
+    sessionDisconnector,
     getUsers: () => users,
     getSessions: () => sessions,
     advanceDays: (days: number) => {
@@ -132,6 +139,7 @@ describe('AuthService.getCurrentUser et logOut', () => {
     const first = await context.authService.register(REQUEST);
     const second = await context.authService.logIn(REQUEST);
     await context.authService.logOut(first.token);
+    expect(context.sessionDisconnector.disconnect).toHaveBeenCalledExactlyOnceWith('sha:jeton-1');
     await expect(context.authService.getCurrentUser(first.token)).rejects.toThrow(
       UnauthenticatedError,
     );

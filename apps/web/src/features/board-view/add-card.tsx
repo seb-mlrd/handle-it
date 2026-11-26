@@ -29,7 +29,7 @@ export function AddCard({ boardId, column }: AddCardProps) {
       label="Nouvelle carte"
       fieldName="title"
       submitLabel="Ajouter"
-      resetOnSuccess
+      isSerial
       submit={createCard.mutateAsync}
       close={() => setIsOpen(false)}
     />

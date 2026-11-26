@@ -3,6 +3,7 @@ import type { BoardRequest } from '@handle-it/contracts';
 import { Board } from './board.entity.js';
 import type { BoardRepository } from './board.repository.js';
 import type { BoardAccessService } from './board-access.service.js';
+import type { BoardChanges } from './board-changes.js';
 import type { BoardWithRole } from './board-with-role.js';
 import { Membership } from './membership.entity.js';
 
@@ -11,6 +12,7 @@ export class BoardService {
   constructor(
     private readonly boardRepository: BoardRepository,
     private readonly boardAccessService: BoardAccessService,
+    private readonly boardChanges: BoardChanges,
   ) {}
 
   /** Crée un board dont l'utilisateur devient l'owner. */
@@ -29,12 +31,20 @@ export class BoardService {
   async rename(userId: string, boardId: string, request: BoardRequest): Promise<BoardWithRole> {
     const membership = await this.boardAccessService.authorize(userId, boardId, 'rename-board');
     const board = new Board(boardId, request.name);
-    await this.boardRepository.update(board);
-    return { board, role: membership.getRole() };
+    return this.boardChanges.run(boardId, async () => {
+      await this.boardRepository.update(board);
+      return {
+        result: { board, role: membership.getRole() },
+        event: { type: 'board-renamed', name: request.name },
+      };
+    });
   }
 
   async delete(userId: string, boardId: string): Promise<void> {
     await this.boardAccessService.authorize(userId, boardId, 'delete-board');
-    await this.boardRepository.delete(boardId);
+    await this.boardChanges.run(boardId, async () => {
+      await this.boardRepository.delete(boardId);
+      return { result: undefined, event: { type: 'board-deleted' } };
+    });
   }
 }

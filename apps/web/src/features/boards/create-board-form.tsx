@@ -10,7 +10,7 @@ export function CreateBoardForm() {
   const form = useSchemaForm({
     schema: boardRequestSchema,
     submit: createBoard.mutateAsync,
-    resetOnSuccess: true,
+    isSerial: true,
   });
   return (
     <form
@@ -30,9 +30,7 @@ export function CreateBoardForm() {
           />
         </div>
         <div className="flex flex-col sm:mt-6.5">
-          <Button type="submit" disabled={form.isPending}>
-            {form.isPending ? 'Création…' : 'Créer le tableau'}
-          </Button>
+          <Button type="submit">Créer le tableau</Button>
         </div>
       </div>
     </form>

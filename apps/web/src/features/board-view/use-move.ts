@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useBoardContentGateway } from './board-content-gateway-context';
 import { type Columns, describeCardMove, describeColumnMove } from './board-order';
 import type { DragItem } from './drag-item';
-import { getBoardKey } from '../boards/board-keys';
+import { getBoardKey, getMoveKey } from '../boards/board-keys';
 
 interface Move {
   readonly item: DragItem;
@@ -16,7 +16,7 @@ export function useMove(boardId: string) {
   const gateway = useBoardContentGateway();
   const queryClient = useQueryClient();
   const boardKey = getBoardKey(boardId);
-  const mutationKey = ['move', boardId];
+  const mutationKey = getMoveKey(boardId);
   const boardBeforeMoves = useRef<BoardViewResponse | undefined>(undefined);
   const isLastMove = () => queryClient.isMutating({ mutationKey }) === 1;
 

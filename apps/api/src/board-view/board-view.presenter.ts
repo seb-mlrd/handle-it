@@ -6,6 +6,7 @@ import type { BoardView } from './board-view.js';
 export function presentBoardView(view: BoardView): BoardViewResponse {
   return {
     ...presentBoard(view),
+    version: view.board.getVersion(),
     columns: view.columns.map(({ column, cards }) => ({
       ...presentColumn(column),
       cards: cards.map(({ id, title }) => ({ id, title })),

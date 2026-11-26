@@ -4,7 +4,11 @@ import { BoardAccessService } from '../board/board-access.service.js';
 import { BoardNotFoundError } from '../board/errors/board-not-found.error.js';
 import { Membership } from '../board/membership.entity.js';
 import { ColumnNotFoundError } from '../column/errors/column-not-found.error.js';
-import { createBoardRepository, createColumnRepository } from '../testing/repositories.js';
+import {
+  createBoardRepository,
+  createColumnRepository,
+  InMemoryBoardChanges,
+} from '../testing/repositories.js';
 import { RankConflictError } from '../shared/ranking/rank-conflict.error.js';
 import { RankPlacer } from '../shared/ranking/rank-placer.js';
 import { Rank } from '../shared/ranking/rank.value-object.js';
@@ -25,7 +29,13 @@ const cards = {
   delete: vi.fn(),
 };
 const access = new BoardAccessService(boards, new BoardAccessPolicy());
-const service = new CardService(cards, columns, access, new RankPlacer());
+const service = new CardService(
+  cards,
+  columns,
+  access,
+  new RankPlacer(),
+  new InMemoryBoardChanges(),
+);
 const request = { title: 'Pain' };
 
 beforeEach(() => {

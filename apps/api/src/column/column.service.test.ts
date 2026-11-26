@@ -7,7 +7,11 @@ import { RankConflictError } from '../shared/ranking/rank-conflict.error.js';
 import { RankPlacer } from '../shared/ranking/rank-placer.js';
 import { Rank } from '../shared/ranking/rank.value-object.js';
 import { ColumnService } from './column.service.js';
-import { createBoardRepository, createColumnRepository } from '../testing/repositories.js';
+import {
+  createBoardRepository,
+  createColumnRepository,
+  InMemoryBoardChanges,
+} from '../testing/repositories.js';
 
 const boards = createBoardRepository();
 const columns = createColumnRepository();
@@ -15,6 +19,7 @@ const service = new ColumnService(
   columns,
   new BoardAccessService(boards, new BoardAccessPolicy()),
   new RankPlacer(),
+  new InMemoryBoardChanges(),
 );
 const request = { name: 'À faire' };
 

@@ -1,12 +1,23 @@
 import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { useState } from 'react';
-import { type Columns, findColumnOfCard, isSameOrder, moveCard, moveColumn } from './board-order';
+import {
+  type Columns,
+  describeCardMove,
+  describeColumnMove,
+  findColumnOfCard,
+  isSameOrder,
+  moveCard,
+  moveColumn,
+  replayCardMove,
+  replayColumnMove,
+} from './board-order';
 import { type DragItem, getColumnId, readDragItem } from './drag-item';
 import { useMove } from './use-move';
 
 interface Draft {
   readonly item: DragItem;
   readonly columns: Columns;
+  readonly initialColumns: Columns;
 }
 
 /** État du board pendant un glisser-déposer. */
@@ -17,7 +28,7 @@ export function useBoardDrag(boardId: string, savedColumns: Columns) {
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     const item = readDragItem(active);
-    if (item) setDraft({ item, columns: savedColumns });
+    if (item) setDraft({ item, columns: savedColumns, initialColumns: savedColumns });
   };
 
   /** Seul le changement de colonne est appliqué en cours de route : la liste gère le reste. */
@@ -36,7 +47,9 @@ export function useBoardDrag(boardId: string, savedColumns: Columns) {
       draft.item.type === 'column'
         ? reorderColumn(draft, target)
         : (enterColumn(draft, event) ?? reorderCard(draft, target));
-    if (!isSameOrder(finalColumns, savedColumns)) move(draft.item, finalColumns);
+    if (isSameOrder(finalColumns, draft.initialColumns)) return;
+    const replayedColumns = replay(draft.item, finalColumns, savedColumns);
+    if (replayedColumns) move(draft.item, replayedColumns);
   };
 
   const cancelDrag = () => setDraft(null);
@@ -82,4 +95,13 @@ function reorderCard({ item, columns }: Draft, target: DragItem): Columns {
 function reorderColumn({ item, columns }: Draft, target: DragItem): Columns {
   const index = columns.findIndex(({ id }) => id === getColumnId(target));
   return moveColumn(columns, item.id, index);
+}
+
+/** Les modifications reçues pendant le geste sont conservées : le geste s'y rejoue. */
+function replay(item: DragItem, finalColumns: Columns, savedColumns: Columns): Columns | null {
+  if (item.type === 'column') {
+    return replayColumnMove(savedColumns, item.id, describeColumnMove(finalColumns, item.id));
+  }
+  const request = describeCardMove(finalColumns, item.id);
+  return request && replayCardMove(savedColumns, item.id, request);
 }

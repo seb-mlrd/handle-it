@@ -23,9 +23,15 @@ test('un board complet survit au rechargement', async ({ page }) => {
     await page.keyboard.press('Enter');
     await expect(page.getByRole('link', { name: title })).toBeVisible();
   }
+  // Saisie en rafale : rien ne doit se perdre ni se mélanger.
+  for (const title of ['Œufs', 'Sel', 'Riz']) {
+    await page.getByLabel('Nouvelle carte').fill(title);
+    await page.keyboard.press('Enter');
+  }
+  await expect(page.getByRole('link', { name: 'Riz' })).toBeVisible();
   await page.reload();
   const cards = page.getByRole('list', { name: 'Cartes de À faire' }).getByRole('link');
-  await expect(cards).toHaveText(['Pain', 'Lait']);
+  await expect(cards).toHaveText(['Pain', 'Lait', 'Œufs', 'Sel', 'Riz']);
   await expect(page.getByRole('heading', { level: 2 })).toHaveText(['À faire', 'Fait']);
 
   await page.getByRole('link', { name: 'Pain' }).click();
@@ -42,7 +48,7 @@ test('un board complet survit au rechargement', async ({ page }) => {
   await page.getByRole('button', { name: 'Supprimer la carte' }).click();
   await page.getByRole('button', { name: 'Supprimer', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await expect(cards).toHaveText(['Lait']);
+  await expect(cards).toHaveText(['Lait', 'Œufs', 'Sel', 'Riz']);
 
   await page.getByRole('button', { name: 'Renommer la colonne Fait' }).click();
   await page.getByLabel('Nom de la colonne').fill('Terminé');

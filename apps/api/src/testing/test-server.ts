@@ -33,6 +33,10 @@ export class TestServer {
     return new TestServer(application, await application.getUrl());
   }
 
+  getUrl(): string {
+    return this.baseUrl;
+  }
+
   getDatabase(): PrismaService {
     return this.application.get(PrismaService);
   }

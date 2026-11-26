@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { ApiError } from '../../shared/http/api-error';
 import { Button } from '../../shared/ui/button';
 import { LoadError } from '../../shared/ui/load-error';
 import { Modal } from '../../shared/ui/modal';
@@ -13,6 +14,7 @@ export function CardPanel() {
   const navigate = useNavigate();
   const [isDirty, setIsDirty] = useState(false);
   const { data: card, error, isFetching, refetch } = useCard(boardId, cardId);
+  const isDeleted = error instanceof ApiError && error.getCode() === 'NOT_FOUND';
   const close = () => void navigate(`/boards/${boardId}`);
   return (
     <Modal titleId={titleId} placement="side" isEscapeBlocked={isDirty} close={close}>
@@ -24,7 +26,9 @@ export function CardPanel() {
           {isDirty ? 'Fermer sans enregistrer' : 'Fermer'}
         </Button>
       </div>
-      {card ? (
+      {isDeleted ? (
+        <p role="alert">Cette carte a été supprimée.</p>
+      ) : card ? (
         <CardForm
           boardId={boardId}
           card={card}

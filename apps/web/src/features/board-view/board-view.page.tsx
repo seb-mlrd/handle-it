@@ -1,8 +1,8 @@
-import { Link, Outlet, useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { ApiError, type ApiErrorCode } from '../../shared/http/api-error';
 import { LoadError } from '../../shared/ui/load-error';
 import { AppHeader } from '../layout/app-header';
-import { BoardColumns } from './board-columns';
+import { BoardContent } from './board-content';
 import { useBoardView } from './use-board-content';
 
 // Une adresse mal formée est refusée comme invalide : pour l'utilisateur, c'est le même cas.
@@ -26,19 +26,7 @@ export function BoardViewPage() {
             Ce tableau n'existe pas, ou tu n'y as pas accès.
           </p>
         ) : board ? (
-          <>
-            <div className="flex flex-wrap items-center justify-between gap-4 px-6">
-              <h1 className="text-display font-bold wrap-anywhere">{board.name}</h1>
-              <Link
-                to={`/boards/${board.id}/members`}
-                className="flex h-11 items-center rounded-control border border-control bg-surface px-4 font-semibold hover:bg-canvas"
-              >
-                Membres
-              </Link>
-            </div>
-            <BoardColumns boardId={board.id} />
-            <Outlet />
-          </>
+          <BoardContent board={board} />
         ) : error ? (
           <div className="px-6">
             <LoadError error={error} isRetrying={isFetching} retry={refetch} />

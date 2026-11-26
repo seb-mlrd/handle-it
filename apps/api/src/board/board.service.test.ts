@@ -5,12 +5,13 @@ import { BoardService } from './board.service.js';
 import { BoardActionForbiddenError } from './errors/board-action-forbidden.error.js';
 import { BoardNotFoundError } from './errors/board-not-found.error.js';
 import { Membership } from './membership.entity.js';
-import { createBoardRepository } from '../testing/repositories.js';
+import { createBoardRepository, InMemoryBoardChanges } from '../testing/repositories.js';
 
 const repository = createBoardRepository();
 const service = new BoardService(
   repository,
   new BoardAccessService(repository, new BoardAccessPolicy()),
+  new InMemoryBoardChanges(),
 );
 
 beforeEach(() => {

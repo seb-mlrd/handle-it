@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BoardNotFoundError } from '../board/errors/board-not-found.error.js';
 import { isForeignKeyViolation, isUniqueViolation } from '../database/prisma-errors.js';
-import { PrismaService } from '../database/prisma.service.js';
+import { TransactionContext } from '../database/transaction-context.js';
 import type { Prisma } from '../generated/prisma/client.js';
 import { RankConflictError } from '../shared/ranking/rank-conflict.error.js';
 import { Rank } from '../shared/ranking/rank.value-object.js';
@@ -17,13 +17,13 @@ type ColumnRecord = Prisma.ColumnGetPayload<{ select: typeof COLUMN_FIELDS }>;
 
 @Injectable()
 export class PrismaColumnRepository extends ColumnRepository {
-  constructor(@Inject(PrismaService) private readonly prismaService: PrismaService) {
+  constructor(@Inject(TransactionContext) private readonly transactionContext: TransactionContext) {
     super();
   }
 
   override async add(column: Column): Promise<void> {
     try {
-      await this.prismaService.column.create({
+      await this.transactionContext.getClient().column.create({
         data: {
           id: column.getId(),
           boardId: column.getBoardId(),
@@ -40,11 +40,15 @@ export class PrismaColumnRepository extends ColumnRepository {
   }
 
   override async exists(boardId: string, columnId: string): Promise<boolean> {
-    return (await this.prismaService.column.count({ where: { id: columnId, boardId } })) > 0;
+    return (
+      (await this.transactionContext
+        .getClient()
+        .column.count({ where: { id: columnId, boardId } })) > 0
+    );
   }
 
   override async findAllByBoard(boardId: string): Promise<Column[]> {
-    const records = await this.prismaService.column.findMany({
+    const records = await this.transactionContext.getClient().column.findMany({
       where: { boardId },
       orderBy: { rank: 'asc' },
       select: COLUMN_FIELDS,
@@ -54,11 +58,11 @@ export class PrismaColumnRepository extends ColumnRepository {
 
   override async areOnBoard(boardId: string, columnIds: readonly string[]): Promise<boolean> {
     const where = { id: { in: [...columnIds] }, boardId };
-    return (await this.prismaService.column.count({ where })) === columnIds.length;
+    return (await this.transactionContext.getClient().column.count({ where })) === columnIds.length;
   }
 
   override getList(boardId: string): RankedList {
-    return new PrismaColumnList(this.prismaService, boardId);
+    return new PrismaColumnList(this.transactionContext, boardId);
   }
 
   override async move(boardId: string, columnId: string, rank: Rank): Promise<void> {
@@ -69,7 +73,7 @@ export class PrismaColumnRepository extends ColumnRepository {
   }
 
   override async findLastRank(boardId: string): Promise<Rank | null> {
-    const record = await this.prismaService.column.findFirst({
+    const record = await this.transactionContext.getClient().column.findFirst({
       where: { boardId },
       orderBy: { rank: 'desc' },
       select: { rank: true },
@@ -78,7 +82,7 @@ export class PrismaColumnRepository extends ColumnRepository {
   }
 
   override async rename(boardId: string, columnId: string, name: string): Promise<Column> {
-    const [record] = await this.prismaService.column.updateManyAndReturn({
+    const [record] = await this.transactionContext.getClient().column.updateManyAndReturn({
       where: { id: columnId, boardId },
       data: { name },
       select: COLUMN_FIELDS,
@@ -90,7 +94,7 @@ export class PrismaColumnRepository extends ColumnRepository {
   }
 
   override async delete(boardId: string, columnId: string): Promise<void> {
-    const { count } = await this.prismaService.column.deleteMany({
+    const { count } = await this.transactionContext.getClient().column.deleteMany({
       where: { id: columnId, boardId },
     });
     if (count === 0) {
@@ -100,7 +104,7 @@ export class PrismaColumnRepository extends ColumnRepository {
 
   private async updateRank(boardId: string, columnId: string, rank: Rank) {
     try {
-      return await this.prismaService.column.updateMany({
+      return await this.transactionContext.getClient().column.updateMany({
         where: { id: columnId, boardId },
         data: { rank: rank.getValue() },
       });

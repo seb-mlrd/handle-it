@@ -9,6 +9,7 @@ export abstract class BoardRepository {
   abstract findAllByUser(userId: string): Promise<BoardWithRole[]>;
   abstract findById(boardId: string): Promise<Board | null>;
   abstract findMembership(boardId: string, userId: string): Promise<Membership | null>;
+  abstract addMember(membership: Membership): Promise<void>;
   /** Lève `BoardNotFoundError` si le board a disparu. */
   abstract update(board: Board): Promise<void>;
   abstract delete(boardId: string): Promise<void>;

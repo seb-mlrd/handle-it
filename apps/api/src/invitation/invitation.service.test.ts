@@ -4,7 +4,7 @@ import { BoardAccessPolicy } from '../board/board-access-policy.js';
 import { BoardAccessService } from '../board/board-access.service.js';
 import { BoardActionForbiddenError } from '../board/errors/board-action-forbidden.error.js';
 import { Membership } from '../board/membership.entity.js';
-import { createBoardRepository } from '../testing/repositories.js';
+import { createBoardRepository, InMemoryBoardChanges } from '../testing/repositories.js';
 import { InvitationInvalidError } from './errors/invitation-invalid.error.js';
 import { Invitation } from './invitation.entity.js';
 import { InvitationService } from './invitation.service.js';
@@ -18,7 +18,7 @@ const invitations = {
   add: vi.fn(),
   findByTokenHash: vi.fn(),
   findActiveByBoard: vi.fn(),
-  accept: vi.fn(),
+  consume: vi.fn(),
   deleteExpired: vi.fn(),
 };
 const tokens = { generate: () => 'jeton', hash: (token: string) => `sha:${token}` };
@@ -28,6 +28,7 @@ const service = new InvitationService(
   new BoardAccessService(boards, new BoardAccessPolicy()),
   tokens,
   { now: () => NOW },
+  new InMemoryBoardChanges(),
 );
 const valid = new Invitation('invitation', 'board', 'sha:jeton', inDays(1));
 
@@ -69,14 +70,15 @@ describe('côté invité', () => {
     const { role } = await service.accept('bob', 'jeton');
     expect(role).toBe('member');
     const member = new Membership('board', 'bob', 'member');
-    expect(invitations.accept).toHaveBeenCalledWith(valid, member);
+    expect(invitations.consume).toHaveBeenCalledWith(valid);
+    expect(boards.addMember).toHaveBeenCalledWith(member);
   });
 
   it('ne consomme rien et ne rétrograde pas un owner qui ouvre son propre lien', async () => {
     invitations.findByTokenHash.mockResolvedValue(valid);
     boards.findMembership.mockResolvedValue(new Membership('board', 'ada', 'owner'));
     expect((await service.accept('ada', 'jeton')).role).toBe('owner');
-    expect(invitations.accept).not.toHaveBeenCalled();
+    expect(invitations.consume).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -86,7 +88,7 @@ describe('côté invité', () => {
     invitations.findByTokenHash.mockResolvedValue(invitation);
     await expect(service.preview('jeton')).rejects.toThrow(InvitationInvalidError);
     await expect(service.accept('bob', 'jeton')).rejects.toThrow(InvitationInvalidError);
-    expect(invitations.accept).not.toHaveBeenCalled();
+    expect(invitations.consume).not.toHaveBeenCalled();
   });
 
   it('refuse une invitation dont le board a disparu', async () => {

@@ -7,8 +7,8 @@ import { getErrorMessage } from '../http/error-message';
 interface SchemaFormOptions<Input> {
   readonly schema: z.ZodType<Input>;
   readonly submit: (input: Input) => Promise<unknown>;
-  /** Vide le formulaire après un envoi réussi. */
-  readonly resetOnSuccess?: boolean;
+  /** Ajouts en série : le champ se vide à l'envoi, sans attendre la réponse pour le suivant. */
+  readonly isSerial?: boolean;
   /** Codes d'erreur à afficher sous un champ plutôt qu'en tête du formulaire. */
   readonly fieldByErrorCode?: Partial<Record<ApiErrorCode, string>>;
 }
@@ -38,21 +38,42 @@ export function useSchemaForm<Input>(options: SchemaFormOptions<Input>) {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isPending) return;
+    if (isPending && !options.isSerial) return;
     setFormError(null);
-    const result = options.schema.safeParse(Object.fromEntries(new FormData(event.currentTarget)));
+    const values = Object.fromEntries(new FormData(event.currentTarget));
+    const result = options.schema.safeParse(values);
     setFieldErrors(result.success ? {} : groupFieldErrors(result.error));
     if (!result.success) return;
+    if (options.isSerial) event.currentTarget.reset();
     setIsPending(true);
     try {
       await options.submit(result.data);
-      if (options.resetOnSuccess) formReference.current?.reset();
     } catch (error) {
       showFailure(error);
+      if (options.isSerial) restoreEmptyFields(formReference.current, values);
     } finally {
       setIsPending(false);
     }
   };
 
-  return { formReference, fieldErrors, formError, isPending, handleSubmit };
+  return {
+    formReference,
+    fieldErrors,
+    formError,
+    isPending: isPending && !options.isSerial,
+    handleSubmit,
+  };
+}
+
+/** Rend une saisie refusée, sauf si l'utilisateur a déjà commencé la suivante. */
+function restoreEmptyFields(
+  form: HTMLFormElement | null,
+  values: Record<string, FormDataEntryValue>,
+): void {
+  for (const [name, value] of Object.entries(values)) {
+    const field = form?.elements.namedItem(name);
+    if (field instanceof HTMLInputElement && field.value === '' && typeof value === 'string') {
+      field.value = value;
+    }
+  }
 }

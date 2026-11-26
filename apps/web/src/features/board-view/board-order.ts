@@ -52,6 +52,46 @@ export function isSameOrder(first: Columns, second: Columns): boolean {
   return serialize(first) === serialize(second);
 }
 
+/**
+ * Rejoue un déplacement de carte sur un board qui a changé entre-temps ; `null` si la carte ou la
+ * colonne d'arrivée a disparu.
+ */
+export function replayCardMove(
+  columns: Columns,
+  cardId: string,
+  request: MoveCardRequest,
+): ColumnViewResponse[] | null {
+  const target = columns.find(({ id }) => id === request.columnId);
+  if (!target || !findColumnOfCard(columns, cardId)) return null;
+  const index = findReplayIndex(target.cards, cardId, request.previousCardId, request.nextCardId);
+  return moveCard(columns, cardId, target.id, index);
+}
+
+/** Rejoue un déplacement de colonne sur un board qui a changé ; `null` si elle a disparu. */
+export function replayColumnMove(
+  columns: Columns,
+  columnId: string,
+  request: MoveColumnRequest,
+): ColumnViewResponse[] | null {
+  if (!columns.some(({ id }) => id === columnId)) return null;
+  const index = findReplayIndex(columns, columnId, request.previousColumnId, request.nextColumnId);
+  return moveColumn(columns, columnId, index);
+}
+
+/** Même règle que l'API : après le précédent, sinon avant le suivant, sinon à la fin. */
+function findReplayIndex(
+  items: readonly { readonly id: string }[],
+  movedId: string,
+  previousId: string | null,
+  nextId: string | null,
+): number {
+  const others = items.filter(({ id }) => id !== movedId);
+  const previousIndex = others.findIndex(({ id }) => id === previousId);
+  if (previousIndex !== -1) return previousIndex + 1;
+  const nextIndex = others.findIndex(({ id }) => id === nextId);
+  return nextIndex === -1 ? others.length : nextIndex;
+}
+
 /** Décrit à l'API la place d'une carte par ses voisines. */
 export function describeCardMove(columns: Columns, cardId: string): MoveCardRequest | null {
   const column = findColumnOfCard(columns, cardId);

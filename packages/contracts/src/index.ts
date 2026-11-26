@@ -68,3 +68,17 @@ export {
   type CreateInvitationRequest,
   type InvitationDuration,
 } from './invitation/dto/create-invitation-request.dto.js';
+export {
+  boardEventEnvelopeSchema,
+  type BoardEvent,
+  type BoardEventEnvelope,
+} from './realtime/dto/board-event.dto.js';
+export {
+  boardAccessLostSchema,
+  joinBoardRequestSchema,
+  joinBoardResponseSchema,
+  type BoardAccessLost,
+  type JoinBoardRequest,
+  type JoinBoardResponse,
+} from './realtime/dto/join-board.dto.js';
+export { REALTIME_MESSAGES, REALTIME_PATH } from './realtime/realtime-protocol.js';

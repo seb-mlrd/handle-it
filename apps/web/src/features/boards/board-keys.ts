@@ -2,3 +2,11 @@
 export const BOARDS_KEY = ['boards'];
 
 export const getBoardKey = (boardId: string) => [...BOARDS_KEY, boardId];
+
+export const getCardKey = (boardId: string, cardId: string) => [
+  ...getBoardKey(boardId),
+  'cards',
+  cardId,
+];
+
+export const getMoveKey = (boardId: string) => ['move', boardId];

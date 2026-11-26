@@ -1,4 +1,5 @@
 import type { BoardAccessService } from '../board/board-access.service.js';
+import type { BoardChanges } from '../board/board-changes.js';
 import type { BoardRepository } from '../board/board.repository.js';
 import { BoardNotFoundError } from '../board/errors/board-not-found.error.js';
 import type { CardRepository } from '../card/card.repository.js';
@@ -12,16 +13,20 @@ export class BoardViewService {
     private readonly columnRepository: ColumnRepository,
     private readonly cardRepository: CardRepository,
     private readonly boardAccessService: BoardAccessService,
+    private readonly boardChanges: BoardChanges,
   ) {}
 
   /** Renvoie le contenu du board si l'utilisateur en est membre. */
   async get(userId: string, boardId: string): Promise<BoardView> {
     const membership = await this.boardAccessService.authorize(userId, boardId, 'view-board');
-    const [board, columns, cards] = await Promise.all([
-      this.boardRepository.findById(boardId),
-      this.columnRepository.findAllByBoard(boardId),
-      this.cardRepository.findSummariesByBoard(boardId),
-    ]);
+    // Un même état pour tout : la version doit correspondre exactement au contenu.
+    const [board, columns, cards] = await this.boardChanges.readConsistently(() =>
+      Promise.all([
+        this.boardRepository.findById(boardId),
+        this.columnRepository.findAllByBoard(boardId),
+        this.cardRepository.findSummariesByBoard(boardId),
+      ]),
+    );
     if (!board) {
       throw new BoardNotFoundError();
     }

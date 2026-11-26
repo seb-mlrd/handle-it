@@ -9,6 +9,8 @@ import { HealthModule } from './health/health.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { InvitationModule } from './invitation/invitation.module.js';
 import { MemberModule } from './member/member.module.js';
+import { RealtimeTransportModule } from './realtime/realtime-transport.module.js';
+import { RealtimeModule } from './realtime/realtime.module.js';
 import { SharedModule } from './shared/shared.module.js';
 import { HttpModule } from './shared/http/http.module.js';
 
@@ -18,6 +20,8 @@ import { HttpModule } from './shared/http/http.module.js';
     DatabaseModule,
     HttpModule,
     SharedModule,
+    RealtimeTransportModule,
+    RealtimeModule,
     MemberModule,
     InvitationModule,
     AuthModule,

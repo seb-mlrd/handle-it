@@ -6,6 +6,8 @@ import {
   isSameOrder,
   moveCard,
   moveColumn,
+  replayCardMove,
+  replayColumnMove,
 } from './board-order';
 
 const createColumn = (id: string, cardIds: string) => ({
@@ -61,4 +63,34 @@ it('isSameOrder ignore tout sauf l’ordre', () => {
   const renamed = COLUMNS.map((column) => ({ ...column, name: 'autre' }));
   expect(isSameOrder(COLUMNS, renamed)).toBe(true);
   expect(isSameOrder(COLUMNS, moveCard(COLUMNS, '1', 'C', 0))).toBe(false);
+});
+
+describe('rejouer après un changement', () => {
+  const replay = (previousCardId: string | null, nextCardId: string | null, columnId = 'A') => {
+    const columns = replayCardMove(COLUMNS, '4', { columnId, previousCardId, nextCardId });
+    return columns && read(columns);
+  };
+
+  it.each([
+    ['1', '2', 'A1423 B C'],
+    ['disparue', '2', 'A1423 B C'],
+    ['1', 'disparue', 'A1423 B C'],
+    ['disparue', 'perdue', 'A1234 B C'],
+    [null, '1', 'A4123 B C'],
+  ])('place la carte entre %s et %s', (previousId, nextId, expected) => {
+    expect(replay(previousId, nextId)).toBe(expected);
+  });
+
+  it('abandonne si la carte ou la colonne a disparu', () => {
+    expect(replay(null, null, 'disparue')).toBeNull();
+    const request = { columnId: 'A', previousCardId: null, nextCardId: null };
+    expect(replayCardMove(COLUMNS, 'disparue', request)).toBeNull();
+    const columnRequest = { previousColumnId: null, nextColumnId: null };
+    expect(replayColumnMove(COLUMNS, 'disparue', columnRequest)).toBeNull();
+  });
+
+  it('place une colonne', () => {
+    const request = { previousColumnId: 'disparue', nextColumnId: 'A' };
+    expect(read(replayColumnMove(COLUMNS, 'C', request) ?? [])).toBe('C A123 B4');
+  });
 });

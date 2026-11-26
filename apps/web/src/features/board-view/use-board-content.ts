@@ -1,9 +1,7 @@
 import type { ColumnRequest, CreateCardRequest, UpdateCardRequest } from '@handle-it/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getBoardKey } from '../boards/board-keys';
+import { getBoardKey, getCardKey } from '../boards/board-keys';
 import { useBoardContentGateway } from './board-content-gateway-context';
-
-const getCardKey = (boardId: string, cardId: string) => [...getBoardKey(boardId), 'cards', cardId];
 
 export function useBoardView(boardId: string) {
   const gateway = useBoardContentGateway();
@@ -47,24 +45,36 @@ export function useCreateCard(boardId: string, columnId: string) {
 export function useUpdateCard(boardId: string, cardId: string) {
   const gateway = useBoardContentGateway();
   const queryClient = useQueryClient();
-  return useContentMutation(boardId, async (request: UpdateCardRequest) => {
-    const card = await gateway.updateCard(boardId, cardId, request);
-    queryClient.setQueryData(getCardKey(boardId, cardId), card);
-  });
+  return useContentMutation(
+    boardId,
+    async (request: UpdateCardRequest) => {
+      const card = await gateway.updateCard(boardId, cardId, request);
+      queryClient.setQueryData(getCardKey(boardId, cardId), card);
+    },
+    getCardKey(boardId, cardId),
+  );
 }
 
 export function useDeleteCard(boardId: string, cardId: string) {
   const gateway = useBoardContentGateway();
-  return useContentMutation(boardId, () => gateway.deleteCard(boardId, cardId));
+  return useContentMutation(
+    boardId,
+    () => gateway.deleteCard(boardId, cardId),
+    getCardKey(boardId, cardId),
+  );
 }
 
 /** Écriture suivie d'une relecture du board, même en cas d'échec : il a pu changer ailleurs. */
 function useContentMutation<Input, Output>(
   boardId: string,
   mutationFn: (input: Input) => Promise<Output>,
+  mutationKey: string[] = getBoardKey(boardId),
 ) {
   const queryClient = useQueryClient();
   return useMutation({
+    mutationKey,
+    // Les écritures d'un même contenu partent dans l'ordre de saisie.
+    scope: { id: mutationKey.join('/') },
     mutationFn,
     // Seul le board est relu : relire une carte supprimée produirait une erreur inutile.
     onSettled: () => queryClient.invalidateQueries({ queryKey: getBoardKey(boardId), exact: true }),

@@ -4,12 +4,15 @@ import { BoardRepository } from './board.repository.js';
 import { BoardService } from './board.service.js';
 import { BoardAccessService } from './board-access.service.js';
 import { BoardAccessPolicy } from './board-access-policy.js';
+import { BoardChanges } from './board-changes.js';
+import { PrismaBoardChanges } from './prisma-board-changes.js';
 import { PrismaBoardRepository } from './prisma-board.repository.js';
 
 @Module({
   controllers: [BoardController],
   providers: [
     { provide: BoardRepository, useClass: PrismaBoardRepository },
+    { provide: BoardChanges, useClass: PrismaBoardChanges },
     { provide: BoardAccessPolicy, useFactory: () => new BoardAccessPolicy() },
     {
       provide: BoardAccessService,
@@ -21,9 +24,9 @@ import { PrismaBoardRepository } from './prisma-board.repository.js';
       provide: BoardService,
       useFactory: (...dependencies: ConstructorParameters<typeof BoardService>) =>
         new BoardService(...dependencies),
-      inject: [BoardRepository, BoardAccessService],
+      inject: [BoardRepository, BoardAccessService, BoardChanges],
     },
   ],
-  exports: [BoardRepository, BoardAccessService],
+  exports: [BoardRepository, BoardAccessService, BoardChanges],
 })
 export class BoardModule {}

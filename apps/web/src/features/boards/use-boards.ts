@@ -28,6 +28,8 @@ export function useDeleteBoard(boardId: string) {
 function useBoardMutation<Input, Output>(mutationFn: (input: Input) => Promise<Output>) {
   const queryClient = useQueryClient();
   return useMutation({
+    // Les écritures partent dans l'ordre de saisie.
+    scope: { id: BOARDS_KEY.join('/') },
     mutationFn,
     onSettled: () => queryClient.invalidateQueries({ queryKey: BOARDS_KEY }),
   });

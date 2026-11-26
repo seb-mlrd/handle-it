@@ -1,13 +1,15 @@
 import { randomUUID } from 'node:crypto';
-import type { CreateInvitationRequest, InvitationDuration } from '@handle-it/contracts';
+import type { BoardRole, CreateInvitationRequest, InvitationDuration } from '@handle-it/contracts';
 import type { Board } from '../board/board.entity.js';
 import type { BoardAccessService } from '../board/board-access.service.js';
 import type { BoardRepository } from '../board/board.repository.js';
+import type { BoardChanges } from '../board/board-changes.js';
 import type { BoardWithRole } from '../board/board-with-role.js';
 import { Membership } from '../board/membership.entity.js';
 import type { TokenService } from '../shared/security/token.service.js';
 import type { Clock } from '../shared/time/clock.js';
 import type { CreatedInvitation } from './created-invitation.js';
+import { AlreadyMemberError } from './errors/already-member.error.js';
 import { InvitationInvalidError } from './errors/invitation-invalid.error.js';
 import { Invitation } from './invitation.entity.js';
 import type { InvitationRepository } from './invitation.repository.js';
@@ -29,6 +31,7 @@ export class InvitationService {
     private readonly boardAccessService: BoardAccessService,
     private readonly tokenService: TokenService,
     private readonly clock: Clock,
+    private readonly boardChanges: BoardChanges,
   ) {}
 
   /** Crée un lien à usage unique et renvoie son jeton. */
@@ -65,12 +68,32 @@ export class InvitationService {
     const invitation = await this.findValid(token);
     const board = await this.findBoard(invitation);
     const current = await this.boardRepository.findMembership(board.getId(), userId);
-    if (current) {
-      return { board, role: current.getRole() };
+    return current
+      ? { board, role: current.getRole() }
+      : { board, role: await this.admit(invitation, userId) };
+  }
+
+  private async admit(invitation: Invitation, userId: string): Promise<BoardRole> {
+    const boardId = invitation.getBoardId();
+    const member = new Membership(boardId, userId, 'member');
+    try {
+      await this.boardChanges.run(boardId, async () => {
+        await this.assertNotMember(boardId, userId);
+        await this.invitationRepository.consume(invitation);
+        await this.boardRepository.addMember(member);
+        return { result: undefined, event: { type: 'members-changed' } };
+      });
+    } catch (error) {
+      // Entré entre-temps par un autre lien : la modification annulée laisse celui-ci utilisable.
+      if (!(error instanceof AlreadyMemberError)) throw error;
     }
-    const member = new Membership(board.getId(), userId, 'member');
-    await this.invitationRepository.accept(invitation, member);
-    return { board, role: member.getRole() };
+    return member.getRole();
+  }
+
+  private async assertNotMember(boardId: string, userId: string): Promise<void> {
+    if (await this.boardRepository.findMembership(boardId, userId)) {
+      throw new AlreadyMemberError();
+    }
   }
 
   private async findValid(token: string): Promise<Invitation> {

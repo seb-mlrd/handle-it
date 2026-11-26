@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BoardAccessService } from '../board/board-access.service.js';
+import { BoardChanges } from '../board/board-changes.js';
+import { BoardEventPublisher } from '../board/board-event.publisher.js';
 import { BoardModule } from '../board/board.module.js';
 import { MemberController } from './member.controller.js';
 import { MemberRepository } from './member.repository.js';
@@ -15,7 +17,7 @@ import { PrismaMemberRepository } from './prisma-member.repository.js';
       provide: MemberService,
       useFactory: (...dependencies: ConstructorParameters<typeof MemberService>) =>
         new MemberService(...dependencies),
-      inject: [MemberRepository, BoardAccessService],
+      inject: [MemberRepository, BoardAccessService, BoardChanges, BoardEventPublisher],
     },
   ],
 })

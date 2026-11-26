@@ -11,6 +11,7 @@ export type ColumnViewResponse = z.infer<typeof columnViewResponseSchema>;
 
 /** Board complet : colonnes et cartes dans leur ordre d'affichage. */
 export const boardViewResponseSchema = boardResponseSchema.extend({
+  version: z.int(),
   columns: z.array(columnViewResponseSchema),
 });
 

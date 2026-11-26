@@ -32,6 +32,11 @@ class InMemoryList extends RankedList {
     return found?.[1] ?? null;
   }
 
+  override async findPreviousId(rank: Rank, movedId: string) {
+    const found = this.sort(movedId).findLast(([, other]) => other.getValue() < rank.getValue());
+    return found?.[0] ?? null;
+  }
+
   override async findLastRank(movedId: string) {
     return this.sort(movedId).at(-1)?.[1] ?? null;
   }

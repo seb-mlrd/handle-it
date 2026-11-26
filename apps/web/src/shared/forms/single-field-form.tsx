@@ -10,8 +10,8 @@ interface SingleFieldFormProps<Input> {
   readonly fieldName: string;
   readonly submitLabel: string;
   readonly defaultValue?: string;
-  /** Sert aux ajouts en série : le champ se vide et reste ouvert. */
-  readonly resetOnSuccess?: boolean;
+  /** Ajouts en série : le champ se vide et reste ouvert. */
+  readonly isSerial?: boolean;
   readonly submit: (input: Input) => Promise<unknown>;
   readonly close: () => void;
 }
@@ -21,7 +21,7 @@ export function SingleFieldForm<Input>(props: SingleFieldFormProps<Input>) {
   const form = useSchemaForm({
     schema: props.schema,
     submit: props.submit,
-    resetOnSuccess: props.resetOnSuccess ?? false,
+    isSerial: props.isSerial ?? false,
   });
   return (
     <form

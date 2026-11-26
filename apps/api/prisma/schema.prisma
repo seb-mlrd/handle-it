@@ -40,6 +40,7 @@ enum BoardRole {
 model Board {
   id          String       @id @db.Uuid
   name        String
+  version     Int          @default(0)
   createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   memberships Membership[]
   columns     Column[]

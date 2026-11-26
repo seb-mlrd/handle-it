@@ -47,8 +47,8 @@ export class AuthService {
 
   /** Retrouve l'utilisateur à partir de son jeton de session. */
   async getCurrentUser(token: string): Promise<User> {
-    const userId = await this.sessionService.findUserId(token);
-    const user = userId && (await this.userRepository.findById(userId));
+    const session = await this.sessionService.find(token);
+    const user = session && (await this.userRepository.findById(session.getUserId()));
     if (!user) {
       throw new UnauthenticatedError();
     }

@@ -1,4 +1,5 @@
 import type { Clock } from '../shared/time/clock.js';
+import type { SessionDisconnector } from './session-disconnector.js';
 import { Session } from './session.entity.js';
 import type { SessionRepository } from './session.repository.js';
 import type { TokenService } from '../shared/security/token.service.js';
@@ -17,6 +18,7 @@ export class SessionService {
     private readonly sessionRepository: SessionRepository,
     private readonly tokenService: TokenService,
     private readonly clock: Clock,
+    private readonly sessionDisconnector: SessionDisconnector,
   ) {}
 
   /** Ouvre une session et renvoie son jeton. */
@@ -31,15 +33,17 @@ export class SessionService {
     return { token, expiresAt };
   }
 
-  /** Renvoie le propriétaire d'une session valide, ou `null`. */
-  async findUserId(token: string): Promise<string | null> {
+  /** Renvoie une session valide, ou `null`. */
+  async find(token: string): Promise<Session | null> {
     const tokenHash = this.tokenService.hash(token);
     const session = await this.sessionRepository.findByTokenHash(tokenHash);
-    return session && !session.isExpired(this.clock.now()) ? session.getUserId() : null;
+    return session && !session.isExpired(this.clock.now()) ? session : null;
   }
 
-  /** Révoque la session ; sans effet si elle n'existe plus. */
+  /** Révoque la session et coupe ses connexions ; sans effet si elle n'existe plus. */
   async revoke(token: string): Promise<void> {
-    await this.sessionRepository.deleteByTokenHash(this.tokenService.hash(token));
+    const tokenHash = this.tokenService.hash(token);
+    await this.sessionRepository.deleteByTokenHash(tokenHash);
+    this.sessionDisconnector.disconnect(tokenHash);
   }
 }

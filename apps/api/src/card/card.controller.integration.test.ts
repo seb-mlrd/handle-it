@@ -49,6 +49,7 @@ describe('vue du board', () => {
       id: expect.any(String),
       name: 'Maison',
       role: 'owner',
+      version: 4,
       columns: [
         {
           id: expect.any(String),

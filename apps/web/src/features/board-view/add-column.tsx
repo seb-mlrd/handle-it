@@ -24,7 +24,7 @@ export function AddColumn({ boardId, isFirst }: AddColumnProps) {
             label="Nouvelle colonne"
             fieldName="name"
             submitLabel="Ajouter"
-            resetOnSuccess
+            isSerial
             submit={createColumn.mutateAsync}
             close={() => setIsOpen(false)}
           />

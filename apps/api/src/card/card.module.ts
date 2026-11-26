@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { RankPlacer } from '../shared/ranking/rank-placer.js';
+import { BoardChanges } from '../board/board-changes.js';
 import { BoardAccessService } from '../board/board-access.service.js';
 import { BoardModule } from '../board/board.module.js';
 import { ColumnModule } from '../column/column.module.js';
@@ -19,7 +20,7 @@ import { PrismaCardRepository } from './prisma-card.repository.js';
       provide: CardService,
       useFactory: (...dependencies: ConstructorParameters<typeof CardService>) =>
         new CardService(...dependencies),
-      inject: [CardRepository, ColumnRepository, BoardAccessService, RankPlacer],
+      inject: [CardRepository, ColumnRepository, BoardAccessService, RankPlacer, BoardChanges],
     },
   ],
   exports: [CardRepository],

@@ -38,5 +38,6 @@ const ATTEMPTS_WINDOW_MILLISECONDS = 15 * 60 * 1000;
     SessionCookie,
     { provide: APP_GUARD, useClass: AuthGuard },
   ],
+  exports: [SessionCookie],
 })
 export class AuthModule {}
