@@ -56,8 +56,8 @@ describe('vue du board', () => {
           id: expect.any(String),
           name: 'À faire',
           cards: [
-            { id: expect.any(String), title: 'Pain', dueOn: null, labelIds: [] },
-            { id: expect.any(String), title: 'Lait', dueOn: null, labelIds: [] },
+            { id: expect.any(String), title: 'Pain', dueOn: null, labelIds: [], commentCount: 0 },
+            { id: expect.any(String), title: 'Lait', dueOn: null, labelIds: [], commentCount: 0 },
           ],
         },
         { id: expect.any(String), name: 'Fait', cards: [] },

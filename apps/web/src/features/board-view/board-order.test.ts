@@ -18,6 +18,7 @@ const createColumn = (id: string, cardIds: string) => ({
     title: cardId,
     dueOn: null,
     labelIds: [] as string[],
+    commentCount: 0,
   })),
 });
 const COLUMNS = [createColumn('A', '123'), createColumn('B', '4'), createColumn('C', '')];

@@ -6,6 +6,7 @@ import { ColumnModule } from './column/column.module.js';
 import { EnvironmentModule } from './config/environment.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { LabelModule } from './label/label.module.js';
+import { CommentModule } from './comment/comment.module.js';
 import { HealthModule } from './health/health.module.js';
 import { ActivityModule } from './activity/activity.module.js';
 import { AuthModule } from './auth/auth.module.js';
@@ -33,6 +34,7 @@ import { HttpModule } from './shared/http/http.module.js';
     BoardViewModule,
     ActivityModule,
     LabelModule,
+    CommentModule,
     HealthModule,
   ],
 })

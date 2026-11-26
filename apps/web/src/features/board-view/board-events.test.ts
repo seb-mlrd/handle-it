@@ -10,6 +10,7 @@ const createColumn = (id: string, cardIds: string) => ({
     title: cardId,
     dueOn: null,
     labelIds: [] as string[],
+    commentCount: 0,
   })),
 });
 const BOARD: BoardViewResponse = {
@@ -85,18 +86,28 @@ describe('labels', () => {
       title: 'Pain',
       dueOn: '2026-12-01',
       labelIds: ['urgent', 'calme'],
+      commentCount: 0,
     });
     const deleted = applyBoardEvent(updated, 7, { type: 'label-deleted', labelId: 'urgent' });
     expect(deleted.labels.map(({ id }) => id)).toEqual(['calme']);
     expect(deleted.columns[0]?.cards[0]?.labelIds).toEqual(['calme']);
   });
 
-  it('crée une carte sans label', () => {
+  it('crée une carte sans label ni commentaire', () => {
     const board = applyBoardEvent(BOARD, 4, {
       type: 'card-created',
       columnId: 'C',
       card: { id: '5', title: '5', dueOn: null },
     });
-    expect(board.columns[2]?.cards[0]?.labelIds).toEqual([]);
+    expect(board.columns[2]?.cards[0]).toMatchObject({ labelIds: [], commentCount: 0 });
+  });
+
+  it('met à jour le nombre de commentaires de la seule carte concernée', () => {
+    const board = applyBoardEvent(BOARD, 4, {
+      type: 'card-comments-changed',
+      cardId: '2',
+      commentCount: 3,
+    });
+    expect(board.columns[0]?.cards.map(({ commentCount }) => commentCount)).toEqual([0, 3, 0]);
   });
 });

@@ -30,6 +30,12 @@ import { PrismaBoardRepository } from './prisma-board.repository.js';
       inject: [BoardRepository, BoardAccessService, BoardChanges],
     },
   ],
-  exports: [BoardRepository, BoardAccessService, BoardChanges, ActivityRepository],
+  exports: [
+    BoardRepository,
+    BoardAccessService,
+    BoardAccessPolicy,
+    BoardChanges,
+    ActivityRepository,
+  ],
 })
 export class BoardModule {}

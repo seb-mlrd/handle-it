@@ -1,6 +1,12 @@
 import type { BoardEvent, BoardEventEnvelope, BoardViewResponse } from '@handle-it/contracts';
 import type { QueryClient } from '@tanstack/react-query';
-import { BOARDS_KEY, getBoardKey, getCardKey, getMoveKey } from '../boards/board-keys';
+import {
+  BOARDS_KEY,
+  getBoardKey,
+  getCardKey,
+  getCommentsKey,
+  getMoveKey,
+} from '../boards/board-keys';
 import { applyBoardEvent, decideOnVersion } from './board-events';
 
 /** Tient le board en cache à jour à partir des événements reçus. */
@@ -72,6 +78,12 @@ export class BoardSynchronizer {
         break;
       case 'column-deleted':
         this.refresh('cards');
+        break;
+      case 'card-comments-changed':
+        // Le brouillon en cours vit hors du cache : relire le fil ne l'efface pas.
+        void this.queryClient.invalidateQueries({
+          queryKey: getCommentsKey(this.boardId, event.cardId),
+        });
         break;
     }
   }

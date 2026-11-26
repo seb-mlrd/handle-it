@@ -107,3 +107,14 @@ export {
   setDueDateRequestSchema,
   type SetDueDateRequest,
 } from './card/dto/due-date.dto.js';
+export {
+  COMMENT_MAX_LENGTH,
+  commentPageRequestSchema,
+  commentPageResponseSchema,
+  commentRequestSchema,
+  commentResponseSchema,
+  type CommentPageRequest,
+  type CommentPageResponse,
+  type CommentRequest,
+  type CommentResponse,
+} from './comment/dto/comment.dto.js';

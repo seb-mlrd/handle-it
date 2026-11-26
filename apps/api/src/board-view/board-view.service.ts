@@ -3,6 +3,7 @@ import type { BoardChanges } from '../board/board-changes.js';
 import type { BoardRepository } from '../board/board.repository.js';
 import { BoardNotFoundError } from '../board/errors/board-not-found.error.js';
 import type { CardRepository } from '../card/card.repository.js';
+import type { CommentRepository } from '../comment/comment.repository.js';
 import type { LabelRepository } from '../label/label.repository.js';
 import type { ColumnRepository } from '../column/column.repository.js';
 import type { BoardView } from './board-view.js';
@@ -14,6 +15,7 @@ export class BoardViewService {
     private readonly columnRepository: ColumnRepository,
     private readonly cardRepository: CardRepository,
     private readonly labelRepository: LabelRepository,
+    private readonly commentRepository: CommentRepository,
     private readonly boardAccessService: BoardAccessService,
     private readonly boardChanges: BoardChanges,
   ) {}
@@ -22,7 +24,7 @@ export class BoardViewService {
   async get(userId: string, boardId: string): Promise<BoardView> {
     const membership = await this.boardAccessService.authorize(userId, boardId, 'view-board');
     // Un même état pour tout : la version doit correspondre exactement au contenu.
-    const [board, columns, cards, labels, labelIdsByCard] =
+    const [board, columns, cards, labels, labelIdsByCard, commentCountByCard] =
       await this.boardChanges.readConsistently(() =>
         Promise.all([
           this.boardRepository.findById(boardId),
@@ -30,6 +32,7 @@ export class BoardViewService {
           this.cardRepository.findSummariesByBoard(boardId),
           this.labelRepository.findAllByBoard(boardId),
           this.labelRepository.findCardLabelIds(boardId),
+          this.commentRepository.countByBoard(boardId),
         ]),
       );
     if (!board) {
@@ -45,6 +48,7 @@ export class BoardViewService {
         cards: (cardsByColumn.get(column.getId()) ?? []).map((card) => ({
           ...card,
           labelIds: labelIdsByCard.get(card.id) ?? [],
+          commentCount: commentCountByCard.get(card.id) ?? 0,
         })),
       })),
     };

@@ -3,7 +3,7 @@ import { activityDetailsSchema } from '@handle-it/contracts';
 import { Inject, Injectable } from '@nestjs/common';
 import { TransactionContext } from '../database/transaction-context.js';
 import type { Prisma } from '../generated/prisma/client.js';
-import { ActivityCursor } from './activity-cursor.js';
+import { CreationCursor } from '../shared/pagination/creation-cursor.js';
 import { Activity } from './activity.entity.js';
 import type { ActivityEntry } from './activity-entry.js';
 import type { ActivityPage } from './activity-page.js';
@@ -47,7 +47,7 @@ export class PrismaActivityRepository extends ActivityRepository {
     const hasMore = records.length > query.limit;
     return {
       items,
-      next: hasMore && last ? ActivityCursor.after(last.getCreatedAt(), last.getId()) : null,
+      next: hasMore && last ? CreationCursor.after(last.getCreatedAt(), last.getId()) : null,
     };
   }
 

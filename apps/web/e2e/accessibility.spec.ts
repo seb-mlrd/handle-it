@@ -32,6 +32,9 @@ async function createContent(page: Page) {
     data: { dueOn: '2020-01-01' },
     headers: { origin },
   });
+  await post(page, `/boards/${boardId}/cards/${cardId}/comments`, {
+    body: 'Un commentaire assez long pour passer à la ligne sur un petit écran, avec\nun retour.',
+  });
   const response = await page.request.post(`/api/boards/${boardId}/invitations`, {
     data: { duration: 'one-day' },
     headers: { origin },

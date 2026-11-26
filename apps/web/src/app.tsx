@@ -15,6 +15,8 @@ import { BoardRealtimeGatewayContext } from './features/board-view/board-realtim
 import { BoardGateway } from './features/boards/board-gateway';
 import { BoardGatewayContext } from './features/boards/board-gateway-context';
 import { BoardsPage } from './features/boards/boards.page';
+import { CommentGateway } from './features/comments/comment-gateway';
+import { CommentGatewayContext } from './features/comments/comment-gateway-context';
 import { INVITATION_PATH } from './features/invitation/invitation-link';
 import { MemberGateway } from './features/members/member-gateway';
 import { MemberGatewayContext } from './features/members/member-gateway-context';
@@ -55,6 +57,7 @@ const boardGateway = new BoardGateway(apiClient);
 const boardRealtimeGateway = new BoardRealtimeGateway();
 const memberGateway = new MemberGateway(apiClient);
 const boardContentGateway = new BoardContentGateway(apiClient);
+const commentGateway = new CommentGateway(apiClient);
 
 export function App() {
   return (
@@ -62,32 +65,34 @@ export function App() {
       <AuthGatewayContext value={authGateway}>
         <BoardGatewayContext value={boardGateway}>
           <BoardContentGatewayContext value={boardContentGateway}>
-            <MemberGatewayContext value={memberGateway}>
-              <BoardRealtimeGatewayContext value={boardRealtimeGateway}>
-                <BrowserRouter>
-                  <SkipLink />
-                  <Suspense fallback={<PageLoading />}>
-                    <Routes>
-                      <Route element={<GuestRoute />}>
-                        <Route path="/login" element={<LogInPage />} />
-                        <Route path="/register" element={<RegisterPage />} />
-                      </Route>
-                      <Route element={<ProtectedRoute />}>
-                        <Route path="/" element={<BoardsPage />} />
-                        <Route path={INVITATION_PATH} element={<InvitationPage />} />
-                        <Route path="/boards/:boardId" element={<BoardViewPage />}>
-                          <Route path="cards/:cardId" element={<CardPanel />} />
-                          <Route path="members" element={<MembersPanel />} />
-                          <Route path="activity" element={<ActivityPanel />} />
-                          <Route path="labels" element={<LabelsPanel />} />
+            <CommentGatewayContext value={commentGateway}>
+              <MemberGatewayContext value={memberGateway}>
+                <BoardRealtimeGatewayContext value={boardRealtimeGateway}>
+                  <BrowserRouter>
+                    <SkipLink />
+                    <Suspense fallback={<PageLoading />}>
+                      <Routes>
+                        <Route element={<GuestRoute />}>
+                          <Route path="/login" element={<LogInPage />} />
+                          <Route path="/register" element={<RegisterPage />} />
                         </Route>
-                      </Route>
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                  </Suspense>
-                </BrowserRouter>
-              </BoardRealtimeGatewayContext>
-            </MemberGatewayContext>
+                        <Route element={<ProtectedRoute />}>
+                          <Route path="/" element={<BoardsPage />} />
+                          <Route path={INVITATION_PATH} element={<InvitationPage />} />
+                          <Route path="/boards/:boardId" element={<BoardViewPage />}>
+                            <Route path="cards/:cardId" element={<CardPanel />} />
+                            <Route path="members" element={<MembersPanel />} />
+                            <Route path="activity" element={<ActivityPanel />} />
+                            <Route path="labels" element={<LabelsPanel />} />
+                          </Route>
+                        </Route>
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                      </Routes>
+                    </Suspense>
+                  </BrowserRouter>
+                </BoardRealtimeGatewayContext>
+              </MemberGatewayContext>
+            </CommentGatewayContext>
           </BoardContentGatewayContext>
         </BoardGatewayContext>
       </AuthGatewayContext>

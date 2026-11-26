@@ -1,6 +1,6 @@
 import type { ActivityPageRequest } from '@handle-it/contracts';
 import type { BoardAccessService } from '../board/board-access.service.js';
-import { ActivityCursor } from './activity-cursor.js';
+import { CreationCursor } from '../shared/pagination/creation-cursor.js';
 import type { ActivityPage } from './activity-page.js';
 import type { ActivityRepository } from './activity.repository.js';
 
@@ -21,7 +21,7 @@ export class ActivityService {
     request: ActivityPageRequest,
   ): Promise<ActivityPage> {
     await this.boardAccessService.authorize(userId, boardId, 'view-board');
-    const before = request.before ? ActivityCursor.decode(request.before) : null;
+    const before = request.before ? CreationCursor.decode(request.before) : null;
     return this.activityRepository.findPage({ boardId, cardId, before, limit: PAGE_SIZE });
   }
 }

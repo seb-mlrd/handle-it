@@ -34,6 +34,12 @@ export const boardEventSchema = z.discriminatedUnion('type', [
     cardId: z.uuid(),
     labelIds: z.array(z.uuid()),
   }),
+  /** Le texte ne circule pas : le fil ouvert se relit. */
+  z.object({
+    type: z.literal('card-comments-changed'),
+    cardId: z.uuid(),
+    commentCount: z.int().nonnegative(),
+  }),
   z.object({
     type: z.literal('card-moved'),
     cardId: z.uuid(),

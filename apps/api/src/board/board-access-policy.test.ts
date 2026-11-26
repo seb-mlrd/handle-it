@@ -25,20 +25,42 @@ describe.each(['rename-board', 'delete-board', 'manage-members'] as const)(
   },
 );
 
-describe.each(['view-board', 'edit-content'] as const)('BoardAccessPolicy : %s', (action) => {
-  it.each(['owner', 'member'] as const)('autorise le rôle %s', (role) => {
-    const membership = new Membership('board', 'ada', role);
-    expect(policy.authorize(membership, action)).toBe(membership);
-  });
+describe.each(['view-board', 'edit-content', 'comment'] as const)(
+  'BoardAccessPolicy : %s',
+  (action) => {
+    it.each(['owner', 'member'] as const)('autorise le rôle %s', (role) => {
+      const membership = new Membership('board', 'ada', role);
+      expect(policy.authorize(membership, action)).toBe(membership);
+    });
 
-  it("cache l'existence du board à un non-membre", () => {
-    expect(() => policy.authorize(null, action)).toThrow(BoardNotFoundError);
-  });
-});
+    it("cache l'existence du board à un non-membre", () => {
+      expect(() => policy.authorize(null, action)).toThrow(BoardNotFoundError);
+    });
+  },
+);
 
 it("laisse un membre quitter le board, mais pas l'owner", () => {
   const member = new Membership('board', 'bob', 'member');
   const owner = new Membership('board', 'ada', 'owner');
   expect(policy.authorize(member, 'leave-board')).toBe(member);
   expect(() => policy.authorize(owner, 'leave-board')).toThrow(BoardActionForbiddenError);
+});
+
+describe('BoardAccessPolicy : commentaires', () => {
+  it.each([
+    ['edit-comment', 'member', true, true],
+    ['edit-comment', 'member', false, false],
+    ['edit-comment', 'owner', true, true],
+    ['edit-comment', 'owner', false, false],
+    ['delete-comment', 'member', true, true],
+    ['delete-comment', 'member', false, false],
+    ['delete-comment', 'owner', true, true],
+    ['delete-comment', 'owner', false, true],
+  ] as const)('%s par un %s (auteur : %s) : permis %s', (action, role, isAuthor, isAllowed) => {
+    const membership = new Membership('board', 'ada', role);
+    expect(policy.isAllowedOnComment(membership, action, isAuthor)).toBe(isAllowed);
+    const attempt = () => policy.authorizeOnComment(membership, action, isAuthor);
+    if (isAllowed) expect(attempt).not.toThrow();
+    else expect(attempt).toThrow(BoardActionForbiddenError);
+  });
 });

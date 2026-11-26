@@ -11,11 +11,12 @@ export function presentBoardView(view: BoardView): BoardViewResponse {
     labels: view.labels.map(presentLabel),
     columns: view.columns.map(({ column, cards }) => ({
       ...presentColumn(column),
-      cards: cards.map(({ id, title, dueOn, labelIds }) => ({
+      cards: cards.map(({ id, title, dueOn, labelIds, commentCount }) => ({
         id,
         title,
         dueOn,
         labelIds: [...labelIds],
+        commentCount,
       })),
     })),
   };

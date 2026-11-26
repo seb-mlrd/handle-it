@@ -16,6 +16,7 @@ model User {
   sessions     Session[]
   memberships  Membership[]
   activities   Activity[]
+  comments     Comment[]
 
   @@map("users")
 }
@@ -86,6 +87,7 @@ model Card {
   rank        String
   column      Column @relation(fields: [columnId], references: [id], onDelete: Cascade)
   labels      CardLabel[]
+  comments    Comment[]
 
   @@unique([columnId, rank])
   @@map("cards")
@@ -143,4 +145,21 @@ model CardLabel {
   @@id([cardId, labelId])
   @@index([labelId])
   @@map("card_labels")
+}
+
+/// Texte simple ; le commentaire survit au compte de son auteur, signé « Ancien membre ».
+model Comment {
+  id        String    @id @db.Uuid
+  cardId    String    @map("card_id") @db.Uuid
+  authorId  String?   @map("author_id") @db.Uuid
+  body      String
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  /// `null` tant que le commentaire n'a pas été modifié.
+  updatedAt DateTime? @map("updated_at") @db.Timestamptz(3)
+  card      Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  author    User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([cardId, createdAt, id])
+  @@index([authorId])
+  @@map("comments")
 }

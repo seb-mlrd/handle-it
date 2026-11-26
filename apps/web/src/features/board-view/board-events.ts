@@ -56,7 +56,10 @@ function applyToCards(columns: Columns, event: BoardEvent): Columns {
     case 'card-created':
       return columns.map((column) =>
         column.id === event.columnId
-          ? { ...column, cards: [...column.cards, { ...event.card, labelIds: [] }] }
+          ? {
+              ...column,
+              cards: [...column.cards, { ...event.card, labelIds: [], commentCount: 0 }],
+            }
           : column,
       );
     case 'card-updated':
@@ -79,6 +82,10 @@ function applyToCards(columns: Columns, event: BoardEvent): Columns {
     case 'card-labels-changed':
       return updateCards(columns, (card) =>
         card.id === event.cardId ? { ...card, labelIds: event.labelIds } : card,
+      );
+    case 'card-comments-changed':
+      return updateCards(columns, (card) =>
+        card.id === event.cardId ? { ...card, commentCount: event.commentCount } : card,
       );
     case 'label-deleted':
       return updateCards(columns, (card) => ({

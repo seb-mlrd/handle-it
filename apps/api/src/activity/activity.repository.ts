@@ -1,4 +1,4 @@
-import type { ActivityCursor } from './activity-cursor.js';
+import type { CreationCursor } from '../shared/pagination/creation-cursor.js';
 import type { ActivityEntry } from './activity-entry.js';
 import type { ActivityPage } from './activity-page.js';
 
@@ -6,7 +6,7 @@ export interface ActivityQuery {
   readonly boardId: string;
   /** Limite l'historique à une carte. */
   readonly cardId: string | null;
-  readonly before: ActivityCursor | null;
+  readonly before: CreationCursor | null;
   readonly limit: number;
 }
 

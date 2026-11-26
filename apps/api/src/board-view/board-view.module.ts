@@ -3,6 +3,8 @@ import { BoardAccessService } from '../board/board-access.service.js';
 import { BoardChanges } from '../board/board-changes.js';
 import { BoardModule } from '../board/board.module.js';
 import { BoardRepository } from '../board/board.repository.js';
+import { CommentModule } from '../comment/comment.module.js';
+import { CommentRepository } from '../comment/comment.repository.js';
 import { LabelModule } from '../label/label.module.js';
 import { LabelRepository } from '../label/label.repository.js';
 import { CardModule } from '../card/card.module.js';
@@ -13,7 +15,7 @@ import { BoardViewController } from './board-view.controller.js';
 import { BoardViewService } from './board-view.service.js';
 
 @Module({
-  imports: [BoardModule, ColumnModule, CardModule, LabelModule],
+  imports: [BoardModule, ColumnModule, CardModule, LabelModule, CommentModule],
   controllers: [BoardViewController],
   providers: [
     {
@@ -25,6 +27,7 @@ import { BoardViewService } from './board-view.service.js';
         ColumnRepository,
         CardRepository,
         LabelRepository,
+        CommentRepository,
         BoardAccessService,
         BoardChanges,
       ],

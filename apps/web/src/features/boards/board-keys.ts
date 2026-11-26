@@ -17,3 +17,9 @@ export const getActivitiesKey = (boardId: string, cardId: string | null) => [
   'activities',
   cardId ?? 'board',
 ];
+
+/** Fil de commentaires d'une carte ; relu avec la carte quand elle change. */
+export const getCommentsKey = (boardId: string, cardId: string) => [
+  ...getCardKey(boardId, cardId),
+  'comments',
+];

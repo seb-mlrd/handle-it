@@ -36,6 +36,12 @@ export function describeActivity(details: ActivityDetails): string {
       return `a fixé l'échéance de « ${details.cardTitle} » au ${formatDueDate(details.dueOn)}`;
     case 'card-due-removed':
       return `a retiré l'échéance de « ${details.cardTitle} »`;
+    case 'comment-added':
+      return `a commenté la carte « ${details.cardTitle} »`;
+    case 'comment-updated':
+      return `a modifié un commentaire sur « ${details.cardTitle} »`;
+    case 'comment-deleted':
+      return `a supprimé un commentaire de « ${details.cardTitle} »`;
     case 'member-joined':
       return 'a rejoint le tableau';
     case 'member-left':

@@ -4,9 +4,10 @@ import { labelResponseSchema } from '../../label/dto/label.dto.js';
 import { columnResponseSchema } from '../../column/dto/column-response.dto.js';
 import { boardResponseSchema } from './board-response.dto.js';
 
-/** Carte telle qu'affichée dans son board : son résumé et les labels qui y sont posés. */
+/** Carte telle qu'affichée dans son board : son résumé, ses labels et son nombre de commentaires. */
 export const cardViewResponseSchema = cardSummaryResponseSchema.extend({
   labelIds: z.array(z.uuid()),
+  commentCount: z.int().nonnegative(),
 });
 
 export type CardViewResponse = z.infer<typeof cardViewResponseSchema>;

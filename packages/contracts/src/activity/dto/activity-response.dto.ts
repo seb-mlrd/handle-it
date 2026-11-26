@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { cursorSchema } from '../../pagination/cursor-schema.js';
 
 const nameSchema = z.string();
 
@@ -20,6 +21,10 @@ export const activityDetailsSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('card-label-removed'), cardTitle: nameSchema, labelName: nameSchema }),
   z.object({ type: z.literal('card-due-set'), cardTitle: nameSchema, dueOn: z.iso.date() }),
   z.object({ type: z.literal('card-due-removed'), cardTitle: nameSchema }),
+  // Jamais le texte du commentaire : l'historique ne garde que des noms.
+  z.object({ type: z.literal('comment-added'), cardTitle: nameSchema }),
+  z.object({ type: z.literal('comment-updated'), cardTitle: nameSchema }),
+  z.object({ type: z.literal('comment-deleted'), cardTitle: nameSchema }),
   z.object({ type: z.literal('member-joined') }),
   z.object({ type: z.literal('member-left') }),
   z.object({ type: z.literal('member-removed'), memberName: nameSchema }),
@@ -46,10 +51,8 @@ export const activityPageResponseSchema = z.object({
 
 export type ActivityPageResponse = z.infer<typeof activityPageResponseSchema>;
 
-const CURSOR_MAX_LENGTH = 200;
-
 export const activityPageRequestSchema = z.object({
-  before: z.string().min(1).max(CURSOR_MAX_LENGTH).optional(),
+  before: cursorSchema.optional(),
 });
 
 export type ActivityPageRequest = z.infer<typeof activityPageRequestSchema>;
