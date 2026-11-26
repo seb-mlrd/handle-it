@@ -1,11 +1,12 @@
-import type { CardSummaryResponse } from '@handle-it/contracts';
+import type { CardViewResponse } from '@handle-it/contracts';
 import { Link } from 'react-router';
+import { CardLabels } from '../labels/card-labels';
 import { useSortableItem } from './use-sortable-item';
 
 interface BoardCardProps {
   readonly boardId: string;
   readonly columnId: string;
-  readonly card: CardSummaryResponse;
+  readonly card: CardViewResponse;
 }
 
 export function BoardCard({ boardId, columnId, card }: BoardCardProps) {
@@ -25,6 +26,7 @@ export function BoardCard({ boardId, columnId, card }: BoardCardProps) {
         className={`block touch-manipulation rounded-control border border-line bg-canvas px-3 py-2.5 wrap-anywhere select-none [-webkit-touch-callout:none] hover:border-control active:border-control ${sortable.isDragging ? 'opacity-40' : ''}`}
       >
         {card.title}
+        <CardLabels boardId={boardId} labelIds={card.labelIds} />
       </Link>
     </li>
   );

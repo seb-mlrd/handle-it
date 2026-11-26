@@ -22,6 +22,12 @@ async function createContent(page: Page) {
     title: 'Une carte au titre plutôt long, pour vérifier son retour à la ligne',
   });
   const origin = new URL(page.url()).origin;
+  for (const color of ['gray', 'red', 'orange', 'yellow', 'green', 'teal', 'blue', 'pink']) {
+    const label = await post(page, `/boards/${boardId}/labels`, { name: `Label ${color}`, color });
+    await page.request.put(`/api/boards/${boardId}/cards/${cardId}/labels/${label}`, {
+      headers: { origin },
+    });
+  }
   const response = await page.request.post(`/api/boards/${boardId}/invitations`, {
     data: { duration: 'one-day' },
     headers: { origin },
@@ -63,6 +69,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       },
       { name: 'membres', path: `/boards/${boardId}/members`, ready: heading('Membres') },
       { name: 'activité', path: `/boards/${boardId}/activity`, ready: heading('Activité') },
+      { name: 'labels', path: `/boards/${boardId}/labels`, ready: heading('Labels') },
       {
         name: 'board introuvable',
         path: `/boards/${randomUUID()}`,

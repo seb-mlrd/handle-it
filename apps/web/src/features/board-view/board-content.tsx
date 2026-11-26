@@ -18,6 +18,12 @@ export function BoardContent({ board }: BoardContentProps) {
         <div className="flex flex-wrap items-center gap-4">
           <ConnectionIndicator status={status} />
           <Link
+            to={`/boards/${board.id}/labels`}
+            className="flex h-11 items-center rounded-control border border-control bg-surface px-4 font-semibold hover:bg-canvas"
+          >
+            Labels
+          </Link>
+          <Link
             to={`/boards/${board.id}/activity`}
             className="flex h-11 items-center rounded-control border border-control bg-surface px-4 font-semibold hover:bg-canvas"
           >

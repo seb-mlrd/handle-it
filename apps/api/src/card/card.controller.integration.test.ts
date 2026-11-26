@@ -50,13 +50,14 @@ describe('vue du board', () => {
       name: 'Maison',
       role: 'owner',
       version: 4,
+      labels: [],
       columns: [
         {
           id: expect.any(String),
           name: 'À faire',
           cards: [
-            { id: expect.any(String), title: 'Pain' },
-            { id: expect.any(String), title: 'Lait' },
+            { id: expect.any(String), title: 'Pain', labelIds: [] },
+            { id: expect.any(String), title: 'Lait', labelIds: [] },
           ],
         },
         { id: expect.any(String), name: 'Fait', cards: [] },

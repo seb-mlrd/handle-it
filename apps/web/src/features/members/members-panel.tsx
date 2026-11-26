@@ -2,7 +2,7 @@ import { useId } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Button } from '../../shared/ui/button';
 import { Modal } from '../../shared/ui/modal';
-import { useBoardView } from '../board-view/use-board-content';
+import { useLoadedBoard } from '../board-view/use-board-content';
 import { InvitationSection } from './invitation-section';
 import { LeaveBoard } from './leave-board';
 import { MemberList } from './member-list';
@@ -12,7 +12,7 @@ export function MembersPanel() {
   const { boardId = '' } = useParams();
   const titleId = useId();
   const navigate = useNavigate();
-  const { data: board } = useBoardView(boardId);
+  const { data: board } = useLoadedBoard(boardId, (loaded) => loaded);
   const isOwner = board?.role === 'owner';
   const close = () => void navigate(`/boards/${boardId}`);
   return (

@@ -21,6 +21,16 @@ export function describeActivity(details: ActivityDetails): string {
       return `a déplacé la carte « ${details.cardTitle} » vers « ${details.columnName} »`;
     case 'card-deleted':
       return `a supprimé la carte « ${details.cardTitle} »`;
+    case 'label-created':
+      return `a créé le label « ${details.labelName} »`;
+    case 'label-updated':
+      return `a modifié le label « ${details.labelName} »`;
+    case 'label-deleted':
+      return `a supprimé le label « ${details.labelName} »`;
+    case 'card-label-added':
+      return `a posé le label « ${details.labelName} » sur « ${details.cardTitle} »`;
+    case 'card-label-removed':
+      return `a retiré le label « ${details.labelName} » de « ${details.cardTitle} »`;
     case 'member-joined':
       return 'a rejoint le tableau';
     case 'member-left':

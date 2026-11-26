@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { cardSummaryResponseSchema } from '../../card/dto/card-response.dto.js';
+import { labelResponseSchema } from '../../label/dto/label.dto.js';
 import { columnResponseSchema } from '../../column/dto/column-response.dto.js';
 
 /** Élément qui précède dans la liste ; `null` désigne le début. */
@@ -25,6 +26,14 @@ export const boardEventSchema = z.discriminatedUnion('type', [
   }),
   z.object({ type: z.literal('card-updated'), card: cardSummaryResponseSchema }),
   z.object({ type: z.literal('card-deleted'), cardId: z.uuid() }),
+  z.object({ type: z.literal('label-created'), label: labelResponseSchema }),
+  z.object({ type: z.literal('label-updated'), label: labelResponseSchema }),
+  z.object({ type: z.literal('label-deleted'), labelId: z.uuid() }),
+  z.object({
+    type: z.literal('card-labels-changed'),
+    cardId: z.uuid(),
+    labelIds: z.array(z.uuid()),
+  }),
   z.object({
     type: z.literal('card-moved'),
     cardId: z.uuid(),

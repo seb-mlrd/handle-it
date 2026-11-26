@@ -11,6 +11,7 @@ const MESSAGES: Partial<Record<ApiErrorCode, string>> = {
   UNAUTHENTICATED: 'Ta session a expiré. Reconnecte-toi.',
   CONFLICT: "Quelqu'un vient de modifier cet élément. Réessaie.",
   INVITATION_INVALID: "Cette invitation n'est plus valable.",
+  LABEL_NAME_TAKEN: 'Un label porte déjà ce nom sur ce tableau.',
   TOO_MANY_REQUESTS: 'Trop de tentatives. Réessaie dans quelques minutes.',
   UNREACHABLE: 'Le serveur ne répond pas. Vérifie ta connexion puis réessaie.',
 };

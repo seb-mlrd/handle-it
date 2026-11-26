@@ -9,13 +9,19 @@ import {
   type ColumnResponse,
   columnResponseSchema,
   type CreateCardRequest,
+  type LabelRequest,
+  type LabelResponse,
+  labelResponseSchema,
   type MoveCardRequest,
   type MoveColumnRequest,
   type UpdateCardRequest,
 } from '@handle-it/contracts';
+import { z } from 'zod';
 import type { ApiClient } from '../../shared/http/api-client';
 
-/** Accès au contenu d'un board : colonnes et cartes. */
+const labelIdsSchema = z.array(z.uuid());
+
+/** Accès au contenu d'un board : colonnes, cartes et labels. */
 export class BoardContentGateway {
   constructor(private readonly apiClient: ApiClient) {}
 
@@ -32,6 +38,32 @@ export class BoardContentGateway {
     const scope = cardId ? `/cards/${cardId}/activities` : '/activities';
     const query = before ? `?${new URLSearchParams({ before })}` : '';
     return this.apiClient.get(`/boards/${boardId}${scope}${query}`, activityPageResponseSchema);
+  }
+
+  createLabel(boardId: string, request: LabelRequest): Promise<LabelResponse> {
+    return this.apiClient.post(`/boards/${boardId}/labels`, request, labelResponseSchema);
+  }
+
+  updateLabel(boardId: string, labelId: string, request: LabelRequest): Promise<LabelResponse> {
+    const path = `/boards/${boardId}/labels/${labelId}`;
+    return this.apiClient.patch(path, request, labelResponseSchema);
+  }
+
+  deleteLabel(boardId: string, labelId: string): Promise<void> {
+    return this.apiClient.delete(`/boards/${boardId}/labels/${labelId}`);
+  }
+
+  /** Pose ou retire un label ; renvoie les labels de la carte. */
+  async setCardLabel(
+    boardId: string,
+    cardId: string,
+    labelId: string,
+    isAttached: boolean,
+  ): Promise<string[]> {
+    const path = `/boards/${boardId}/cards/${cardId}/labels/${labelId}`;
+    return isAttached
+      ? this.apiClient.put(path, labelIdsSchema)
+      : this.apiClient.deleteWithResult(path, labelIdsSchema);
   }
 
   createColumn(boardId: string, request: ColumnRequest): Promise<ColumnResponse> {

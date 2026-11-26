@@ -44,6 +44,9 @@ const ActivityPanel = lazy(() =>
     default: module.ActivityPanel,
   })),
 );
+const LabelsPanel = lazy(() =>
+  import('./features/labels/labels-panel').then((module) => ({ default: module.LabelsPanel })),
+);
 const queryClient = createQueryClient();
 // fetch perd son contexte une fois stocké dans un objet : il est appelé via une fonction.
 const apiClient = new ApiClient((...request) => fetch(...request));
@@ -76,6 +79,7 @@ export function App() {
                           <Route path="cards/:cardId" element={<CardPanel />} />
                           <Route path="members" element={<MembersPanel />} />
                           <Route path="activity" element={<ActivityPanel />} />
+                          <Route path="labels" element={<LabelsPanel />} />
                         </Route>
                       </Route>
                       <Route path="*" element={<Navigate to="/" replace />} />

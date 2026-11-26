@@ -13,7 +13,7 @@ import {
 const createColumn = (id: string, cardIds: string) => ({
   id,
   name: id,
-  cards: [...cardIds].map((cardId) => ({ id: cardId, title: cardId })),
+  cards: [...cardIds].map((cardId) => ({ id: cardId, title: cardId, labelIds: [] as string[] })),
 });
 const COLUMNS = [createColumn('A', '123'), createColumn('B', '4'), createColumn('C', '')];
 const read = (columns: Columns) =>

@@ -1,5 +1,5 @@
 import type {
-  CardSummaryResponse,
+  CardViewResponse,
   ColumnViewResponse,
   MoveCardRequest,
   MoveColumnRequest,
@@ -25,7 +25,7 @@ export function moveCard(
   const card = findColumnOfCard(columns, cardId)?.cards.find(({ id }) => id === cardId);
   if (!card || !columns.some(({ id }) => id === columnId)) return [...columns];
   return columns.map((column) => {
-    const cards: CardSummaryResponse[] = column.cards.filter(({ id }) => id !== cardId);
+    const cards: CardViewResponse[] = column.cards.filter(({ id }) => id !== cardId);
     return { ...column, cards: column.id === columnId ? insertAt(cards, index, card) : cards };
   });
 }

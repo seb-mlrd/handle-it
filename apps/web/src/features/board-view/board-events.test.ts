@@ -5,13 +5,14 @@ import { applyBoardEvent, decideOnVersion } from './board-events';
 const createColumn = (id: string, cardIds: string) => ({
   id,
   name: id,
-  cards: [...cardIds].map((cardId) => ({ id: cardId, title: cardId })),
+  cards: [...cardIds].map((cardId) => ({ id: cardId, title: cardId, labelIds: [] as string[] })),
 });
 const BOARD: BoardViewResponse = {
   id: 'board',
   name: 'Maison',
   role: 'owner',
   version: 3,
+  labels: [{ id: 'urgent', name: 'Urgent', color: 'red' }],
   columns: [createColumn('A', '123'), createColumn('B', '4'), createColumn('C', '')],
 };
 const read = ({ columns }: BoardViewResponse) =>
@@ -52,4 +53,41 @@ it.each([
   [5, 'reload'],
 ])('à la version 3, l’événement %i : %s', (version, decision) => {
   expect(decideOnVersion(3, version)).toBe(decision);
+});
+
+describe('labels', () => {
+  it('ajoute, renomme et supprime un label, et le retire des cartes', () => {
+    const created = applyBoardEvent(BOARD, 4, {
+      type: 'label-created',
+      label: { id: 'calme', name: 'Calme', color: 'green' },
+    });
+    expect(created.labels.map(({ name }) => name)).toEqual(['Calme', 'Urgent']);
+    const tagged = applyBoardEvent(created, 5, {
+      type: 'card-labels-changed',
+      cardId: '1',
+      labelIds: ['urgent', 'calme'],
+    });
+    expect(tagged.columns[0]?.cards[0]?.labelIds).toEqual(['urgent', 'calme']);
+    const updated = applyBoardEvent(tagged, 6, {
+      type: 'card-updated',
+      card: { id: '1', title: 'Pain' },
+    });
+    expect(updated.columns[0]?.cards[0]).toEqual({
+      id: '1',
+      title: 'Pain',
+      labelIds: ['urgent', 'calme'],
+    });
+    const deleted = applyBoardEvent(updated, 7, { type: 'label-deleted', labelId: 'urgent' });
+    expect(deleted.labels.map(({ id }) => id)).toEqual(['calme']);
+    expect(deleted.columns[0]?.cards[0]?.labelIds).toEqual(['calme']);
+  });
+
+  it('crée une carte sans label', () => {
+    const board = applyBoardEvent(BOARD, 4, {
+      type: 'card-created',
+      columnId: 'C',
+      card: { id: '5', title: '5' },
+    });
+    expect(board.columns[2]?.cards[0]?.labelIds).toEqual([]);
+  });
 });

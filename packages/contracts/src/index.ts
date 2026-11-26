@@ -40,6 +40,7 @@ export {
 export {
   boardViewResponseSchema,
   type BoardViewResponse,
+  type CardViewResponse,
   type ColumnViewResponse,
 } from './board/dto/board-view-response.dto.js';
 export { moveCardRequestSchema, type MoveCardRequest } from './card/dto/move-card-request.dto.js';
@@ -92,3 +93,12 @@ export {
   type ActivityPageResponse,
   type ActivityResponse,
 } from './activity/dto/activity-response.dto.js';
+export {
+  labelColorSchema,
+  labelListResponseSchema,
+  labelRequestSchema,
+  labelResponseSchema,
+  type LabelColor,
+  type LabelRequest,
+  type LabelResponse,
+} from './label/dto/label.dto.js';

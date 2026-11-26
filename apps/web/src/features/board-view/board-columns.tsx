@@ -21,7 +21,7 @@ import { detectCollisions } from './drag-collision';
 import { getKeyboardCoordinates } from './drag-keyboard';
 import { DragPreview } from './drag-preview';
 import { useBoardDrag } from './use-board-drag';
-import { useBoardView } from './use-board-content';
+import { useLoadedBoard } from './use-board-content';
 import { useReducedMotion } from './use-reduced-motion';
 
 // Un léger mouvement ou un appui prolongé distingue un déplacement d'un clic ou d'un défilement.
@@ -46,7 +46,7 @@ interface BoardColumnsProps {
 
 export function BoardColumns({ boardId }: BoardColumnsProps) {
   // Lu ici plutôt que reçu : au lâcher, l'ordre enregistré remplace le brouillon sans clignoter.
-  const { data: board } = useBoardView(boardId);
+  const { data: board } = useLoadedBoard(boardId, (loaded) => loaded);
   return board ? <BoardColumnsContent board={board} /> : null;
 }
 

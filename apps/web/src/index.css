@@ -12,6 +12,23 @@
   --color-accent: light-dark(#f5bd1f, #f5bd1f);
   --color-accent-strong: light-dark(#e3aa05, #ffd04d);
   --color-on-accent: light-dark(#191d1b, #191d1b);
+  /* Labels : fond pâle et texte foncé en clair, l'inverse en sombre ; contraste 7:1 au moins. */
+  --color-label-gray: light-dark(#e4e7e5, #3a403d);
+  --color-on-label-gray: light-dark(#2d3330, #e8ece9);
+  --color-label-red: light-dark(#fde2df, #5a1d17);
+  --color-on-label-red: light-dark(#8a1c12, #ffd9d4);
+  --color-label-orange: light-dark(#fde6cf, #57300f);
+  --color-on-label-orange: light-dark(#7a3a05, #ffdcbc);
+  --color-label-yellow: light-dark(#fbefc0, #4d3e0a);
+  --color-on-label-yellow: light-dark(#5c4500, #fbe7a6);
+  --color-label-green: light-dark(#dcf0dc, #1f4325);
+  --color-on-label-green: light-dark(#1e5a26, #cdeccf);
+  --color-label-teal: light-dark(#d4efec, #154440);
+  --color-on-label-teal: light-dark(#0d544e, #c4ece7);
+  --color-label-blue: light-dark(#dce8fb, #1d3659);
+  --color-on-label-blue: light-dark(#1d4a8f, #d3e2fb);
+  --color-label-pink: light-dark(#fbe0ec, #521b37);
+  --color-on-label-pink: light-dark(#86184e, #fbd3e6);
   --color-on-danger: light-dark(#ffffff, #191d1b);
   --color-danger: light-dark(#b3261e, #ff9c93);
 

@@ -3,6 +3,8 @@ import { BoardAccessService } from '../board/board-access.service.js';
 import { BoardChanges } from '../board/board-changes.js';
 import { BoardModule } from '../board/board.module.js';
 import { BoardRepository } from '../board/board.repository.js';
+import { LabelModule } from '../label/label.module.js';
+import { LabelRepository } from '../label/label.repository.js';
 import { CardModule } from '../card/card.module.js';
 import { CardRepository } from '../card/card.repository.js';
 import { ColumnModule } from '../column/column.module.js';
@@ -11,14 +13,21 @@ import { BoardViewController } from './board-view.controller.js';
 import { BoardViewService } from './board-view.service.js';
 
 @Module({
-  imports: [BoardModule, ColumnModule, CardModule],
+  imports: [BoardModule, ColumnModule, CardModule, LabelModule],
   controllers: [BoardViewController],
   providers: [
     {
       provide: BoardViewService,
       useFactory: (...dependencies: ConstructorParameters<typeof BoardViewService>) =>
         new BoardViewService(...dependencies),
-      inject: [BoardRepository, ColumnRepository, CardRepository, BoardAccessService, BoardChanges],
+      inject: [
+        BoardRepository,
+        ColumnRepository,
+        CardRepository,
+        LabelRepository,
+        BoardAccessService,
+        BoardChanges,
+      ],
     },
   ],
 })

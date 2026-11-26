@@ -47,6 +47,7 @@ model Board {
   columns     Column[]
   invitations Invitation[]
   activities  Activity[]
+  labels      Label[]
 
   @@map("boards")
 }
@@ -82,6 +83,7 @@ model Card {
   description String
   rank        String
   column      Column @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  labels      CardLabel[]
 
   @@unique([columnId, rank])
   @@map("cards")
@@ -114,4 +116,29 @@ model Activity {
   @@index([boardId, createdAt(sort: Desc), id(sort: Desc)])
   @@index([cardId, createdAt(sort: Desc), id(sort: Desc)])
   @@map("activities")
+}
+
+model Label {
+  id      String      @id @db.Uuid
+  boardId String      @map("board_id") @db.Uuid
+  name    String
+  /// Le nom en minuscules : deux labels ne diffèrent jamais par la seule casse.
+  nameKey String      @map("name_key")
+  color   String
+  board   Board       @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards   CardLabel[]
+
+  @@unique([boardId, nameKey])
+  @@map("labels")
+}
+
+model CardLabel {
+  cardId  String @map("card_id") @db.Uuid
+  labelId String @map("label_id") @db.Uuid
+  card    Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  label   Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([cardId, labelId])
+  @@index([labelId])
+  @@map("card_labels")
 }

@@ -9,6 +9,7 @@ export const errorCodeSchema = z.enum([
   'EMAIL_ALREADY_USED',
   'CONFLICT',
   'INVITATION_INVALID',
+  'LABEL_NAME_TAKEN',
   'TOO_MANY_REQUESTS',
   'INTERNAL_ERROR',
 ]);

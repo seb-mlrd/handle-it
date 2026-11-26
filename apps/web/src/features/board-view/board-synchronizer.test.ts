@@ -10,6 +10,7 @@ const createBoard = (version: number): BoardViewResponse => ({
   name: 'Maison',
   role: 'owner',
   version,
+  labels: [],
   columns: [],
 });
 

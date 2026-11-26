@@ -4,6 +4,7 @@ import { ApiError } from '../../shared/http/api-error';
 import { Button } from '../../shared/ui/button';
 import { LoadError } from '../../shared/ui/load-error';
 import { Modal } from '../../shared/ui/modal';
+import { LabelPicker } from '../labels/label-picker';
 import { ActivityList } from '../activity/activity-list';
 import { CardForm } from './card-form';
 import { useCard } from './use-board-content';
@@ -38,6 +39,9 @@ export function CardPanel() {
             markAsDirty={() => setIsDirty(true)}
             close={close}
           />
+          <div className="mt-10">
+            <LabelPicker boardId={boardId} cardId={cardId} />
+          </div>
           <section aria-labelledby={activityTitleId} className="mt-10 flex flex-col gap-4">
             <h3 id={activityTitleId} className="text-lg font-semibold">
               Activité
