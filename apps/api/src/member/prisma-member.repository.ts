@@ -10,6 +10,14 @@ export class PrismaMemberRepository extends MemberRepository {
     super();
   }
 
+  override async findDisplayName(boardId: string, userId: string): Promise<string | null> {
+    const record = await this.transactionContext.getClient().membership.findUnique({
+      where: { boardId_userId: { boardId, userId } },
+      select: { user: { select: { displayName: true } } },
+    });
+    return record?.user.displayName ?? null;
+  }
+
   override async findAllByBoard(boardId: string): Promise<Member[]> {
     const records = await this.transactionContext.getClient().membership.findMany({
       where: { boardId },

@@ -77,11 +77,15 @@ export class InvitationService {
     const boardId = invitation.getBoardId();
     const member = new Membership(boardId, userId, 'member');
     try {
-      await this.boardChanges.run(boardId, async () => {
+      await this.boardChanges.run(boardId, userId, async () => {
         await this.assertNotMember(boardId, userId);
         await this.invitationRepository.consume(invitation);
         await this.boardRepository.addMember(member);
-        return { result: undefined, event: { type: 'members-changed' } };
+        return {
+          result: undefined,
+          event: { type: 'members-changed' },
+          activity: { cardId: null, details: { type: 'member-joined' } },
+        };
       });
     } catch (error) {
       // Entré entre-temps par un autre lien : la modification annulée laisse celui-ci utilisable.

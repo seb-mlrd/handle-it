@@ -31,20 +31,22 @@ export class BoardService {
   async rename(userId: string, boardId: string, request: BoardRequest): Promise<BoardWithRole> {
     const membership = await this.boardAccessService.authorize(userId, boardId, 'rename-board');
     const board = new Board(boardId, request.name);
-    return this.boardChanges.run(boardId, async () => {
+    return this.boardChanges.run(boardId, userId, async () => {
       await this.boardRepository.update(board);
       return {
         result: { board, role: membership.getRole() },
         event: { type: 'board-renamed', name: request.name },
+        activity: { cardId: null, details: { type: 'board-renamed', boardName: request.name } },
       };
     });
   }
 
   async delete(userId: string, boardId: string): Promise<void> {
     await this.boardAccessService.authorize(userId, boardId, 'delete-board');
-    await this.boardChanges.run(boardId, async () => {
+    // L'historique part avec le board : rien à y inscrire.
+    await this.boardChanges.run(boardId, userId, async () => {
       await this.boardRepository.delete(boardId);
-      return { result: undefined, event: { type: 'board-deleted' } };
+      return { result: undefined, event: { type: 'board-deleted' }, activity: null };
     });
   }
 }

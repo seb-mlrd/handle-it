@@ -1,6 +1,7 @@
 import type { Member } from './member.js';
 
 export abstract class MemberRepository {
+  abstract findDisplayName(boardId: string, userId: string): Promise<string | null>;
   /** Renvoie l'owner en premier, puis les membres par nom. */
   abstract findAllByBoard(boardId: string): Promise<Member[]>;
   /**

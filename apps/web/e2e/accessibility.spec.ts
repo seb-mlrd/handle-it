@@ -62,6 +62,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
         ready: heading('Détail de la carte'),
       },
       { name: 'membres', path: `/boards/${boardId}/members`, ready: heading('Membres') },
+      { name: 'activité', path: `/boards/${boardId}/activity`, ready: heading('Activité') },
       {
         name: 'board introuvable',
         path: `/boards/${randomUUID()}`,

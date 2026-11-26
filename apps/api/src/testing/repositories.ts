@@ -1,5 +1,6 @@
 import type { BoardEvent } from '@handle-it/contracts';
 import { vi } from 'vitest';
+import type { ActivityEntry } from '../activity/activity-entry.js';
 import { type BoardChange, BoardChanges } from '../board/board-changes.js';
 
 /** Doublures de repositories partagées par les tests unitaires. */
@@ -19,6 +20,7 @@ export const createColumnRepository = () => ({
   getList: vi.fn(),
   move: vi.fn(),
   exists: vi.fn(),
+  findById: vi.fn(),
   findAllByBoard: vi.fn(),
   findLastRank: vi.fn(),
   rename: vi.fn(),
@@ -28,10 +30,16 @@ export const createColumnRepository = () => ({
 /** Exécute les modifications sans transaction et garde leurs événements. */
 export class InMemoryBoardChanges extends BoardChanges {
   readonly events: BoardEvent[] = [];
+  readonly activities: { actorId: string; entry: ActivityEntry }[] = [];
 
-  override async run<Result>(_boardId: string, change: () => Promise<BoardChange<Result>>) {
-    const { result, event } = await change();
+  override async run<Result>(
+    _boardId: string,
+    actorId: string,
+    change: () => Promise<BoardChange<Result>>,
+  ) {
+    const { result, event, activity } = await change();
     this.events.push(event);
+    if (activity) this.activities.push({ actorId, entry: activity });
     return result;
   }
 

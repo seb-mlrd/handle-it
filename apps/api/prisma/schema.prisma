@@ -15,6 +15,7 @@ model User {
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
   sessions     Session[]
   memberships  Membership[]
+  activities   Activity[]
 
   @@map("users")
 }
@@ -45,6 +46,7 @@ model Board {
   memberships Membership[]
   columns     Column[]
   invitations Invitation[]
+  activities  Activity[]
 
   @@map("boards")
 }
@@ -95,4 +97,21 @@ model Invitation {
   @@index([boardId])
   @@index([expiresAt])
   @@map("invitations")
+}
+
+/// Une entrée par modification réussie ; la carte n'a pas de clé étrangère pour survivre à sa suppression.
+model Activity {
+  id        String   @id @db.Uuid
+  boardId   String   @map("board_id") @db.Uuid
+  cardId    String?  @map("card_id") @db.Uuid
+  actorId   String?  @map("actor_id") @db.Uuid
+  type      String
+  details   Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([boardId, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([cardId, createdAt(sort: Desc), id(sort: Desc)])
+  @@map("activities")
 }

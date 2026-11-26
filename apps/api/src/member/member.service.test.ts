@@ -8,7 +8,12 @@ import { createBoardRepository, InMemoryBoardChanges } from '../testing/reposito
 import { MemberService } from './member.service.js';
 
 const boards = createBoardRepository();
-const members = { findAllByBoard: vi.fn(), expel: vi.fn(), remove: vi.fn() };
+const members = {
+  findAllByBoard: vi.fn(),
+  findDisplayName: vi.fn(),
+  expel: vi.fn(),
+  remove: vi.fn(),
+};
 const publisher = { publish: vi.fn(), evict: vi.fn() };
 const service = new MemberService(
   members,
@@ -23,6 +28,7 @@ beforeEach(() => {
 
 it("laisse l'owner retirer un membre, mais pas quitter son board", async () => {
   boards.findMembership.mockResolvedValue(new Membership('board', 'ada', 'owner'));
+  members.findDisplayName.mockResolvedValue('Bob');
   await service.remove('ada', 'board', 'bob');
   expect(members.expel).toHaveBeenCalledWith('board', 'bob');
   expect(publisher.evict).toHaveBeenCalledExactlyOnceWith('board', 'bob');

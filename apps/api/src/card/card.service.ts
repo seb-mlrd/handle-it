@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { CreateCardRequest, MoveCardRequest, UpdateCardRequest } from '@handle-it/contracts';
 import type { BoardChanges } from '../board/board-changes.js';
 import type { BoardAccessService } from '../board/board-access.service.js';
+import type { Column } from '../column/column.entity.js';
 import type { ColumnRepository } from '../column/column.repository.js';
 import { ColumnNotFoundError } from '../column/errors/column-not-found.error.js';
 import { getNeighbourIds } from '../shared/ranking/get-neighbour-ids.js';
@@ -44,16 +45,22 @@ export class CardService {
   ): Promise<Card> {
     await this.boardAccessService.authorize(userId, boardId, 'edit-content');
     return retryOnRankConflict(() =>
-      this.boardChanges.run(boardId, async () => {
-        if (!(await this.columnRepository.exists(boardId, columnId))) {
-          throw new ColumnNotFoundError();
-        }
+      this.boardChanges.run(boardId, userId, async () => {
+        const column = await this.findColumn(boardId, columnId);
         const rank = Rank.between(await this.cardRepository.findLastRank(columnId), null);
         const card = new Card(randomUUID(), columnId, request.title, EMPTY_DESCRIPTION, rank);
         await this.cardRepository.add(card);
         return {
           result: card,
           event: { type: 'card-created', columnId, card: presentCardSummary(card) },
+          activity: {
+            cardId: card.getId(),
+            details: {
+              type: 'card-created',
+              cardTitle: card.getTitle(),
+              columnName: column.getName(),
+            },
+          },
         };
       }),
     );
@@ -66,9 +73,13 @@ export class CardService {
     request: UpdateCardRequest,
   ): Promise<Card> {
     await this.boardAccessService.authorize(userId, boardId, 'edit-content');
-    return this.boardChanges.run(boardId, async () => {
+    return this.boardChanges.run(boardId, userId, async () => {
       const card = await this.cardRepository.update(boardId, cardId, request);
-      return { result: card, event: { type: 'card-updated', card: presentCardSummary(card) } };
+      return {
+        result: card,
+        event: { type: 'card-updated', card: presentCardSummary(card) },
+        activity: { cardId, details: { type: 'card-updated', cardTitle: card.getTitle() } },
+      };
     });
   }
 
@@ -88,8 +99,8 @@ export class CardService {
     const neighbourIds = getNeighbourIds(placement);
     const { columnId } = request;
     await retryOnRankConflict(() =>
-      this.boardChanges.run(boardId, async () => {
-        await this.assertOnBoard(boardId, columnId, [cardId, ...neighbourIds]);
+      this.boardChanges.run(boardId, userId, async () => {
+        const column = await this.assertOnBoard(boardId, columnId, [cardId, ...neighbourIds]);
         const list = this.cardRepository.getList(columnId);
         const rank = await this.rankPlacer.place(list, placement);
         await this.cardRepository.move(boardId, cardId, columnId, rank);
@@ -97,6 +108,14 @@ export class CardService {
         return {
           result: undefined,
           event: { type: 'card-moved', cardId, columnId, previousCardId },
+          activity: {
+            cardId,
+            details: {
+              type: 'card-moved',
+              cardTitle: (await this.findCard(boardId, cardId)).getTitle(),
+              columnName: column.getName(),
+            },
+          },
         };
       }),
     );
@@ -104,9 +123,15 @@ export class CardService {
 
   async delete(userId: string, boardId: string, cardId: string): Promise<void> {
     await this.boardAccessService.authorize(userId, boardId, 'edit-content');
-    await this.boardChanges.run(boardId, async () => {
+    await this.boardChanges.run(boardId, userId, async () => {
+      // Lue avant la suppression : l'historique garde son titre.
+      const card = await this.findCard(boardId, cardId);
       await this.cardRepository.delete(boardId, cardId);
-      return { result: undefined, event: { type: 'card-deleted', cardId } };
+      return {
+        result: undefined,
+        event: { type: 'card-deleted', cardId },
+        activity: { cardId, details: { type: 'card-deleted', cardTitle: card.getTitle() } },
+      };
     });
   }
 
@@ -114,12 +139,27 @@ export class CardService {
     boardId: string,
     columnId: string,
     cardIds: readonly string[],
-  ): Promise<void> {
-    if (!(await this.columnRepository.exists(boardId, columnId))) {
-      throw new ColumnNotFoundError();
-    }
+  ): Promise<Column> {
+    const column = await this.findColumn(boardId, columnId);
     if (!(await this.cardRepository.areOnBoard(boardId, cardIds))) {
       throw new CardNotFoundError();
     }
+    return column;
+  }
+
+  private async findColumn(boardId: string, columnId: string): Promise<Column> {
+    const column = await this.columnRepository.findById(boardId, columnId);
+    if (!column) {
+      throw new ColumnNotFoundError();
+    }
+    return column;
+  }
+
+  private async findCard(boardId: string, cardId: string): Promise<Card> {
+    const card = await this.cardRepository.find(boardId, cardId);
+    if (!card) {
+      throw new CardNotFoundError();
+    }
+    return card;
   }
 }

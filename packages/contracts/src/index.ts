@@ -82,3 +82,13 @@ export {
   type JoinBoardResponse,
 } from './realtime/dto/join-board.dto.js';
 export { REALTIME_MESSAGES, REALTIME_PATH } from './realtime/realtime-protocol.js';
+export {
+  activityDetailsSchema,
+  activityPageRequestSchema,
+  activityPageResponseSchema,
+  activityResponseSchema,
+  type ActivityDetails,
+  type ActivityPageRequest,
+  type ActivityPageResponse,
+  type ActivityResponse,
+} from './activity/dto/activity-response.dto.js';

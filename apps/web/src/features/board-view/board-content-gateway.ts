@@ -1,4 +1,6 @@
 import {
+  type ActivityPageResponse,
+  activityPageResponseSchema,
   type BoardViewResponse,
   boardViewResponseSchema,
   type CardResponse,
@@ -19,6 +21,17 @@ export class BoardContentGateway {
 
   getBoard(boardId: string): Promise<BoardViewResponse> {
     return this.apiClient.get(`/boards/${boardId}`, boardViewResponseSchema);
+  }
+
+  /** Une page d'historique ; `before` vient de la page précédente. */
+  listActivities(
+    boardId: string,
+    cardId: string | null,
+    before: string | null,
+  ): Promise<ActivityPageResponse> {
+    const scope = cardId ? `/cards/${cardId}/activities` : '/activities';
+    const query = before ? `?${new URLSearchParams({ before })}` : '';
+    return this.apiClient.get(`/boards/${boardId}${scope}${query}`, activityPageResponseSchema);
   }
 
   createColumn(boardId: string, request: ColumnRequest): Promise<ColumnResponse> {

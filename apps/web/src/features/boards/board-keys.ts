@@ -10,3 +10,10 @@ export const getCardKey = (boardId: string, cardId: string) => [
 ];
 
 export const getMoveKey = (boardId: string) => ['move', boardId];
+
+/** Historique du board (`cardId` nul) ou d'une carte. */
+export const getActivitiesKey = (boardId: string, cardId: string | null) => [
+  ...getBoardKey(boardId),
+  'activities',
+  cardId ?? 'board',
+];

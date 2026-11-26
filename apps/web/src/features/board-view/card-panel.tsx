@@ -4,6 +4,7 @@ import { ApiError } from '../../shared/http/api-error';
 import { Button } from '../../shared/ui/button';
 import { LoadError } from '../../shared/ui/load-error';
 import { Modal } from '../../shared/ui/modal';
+import { ActivityList } from '../activity/activity-list';
 import { CardForm } from './card-form';
 import { useCard } from './use-board-content';
 
@@ -11,6 +12,7 @@ import { useCard } from './use-board-content';
 export function CardPanel() {
   const { boardId = '', cardId = '' } = useParams();
   const titleId = useId();
+  const activityTitleId = useId();
   const navigate = useNavigate();
   const [isDirty, setIsDirty] = useState(false);
   const { data: card, error, isFetching, refetch } = useCard(boardId, cardId);
@@ -29,12 +31,24 @@ export function CardPanel() {
       {isDeleted ? (
         <p role="alert">Cette carte a été supprimée.</p>
       ) : card ? (
-        <CardForm
-          boardId={boardId}
-          card={card}
-          markAsDirty={() => setIsDirty(true)}
-          close={close}
-        />
+        <>
+          <CardForm
+            boardId={boardId}
+            card={card}
+            markAsDirty={() => setIsDirty(true)}
+            close={close}
+          />
+          <section aria-labelledby={activityTitleId} className="mt-10 flex flex-col gap-4">
+            <h3 id={activityTitleId} className="text-lg font-semibold">
+              Activité
+            </h3>
+            <ActivityList
+              boardId={boardId}
+              cardId={cardId}
+              emptyMessage="Aucune activité sur cette carte."
+            />
+          </section>
+        </>
       ) : error ? (
         <LoadError error={error} isRetrying={isFetching} retry={refetch} />
       ) : (

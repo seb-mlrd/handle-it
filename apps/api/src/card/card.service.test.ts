@@ -3,6 +3,7 @@ import { BoardAccessPolicy } from '../board/board-access-policy.js';
 import { BoardAccessService } from '../board/board-access.service.js';
 import { BoardNotFoundError } from '../board/errors/board-not-found.error.js';
 import { Membership } from '../board/membership.entity.js';
+import { Column } from '../column/column.entity.js';
 import { ColumnNotFoundError } from '../column/errors/column-not-found.error.js';
 import {
   createBoardRepository,
@@ -41,7 +42,9 @@ const request = { title: 'Pain' };
 beforeEach(() => {
   vi.resetAllMocks();
   boards.findMembership.mockResolvedValue(new Membership('board', 'bob', 'member'));
-  columns.exists.mockResolvedValue(true);
+  columns.findById.mockResolvedValue(
+    new Column('colonne', 'board', 'À faire', Rank.between(null, null)),
+  );
 });
 
 describe('CardService', () => {
@@ -63,7 +66,7 @@ describe('CardService', () => {
   });
 
   it("refuse une colonne qui n'est pas sur le board", async () => {
-    columns.exists.mockResolvedValue(false);
+    columns.findById.mockResolvedValue(null);
     const attempt = service.create('bob', 'board', 'colonne', request);
     await expect(attempt).rejects.toThrow(ColumnNotFoundError);
     expect(cards.add).not.toHaveBeenCalled();

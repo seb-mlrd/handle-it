@@ -47,6 +47,14 @@ export class PrismaColumnRepository extends ColumnRepository {
     );
   }
 
+  override async findById(boardId: string, columnId: string): Promise<Column | null> {
+    const record = await this.transactionContext.getClient().column.findFirst({
+      where: { id: columnId, boardId },
+      select: COLUMN_FIELDS,
+    });
+    return record && this.toColumn(record);
+  }
+
   override async findAllByBoard(boardId: string): Promise<Column[]> {
     const records = await this.transactionContext.getClient().column.findMany({
       where: { boardId },

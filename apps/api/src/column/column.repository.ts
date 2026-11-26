@@ -7,6 +7,7 @@ export abstract class ColumnRepository {
   /** Lève `RankConflictError` si le rang est pris, `BoardNotFoundError` si le board a disparu. */
   abstract add(column: Column): Promise<void>;
   abstract exists(boardId: string, columnId: string): Promise<boolean>;
+  abstract findById(boardId: string, columnId: string): Promise<Column | null>;
   /** Renvoie les colonnes dans l'ordre de leur rang. */
   abstract findAllByBoard(boardId: string): Promise<Column[]>;
   /** Vérifie que toutes ces colonnes, sans doublon, sont sur le board. */

@@ -17,6 +17,8 @@ export class BoardSynchronizer {
 
   receive({ version, event }: BoardEventEnvelope): void {
     this.latestVersion = Math.max(this.latestVersion, version);
+    // Toute modification réussie s'inscrit à l'historique, celui du board comme celui des cartes.
+    this.refresh('activities');
     this.refreshRelatedData(event);
     const board = this.getBoard();
     // Une lecture ou un déplacement en cours remplacera le board : `catchUp` complétera ensuite.

@@ -4,7 +4,7 @@ import { CreateInvitationForm } from './create-invitation-form';
 import { InvitationLinkField } from './invitation-link-field';
 import { formatRemainingTime } from './remaining-time';
 import { useCreateInvitation, useInvitations } from './use-members';
-import { useNow } from './use-now';
+import { useNow } from '../../shared/time/use-now';
 
 interface InvitationSectionProps {
   readonly boardId: string;
