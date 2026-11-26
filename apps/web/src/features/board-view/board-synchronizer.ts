@@ -25,6 +25,8 @@ export class BoardSynchronizer {
     this.latestVersion = Math.max(this.latestVersion, version);
     // Toute modification réussie s'inscrit à l'historique, celui du board comme celui des cartes.
     this.refresh('activities');
+    // Le filtre texte du board s'appuie sur une recherche : une carte a pu y entrer ou en sortir.
+    this.refresh('search');
     this.refreshRelatedData(event);
     const board = this.getBoard();
     // Une lecture ou un déplacement en cours remplacera le board : `catchUp` complétera ensuite.

@@ -16,6 +16,9 @@ import { BoardGateway } from './features/boards/board-gateway';
 import { BoardGatewayContext } from './features/boards/board-gateway-context';
 import { BoardsPage } from './features/boards/boards.page';
 import { CommentGateway } from './features/comments/comment-gateway';
+import { SearchGateway } from './features/search/search-gateway';
+import { SearchGatewayContext } from './features/search/search-gateway-context';
+import { SEARCH_PATH } from './features/search/search-path';
 import { CommentGatewayContext } from './features/comments/comment-gateway-context';
 import { INVITATION_PATH } from './features/invitation/invitation-link';
 import { MemberGateway } from './features/members/member-gateway';
@@ -46,6 +49,9 @@ const ActivityPanel = lazy(() =>
     default: module.ActivityPanel,
   })),
 );
+const SearchPage = lazy(() =>
+  import('./features/search/search.page').then((module) => ({ default: module.SearchPage })),
+);
 const LabelsPanel = lazy(() =>
   import('./features/labels/labels-panel').then((module) => ({ default: module.LabelsPanel })),
 );
@@ -58,6 +64,7 @@ const boardRealtimeGateway = new BoardRealtimeGateway();
 const memberGateway = new MemberGateway(apiClient);
 const boardContentGateway = new BoardContentGateway(apiClient);
 const commentGateway = new CommentGateway(apiClient);
+const searchGateway = new SearchGateway(apiClient);
 
 export function App() {
   return (
@@ -66,32 +73,35 @@ export function App() {
         <BoardGatewayContext value={boardGateway}>
           <BoardContentGatewayContext value={boardContentGateway}>
             <CommentGatewayContext value={commentGateway}>
-              <MemberGatewayContext value={memberGateway}>
-                <BoardRealtimeGatewayContext value={boardRealtimeGateway}>
-                  <BrowserRouter>
-                    <SkipLink />
-                    <Suspense fallback={<PageLoading />}>
-                      <Routes>
-                        <Route element={<GuestRoute />}>
-                          <Route path="/login" element={<LogInPage />} />
-                          <Route path="/register" element={<RegisterPage />} />
-                        </Route>
-                        <Route element={<ProtectedRoute />}>
-                          <Route path="/" element={<BoardsPage />} />
-                          <Route path={INVITATION_PATH} element={<InvitationPage />} />
-                          <Route path="/boards/:boardId" element={<BoardViewPage />}>
-                            <Route path="cards/:cardId" element={<CardPanel />} />
-                            <Route path="members" element={<MembersPanel />} />
-                            <Route path="activity" element={<ActivityPanel />} />
-                            <Route path="labels" element={<LabelsPanel />} />
+              <SearchGatewayContext value={searchGateway}>
+                <MemberGatewayContext value={memberGateway}>
+                  <BoardRealtimeGatewayContext value={boardRealtimeGateway}>
+                    <BrowserRouter>
+                      <SkipLink />
+                      <Suspense fallback={<PageLoading />}>
+                        <Routes>
+                          <Route element={<GuestRoute />}>
+                            <Route path="/login" element={<LogInPage />} />
+                            <Route path="/register" element={<RegisterPage />} />
                           </Route>
-                        </Route>
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                      </Routes>
-                    </Suspense>
-                  </BrowserRouter>
-                </BoardRealtimeGatewayContext>
-              </MemberGatewayContext>
+                          <Route element={<ProtectedRoute />}>
+                            <Route path="/" element={<BoardsPage />} />
+                            <Route path={INVITATION_PATH} element={<InvitationPage />} />
+                            <Route path={SEARCH_PATH} element={<SearchPage />} />
+                            <Route path="/boards/:boardId" element={<BoardViewPage />}>
+                              <Route path="cards/:cardId" element={<CardPanel />} />
+                              <Route path="members" element={<MembersPanel />} />
+                              <Route path="activity" element={<ActivityPanel />} />
+                              <Route path="labels" element={<LabelsPanel />} />
+                            </Route>
+                          </Route>
+                          <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                      </Suspense>
+                    </BrowserRouter>
+                  </BoardRealtimeGatewayContext>
+                </MemberGatewayContext>
+              </SearchGatewayContext>
             </CommentGatewayContext>
           </BoardContentGatewayContext>
         </BoardGatewayContext>

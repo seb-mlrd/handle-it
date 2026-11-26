@@ -8,11 +8,11 @@ datasource db {
 }
 
 model User {
-  id           String    @id @db.Uuid
-  email        String    @unique
-  displayName  String    @map("display_name")
-  passwordHash String    @map("password_hash")
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  id           String       @id @db.Uuid
+  email        String       @unique
+  displayName  String       @map("display_name")
+  passwordHash String       @map("password_hash")
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   sessions     Session[]
   memberships  Membership[]
   activities   Activity[]
@@ -78,18 +78,21 @@ model Column {
 }
 
 model Card {
-  id          String @id @db.Uuid
-  columnId    String @map("column_id") @db.Uuid
-  title       String
-  description String
+  id           String                   @id @db.Uuid
+  columnId     String                   @map("column_id") @db.Uuid
+  title        String
+  description  String
   /// Échéance sans heure ; facultative.
-  dueOn       DateTime? @map("due_on") @db.Date
-  rank        String
-  column      Column @relation(fields: [columnId], references: [id], onDelete: Cascade)
-  labels      CardLabel[]
-  comments    Comment[]
+  dueOn        DateTime?                @map("due_on") @db.Date
+  rank         String
+  /// Générée par PostgreSQL (titre puis description, sans accents) : jamais écrite par l'API.
+  searchVector Unsupported("tsvector")? @default(dbgenerated()) @map("search_vector")
+  column       Column                   @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  labels       CardLabel[]
+  comments     Comment[]
 
   @@unique([columnId, rank])
+  @@index([searchVector], type: Gin)
   @@map("cards")
 }
 
@@ -149,17 +152,20 @@ model CardLabel {
 
 /// Texte simple ; le commentaire survit au compte de son auteur, signé « Ancien membre ».
 model Comment {
-  id        String    @id @db.Uuid
-  cardId    String    @map("card_id") @db.Uuid
-  authorId  String?   @map("author_id") @db.Uuid
-  body      String
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  id           String                   @id @db.Uuid
+  cardId       String                   @map("card_id") @db.Uuid
+  authorId     String?                  @map("author_id") @db.Uuid
+  body         String
+  createdAt    DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
   /// `null` tant que le commentaire n'a pas été modifié.
-  updatedAt DateTime? @map("updated_at") @db.Timestamptz(3)
-  card      Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
-  author    User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  updatedAt    DateTime?                @map("updated_at") @db.Timestamptz(3)
+  card         Card                     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  author       User?                    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  /// Générée par PostgreSQL (texte sans accents) : jamais écrite par l'API.
+  searchVector Unsupported("tsvector")? @default(dbgenerated()) @map("search_vector")
 
   @@index([cardId, createdAt, id])
+  @@index([searchVector], type: Gin)
   @@index([authorId])
   @@map("comments")
 }

@@ -20,15 +20,22 @@ interface Draft {
   readonly initialColumns: Columns;
 }
 
-/** État du board pendant un glisser-déposer. */
-export function useBoardDrag(boardId: string, savedColumns: Columns) {
+/**
+ * État du board pendant un glisser-déposer. Le geste se fait sur les cartes visibles ; il se rejoue
+ * ensuite sur le board complet par ses voisines visibles, la règle même de l'API.
+ */
+export function useBoardDrag(
+  boardId: string,
+  savedColumns: Columns,
+  visibleColumns: Columns = savedColumns,
+) {
   const [draft, setDraft] = useState<Draft | null>(null);
   const { move, error } = useMove(boardId);
-  const columns = draft?.columns ?? savedColumns;
+  const columns = draft?.columns ?? visibleColumns;
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     const item = readDragItem(active);
-    if (item) setDraft({ item, columns: savedColumns, initialColumns: savedColumns });
+    if (item) setDraft({ item, columns: visibleColumns, initialColumns: visibleColumns });
   };
 
   /** Seul le changement de colonne est appliqué en cours de route : la liste gère le reste. */

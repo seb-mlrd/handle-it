@@ -20,6 +20,7 @@ import { createAnnouncements, SCREEN_READER_INSTRUCTIONS } from './drag-announce
 import { detectCollisions } from './drag-collision';
 import { getKeyboardCoordinates } from './drag-keyboard';
 import { DragPreview } from './drag-preview';
+import type { Columns } from './board-order';
 import { useBoardDrag } from './use-board-drag';
 import { useLoadedBoard } from './use-board-content';
 import { useReducedMotion } from './use-reduced-motion';
@@ -40,23 +41,30 @@ const KEYBOARD_OPTIONS = {
 const MEASURING = { droppable: { strategy: MeasuringStrategy.Always } };
 const DROP_ANIMATION: DropAnimation = { duration: 220, easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)' };
 
+/** Cartes affichées : un filtre en masque, sans jamais masquer de colonne. */
+type SelectVisibleColumns = (columns: Columns) => Columns;
+
 interface BoardColumnsProps {
   readonly boardId: string;
+  readonly selectVisibleColumns: SelectVisibleColumns;
 }
 
-export function BoardColumns({ boardId }: BoardColumnsProps) {
+export function BoardColumns({ boardId, selectVisibleColumns }: BoardColumnsProps) {
   // Lu ici plutôt que reçu : au lâcher, l'ordre enregistré remplace le brouillon sans clignoter.
   const { data: board } = useLoadedBoard(boardId, (loaded) => loaded);
-  return board ? <BoardColumnsContent board={board} /> : null;
+  return board ? (
+    <BoardColumnsContent board={board} visibleColumns={selectVisibleColumns(board.columns)} />
+  ) : null;
 }
 
 interface BoardColumnsContentProps {
   readonly board: BoardViewResponse;
+  readonly visibleColumns: Columns;
 }
 
-function BoardColumnsContent({ board }: BoardColumnsContentProps) {
+function BoardColumnsContent({ board, visibleColumns }: BoardColumnsContentProps) {
   const isMotionReduced = useReducedMotion();
-  const drag = useBoardDrag(board.id, board.columns);
+  const drag = useBoardDrag(board.id, board.columns, visibleColumns);
   const sensors = useSensors(
     useSensor(MouseSensor, MOUSE_OPTIONS),
     useSensor(TouchSensor, TOUCH_OPTIONS),

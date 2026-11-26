@@ -5,6 +5,7 @@ import { expectCleanPage } from './page-audit';
 import { register } from './register';
 
 const WIDTHS = [320, 768, 1280] as const;
+const ACCESSIBILITY_AUDIT_TIMEOUT_MILLISECONDS = 3 * 60_000;
 
 interface Screen {
   readonly name: string;
@@ -52,7 +53,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
     page,
     browser,
   }) => {
-    test.slow();
+    // Une dizaine d'écrans audités à trois largeurs : bien plus long qu'un parcours ordinaire,
+    // surtout quand les autres parcours occupent la machine en parallèle.
+    test.setTimeout(ACCESSIBILITY_AUDIT_TIMEOUT_MILLISECONDS);
     await page.emulateMedia({ colorScheme });
     for (const path of ['/login', '/register']) {
       for (const width of WIDTHS) {
@@ -77,6 +80,13 @@ for (const colorScheme of ['light', 'dark'] as const) {
       { name: 'membres', path: `/boards/${boardId}/members`, ready: heading('Membres') },
       { name: 'activité', path: `/boards/${boardId}/activity`, ready: heading('Activité') },
       { name: 'labels', path: `/boards/${boardId}/labels`, ready: heading('Labels') },
+      {
+        name: 'recherche',
+        path: '/search?q=carte',
+        ready: async (current) => {
+          await expect(current.getByRole('list', { name: 'Résultats' })).toBeVisible();
+        },
+      },
       {
         name: 'board introuvable',
         path: `/boards/${randomUUID()}`,

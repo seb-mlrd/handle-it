@@ -118,3 +118,19 @@ export {
   type CommentRequest,
   type CommentResponse,
 } from './comment/dto/comment.dto.js';
+export {
+  dueFilterSchema,
+  excerptSegmentSchema,
+  SEARCH_QUERY_MAX_LENGTH,
+  SEARCH_QUERY_MIN_LENGTH,
+  searchMatchSchema,
+  searchRequestSchema,
+  searchResponseSchema,
+  searchResultSchema,
+  type DueFilter,
+  type ExcerptSegment,
+  type SearchMatch,
+  type SearchRequest,
+  type SearchResponse,
+  type SearchResult,
+} from './search/dto/search.dto.js';
