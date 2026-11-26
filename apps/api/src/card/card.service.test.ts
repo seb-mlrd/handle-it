@@ -26,6 +26,7 @@ const cards = {
   areOnBoard: vi.fn(),
   getList: vi.fn(),
   move: vi.fn(),
+  setDueOn: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
 };

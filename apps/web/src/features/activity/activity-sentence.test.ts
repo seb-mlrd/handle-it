@@ -17,6 +17,8 @@ const SAMPLES = {
   'label-deleted': { labelName: 'Urgent' },
   'card-label-added': { cardTitle: 'Pain', labelName: 'Urgent' },
   'card-label-removed': { cardTitle: 'Pain', labelName: 'Urgent' },
+  'card-due-set': { cardTitle: 'Pain', dueOn: '2026-12-03' },
+  'card-due-removed': { cardTitle: 'Pain' },
   'member-joined': {},
   'member-left': {},
   'member-removed': { memberName: 'Bob' },
@@ -28,7 +30,10 @@ it('décrit chaque type d’historique du contrat, avec les noms donnés', () =>
   for (const [type, fields] of Object.entries(SAMPLES)) {
     const sentence = describeActivity(activityDetailsSchema.parse({ type, ...fields }));
     expect(sentence).toMatch(/^a /);
-    for (const value of Object.values(fields)) expect(sentence).toContain(value);
+    for (const [key, value] of Object.entries(fields)) {
+      // Une date se lit en toutes lettres : seul le jour du mois figure tel quel.
+      expect(sentence).toContain(key === 'dueOn' ? '3 décembre 2026' : value);
+    }
   }
 });
 

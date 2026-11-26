@@ -14,6 +14,7 @@ import {
   labelResponseSchema,
   type MoveCardRequest,
   type MoveColumnRequest,
+  type SetDueDateRequest,
   type UpdateCardRequest,
 } from '@handle-it/contracts';
 import { z } from 'zod';
@@ -51,6 +52,11 @@ export class BoardContentGateway {
 
   deleteLabel(boardId: string, labelId: string): Promise<void> {
     return this.apiClient.delete(`/boards/${boardId}/labels/${labelId}`);
+  }
+
+  setDueDate(boardId: string, cardId: string, request: SetDueDateRequest): Promise<CardResponse> {
+    const path = `/boards/${boardId}/cards/${cardId}/due-date`;
+    return this.apiClient.putWithBody(path, request, cardResponseSchema);
   }
 
   /** Pose ou retire un label ; renvoie les labels de la carte. */

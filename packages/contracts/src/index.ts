@@ -102,3 +102,8 @@ export {
   type LabelRequest,
   type LabelResponse,
 } from './label/dto/label.dto.js';
+export {
+  dueDateSchema,
+  setDueDateRequestSchema,
+  type SetDueDateRequest,
+} from './card/dto/due-date.dto.js';

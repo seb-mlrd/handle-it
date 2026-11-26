@@ -18,6 +18,8 @@ export const activityDetailsSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('label-deleted'), labelName: nameSchema }),
   z.object({ type: z.literal('card-label-added'), cardTitle: nameSchema, labelName: nameSchema }),
   z.object({ type: z.literal('card-label-removed'), cardTitle: nameSchema, labelName: nameSchema }),
+  z.object({ type: z.literal('card-due-set'), cardTitle: nameSchema, dueOn: z.iso.date() }),
+  z.object({ type: z.literal('card-due-removed'), cardTitle: nameSchema }),
   z.object({ type: z.literal('member-joined') }),
   z.object({ type: z.literal('member-left') }),
   z.object({ type: z.literal('member-removed'), memberName: nameSchema }),

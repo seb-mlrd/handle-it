@@ -4,6 +4,7 @@ import { ApiError } from '../../shared/http/api-error';
 import { Button } from '../../shared/ui/button';
 import { LoadError } from '../../shared/ui/load-error';
 import { Modal } from '../../shared/ui/modal';
+import { DueDateField } from '../due-date/due-date-field';
 import { LabelPicker } from '../labels/label-picker';
 import { ActivityList } from '../activity/activity-list';
 import { CardForm } from './card-form';
@@ -41,6 +42,9 @@ export function CardPanel() {
           />
           <div className="mt-10">
             <LabelPicker boardId={boardId} cardId={cardId} />
+          </div>
+          <div className="mt-10">
+            <DueDateField key={card.dueOn} boardId={boardId} cardId={cardId} dueOn={card.dueOn} />
           </div>
           <section aria-labelledby={activityTitleId} className="mt-10 flex flex-col gap-4">
             <h3 id={activityTitleId} className="text-lg font-semibold">

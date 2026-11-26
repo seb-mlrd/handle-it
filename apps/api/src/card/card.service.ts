@@ -1,5 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import type { CreateCardRequest, MoveCardRequest, UpdateCardRequest } from '@handle-it/contracts';
+import type {
+  CreateCardRequest,
+  MoveCardRequest,
+  SetDueDateRequest,
+  UpdateCardRequest,
+} from '@handle-it/contracts';
 import type { BoardChanges } from '../board/board-changes.js';
 import type { BoardAccessService } from '../board/board-access.service.js';
 import type { Column } from '../column/column.entity.js';
@@ -11,6 +16,7 @@ import { Rank } from '../shared/ranking/rank.value-object.js';
 import { retryOnRankConflict } from '../shared/ranking/retry-on-rank-conflict.js';
 import { presentCardSummary } from './card.presenter.js';
 import { Card } from './card.entity.js';
+import { DueDate } from './due-date.value-object.js';
 import type { CardRepository } from './card.repository.js';
 import { CardNotFoundError } from './errors/card-not-found.error.js';
 
@@ -119,6 +125,31 @@ export class CardService {
         };
       }),
     );
+  }
+
+  /** Pose, change ou retire (`null`) l'échéance d'une carte. */
+  async setDueDate(
+    userId: string,
+    boardId: string,
+    cardId: string,
+    request: SetDueDateRequest,
+  ): Promise<Card> {
+    await this.boardAccessService.authorize(userId, boardId, 'edit-content');
+    const dueOn = request.dueOn === null ? null : DueDate.fromValue(request.dueOn);
+    return this.boardChanges.run(boardId, userId, async () => {
+      const card = await this.cardRepository.setDueOn(boardId, cardId, dueOn);
+      const cardTitle = card.getTitle();
+      return {
+        result: card,
+        event: { type: 'card-updated', card: presentCardSummary(card) },
+        activity: {
+          cardId,
+          details: dueOn
+            ? { type: 'card-due-set', cardTitle, dueOn: dueOn.getValue() }
+            : { type: 'card-due-removed', cardTitle },
+        },
+      };
+    });
   }
 
   async delete(userId: string, boardId: string, cardId: string): Promise<void> {

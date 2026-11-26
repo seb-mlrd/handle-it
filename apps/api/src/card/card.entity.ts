@@ -1,3 +1,4 @@
+import type { DueDate } from './due-date.value-object.js';
 import type { Rank } from '../shared/ranking/rank.value-object.js';
 
 export class Card {
@@ -7,7 +8,13 @@ export class Card {
     private readonly title: string,
     private readonly description: string,
     private readonly rank: Rank,
+    private readonly dueOn: DueDate | null = null,
   ) {}
+
+  /** Échéance, ou `null` sans échéance. */
+  getDueOn(): DueDate | null {
+    return this.dueOn;
+  }
 
   getId(): string {
     return this.id;

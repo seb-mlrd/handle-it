@@ -3,4 +3,6 @@ export interface CardSummary {
   readonly id: string;
   readonly columnId: string;
   readonly title: string;
+  /** AAAA-MM-JJ, ou `null`. */
+  readonly dueOn: string | null;
 }

@@ -1,6 +1,7 @@
 import type { UpdateCardRequest } from '@handle-it/contracts';
 import type { Rank } from '../shared/ranking/rank.value-object.js';
 import type { RankedList } from '../shared/ranking/ranked-list.js';
+import type { DueDate } from './due-date.value-object.js';
 import type { Card } from './card.entity.js';
 import type { CardSummary } from './card-summary.js';
 
@@ -21,6 +22,8 @@ export abstract class CardRepository {
    */
   abstract move(boardId: string, cardId: string, columnId: string, rank: Rank): Promise<void>;
   abstract findLastRank(columnId: string): Promise<Rank | null>;
+  /** Pose ou retire l'échéance ; lève `CardNotFoundError` si la carte n'est pas sur ce board. */
+  abstract setDueOn(boardId: string, cardId: string, dueOn: DueDate | null): Promise<Card>;
   /** Lève `CardNotFoundError` si la carte n'est pas sur ce board. */
   abstract update(boardId: string, cardId: string, changes: UpdateCardRequest): Promise<Card>;
   /** Lève `CardNotFoundError` si la carte n'est pas sur ce board. */

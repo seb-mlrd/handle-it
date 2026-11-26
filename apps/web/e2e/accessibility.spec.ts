@@ -28,6 +28,10 @@ async function createContent(page: Page) {
       headers: { origin },
     });
   }
+  await page.request.put(`/api/boards/${boardId}/cards/${cardId}/due-date`, {
+    data: { dueOn: '2020-01-01' },
+    headers: { origin },
+  });
   const response = await page.request.post(`/api/boards/${boardId}/invitations`, {
     data: { duration: 'one-day' },
     headers: { origin },

@@ -5,7 +5,12 @@ import { applyBoardEvent, decideOnVersion } from './board-events';
 const createColumn = (id: string, cardIds: string) => ({
   id,
   name: id,
-  cards: [...cardIds].map((cardId) => ({ id: cardId, title: cardId, labelIds: [] as string[] })),
+  cards: [...cardIds].map((cardId) => ({
+    id: cardId,
+    title: cardId,
+    dueOn: null,
+    labelIds: [] as string[],
+  })),
 });
 const BOARD: BoardViewResponse = {
   id: 'board',
@@ -25,8 +30,11 @@ describe('applyBoardEvent', () => {
     [{ type: 'column-deleted', columnId: 'A' }, 'B4 C'],
     [{ type: 'column-moved', columnId: 'C', previousColumnId: null }, 'C A123 B4'],
     [{ type: 'column-moved', columnId: 'A', previousColumnId: 'B' }, 'B4 A123 C'],
-    [{ type: 'card-created', columnId: 'C', card: { id: '5', title: '5' } }, 'A123 B4 C5'],
-    [{ type: 'card-updated', card: { id: '4', title: '9' } }, 'A123 B9 C'],
+    [
+      { type: 'card-created', columnId: 'C', card: { id: '5', title: '5', dueOn: null } },
+      'A123 B4 C5',
+    ],
+    [{ type: 'card-updated', card: { id: '4', title: '9', dueOn: null } }, 'A123 B9 C'],
     [{ type: 'card-deleted', cardId: '2' }, 'A13 B4 C'],
     [{ type: 'card-moved', cardId: '1', columnId: 'A', previousCardId: '3' }, 'A231 B4 C'],
     [{ type: 'card-moved', cardId: '3', columnId: 'B', previousCardId: null }, 'A12 B34 C'],
@@ -70,11 +78,12 @@ describe('labels', () => {
     expect(tagged.columns[0]?.cards[0]?.labelIds).toEqual(['urgent', 'calme']);
     const updated = applyBoardEvent(tagged, 6, {
       type: 'card-updated',
-      card: { id: '1', title: 'Pain' },
+      card: { id: '1', title: 'Pain', dueOn: '2026-12-01' },
     });
     expect(updated.columns[0]?.cards[0]).toEqual({
       id: '1',
       title: 'Pain',
+      dueOn: '2026-12-01',
       labelIds: ['urgent', 'calme'],
     });
     const deleted = applyBoardEvent(updated, 7, { type: 'label-deleted', labelId: 'urgent' });
@@ -86,7 +95,7 @@ describe('labels', () => {
     const board = applyBoardEvent(BOARD, 4, {
       type: 'card-created',
       columnId: 'C',
-      card: { id: '5', title: '5' },
+      card: { id: '5', title: '5', dueOn: null },
     });
     expect(board.columns[2]?.cards[0]?.labelIds).toEqual([]);
   });

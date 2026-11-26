@@ -25,6 +25,14 @@ export class ApiClient {
     await this.send('PATCH', path, body);
   }
 
+  async putWithBody<Output>(
+    path: string,
+    body: unknown,
+    schema: z.ZodType<Output>,
+  ): Promise<Output> {
+    return this.parse(await this.send('PUT', path, body), schema);
+  }
+
   /** Écriture sans corps qui renvoie une réponse. */
   async put<Output>(path: string, schema: z.ZodType<Output>): Promise<Output> {
     return this.parse(await this.send('PUT', path), schema);

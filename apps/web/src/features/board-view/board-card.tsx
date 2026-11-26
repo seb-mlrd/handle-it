@@ -1,5 +1,6 @@
 import type { CardViewResponse } from '@handle-it/contracts';
 import { Link } from 'react-router';
+import { DueDateChip } from '../due-date/due-date-chip';
 import { CardLabels } from '../labels/card-labels';
 import { useSortableItem } from './use-sortable-item';
 
@@ -27,6 +28,7 @@ export function BoardCard({ boardId, columnId, card }: BoardCardProps) {
       >
         {card.title}
         <CardLabels boardId={boardId} labelIds={card.labelIds} />
+        {card.dueOn && <DueDateChip dueOn={card.dueOn} />}
       </Link>
     </li>
   );

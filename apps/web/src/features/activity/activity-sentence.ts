@@ -1,4 +1,5 @@
 import type { ActivityDetails } from '@handle-it/contracts';
+import { formatDueDate } from '../due-date/due-date-status';
 
 /** Phrase lue après le nom de l'auteur : « Ada a créé la carte « Pain » dans « À faire » ». */
 export function describeActivity(details: ActivityDetails): string {
@@ -31,6 +32,10 @@ export function describeActivity(details: ActivityDetails): string {
       return `a posé le label « ${details.labelName} » sur « ${details.cardTitle} »`;
     case 'card-label-removed':
       return `a retiré le label « ${details.labelName} » de « ${details.cardTitle} »`;
+    case 'card-due-set':
+      return `a fixé l'échéance de « ${details.cardTitle} » au ${formatDueDate(details.dueOn)}`;
+    case 'card-due-removed':
+      return `a retiré l'échéance de « ${details.cardTitle} »`;
     case 'member-joined':
       return 'a rejoint le tableau';
     case 'member-left':

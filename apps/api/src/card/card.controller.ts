@@ -6,6 +6,8 @@ import {
   updateCardRequestSchema,
   type MoveCardRequest,
   moveCardRequestSchema,
+  type SetDueDateRequest,
+  setDueDateRequestSchema,
 } from '@handle-it/contracts';
 import {
   Body,
@@ -18,6 +20,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { uuidPipe } from '../shared/http/uuid.pipe.js';
@@ -72,6 +75,17 @@ export class CardController {
     @Body(new ZodValidationPipe(moveCardRequestSchema)) request: MoveCardRequest,
   ): Promise<void> {
     await this.cardService.move(user.getId(), boardId, cardId, request);
+  }
+
+  /** Pose, change ou retire l'échéance d'une carte. */
+  @Put('cards/:cardId/due-date')
+  async setDueDate(
+    @CurrentUser() user: User,
+    @Param('boardId', uuidPipe) boardId: string,
+    @Param('cardId', uuidPipe) cardId: string,
+    @Body(new ZodValidationPipe(setDueDateRequestSchema)) request: SetDueDateRequest,
+  ): Promise<CardResponse> {
+    return presentCard(await this.cardService.setDueDate(user.getId(), boardId, cardId, request));
   }
 
   /** Supprime une carte. */

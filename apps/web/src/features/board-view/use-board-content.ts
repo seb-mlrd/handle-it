@@ -3,6 +3,7 @@ import type {
   ColumnRequest,
   CreateCardRequest,
   LabelRequest,
+  SetDueDateRequest,
   UpdateCardRequest,
 } from '@handle-it/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -161,6 +162,20 @@ export function useLoadedBoard<Selected>(
 }
 
 const selectLabels = (board: BoardViewResponse) => board.labels;
+
+/** Pose, change ou retire l'échéance d'une carte ; le détail ouvert est mis à jour aussitôt. */
+export function useSetDueDate(boardId: string, cardId: string) {
+  const gateway = useBoardContentGateway();
+  const queryClient = useQueryClient();
+  return useContentMutation(
+    boardId,
+    async (request: SetDueDateRequest) => {
+      const card = await gateway.setDueDate(boardId, cardId, request);
+      queryClient.setQueryData(getCardKey(boardId, cardId), card);
+    },
+    [...getCardKey(boardId, cardId), 'due-date'],
+  );
+}
 
 /** Labels du board affiché. */
 export function useBoardLabels(boardId: string) {

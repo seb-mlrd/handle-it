@@ -8,6 +8,7 @@ import { RankConflictError } from '../shared/ranking/rank-conflict.error.js';
 import { Rank } from '../shared/ranking/rank.value-object.js';
 import type { RankedList } from '../shared/ranking/ranked-list.js';
 import { Card } from './card.entity.js';
+import { DueDate } from './due-date.value-object.js';
 import { CardRepository } from './card.repository.js';
 import type { CardSummary } from './card-summary.js';
 import { PrismaCardList } from './prisma-card-list.js';
@@ -19,6 +20,7 @@ const CARD_FIELDS = {
   title: true,
   description: true,
   rank: true,
+  dueOn: true,
 } as const;
 
 type CardRecord = Prisma.CardGetPayload<{ select: typeof CARD_FIELDS }>;
@@ -46,12 +48,16 @@ export class PrismaCardRepository extends CardRepository {
     }
   }
 
-  override findSummariesByBoard(boardId: string): Promise<CardSummary[]> {
-    return this.transactionContext.getClient().card.findMany({
+  override async findSummariesByBoard(boardId: string): Promise<CardSummary[]> {
+    const records = await this.transactionContext.getClient().card.findMany({
       where: { column: { boardId } },
       orderBy: { rank: 'asc' },
-      select: { id: true, columnId: true, title: true },
+      select: { id: true, columnId: true, title: true, dueOn: true },
     });
+    return records.map(({ dueOn, ...summary }) => ({
+      ...summary,
+      dueOn: dueOn && DueDate.fromDatabase(dueOn).getValue(),
+    }));
   }
 
   override async find(boardId: string, cardId: string): Promise<Card | null> {
@@ -90,6 +96,18 @@ export class PrismaCardRepository extends CardRepository {
       select: { rank: true },
     });
     return record && Rank.fromValue(record.rank);
+  }
+
+  override async setDueOn(boardId: string, cardId: string, dueOn: DueDate | null): Promise<Card> {
+    const [record] = await this.transactionContext.getClient().card.updateManyAndReturn({
+      where: this.onBoard(boardId, cardId),
+      data: { dueOn: dueOn?.toDatabase() ?? null },
+      select: CARD_FIELDS,
+    });
+    if (!record) {
+      throw new CardNotFoundError();
+    }
+    return this.toCard(record);
   }
 
   override async update(
@@ -140,6 +158,7 @@ export class PrismaCardRepository extends CardRepository {
 
   private toCard(record: CardRecord): Card {
     const rank = Rank.fromValue(record.rank);
-    return new Card(record.id, record.columnId, record.title, record.description, rank);
+    const dueOn = record.dueOn && DueDate.fromDatabase(record.dueOn);
+    return new Card(record.id, record.columnId, record.title, record.description, rank, dueOn);
   }
 }

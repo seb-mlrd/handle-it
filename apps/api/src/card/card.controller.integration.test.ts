@@ -56,8 +56,8 @@ describe('vue du board', () => {
           id: expect.any(String),
           name: 'À faire',
           cards: [
-            { id: expect.any(String), title: 'Pain', labelIds: [] },
-            { id: expect.any(String), title: 'Lait', labelIds: [] },
+            { id: expect.any(String), title: 'Pain', dueOn: null, labelIds: [] },
+            { id: expect.any(String), title: 'Lait', dueOn: null, labelIds: [] },
           ],
         },
         { id: expect.any(String), name: 'Fait', cards: [] },
@@ -85,13 +85,13 @@ describe('cartes', () => {
     const response = await createCard('Pain');
     expect(response.status).toBe(201);
     const card = await readCard(response);
-    expect(card).toEqual({ id: expect.any(String), title: 'Pain', description: '' });
+    expect(card).toEqual({ id: expect.any(String), title: 'Pain', dueOn: null, description: '' });
     const body = { title: 'Pain complet', description: 'Deux\nbaguettes' };
     const cardPath = `${boardPath}/cards/${card.id}`;
     const updated = await server.send('PATCH', cardPath, { cookie: ada, body });
     expect(updated.status).toBe(200);
     const read = await server.send('GET', cardPath, { cookie: ada });
-    expect(await read.json()).toEqual({ id: card.id, ...body });
+    expect(await read.json()).toEqual({ id: card.id, dueOn: null, ...body });
   });
 
   it('sont supprimées seules, ou avec leur colonne', async () => {
@@ -168,5 +168,46 @@ describe('droits', () => {
 
   it('créer exige une session', async () => {
     expect((await server.send('POST', `${columnPath}/cards`)).status).toBe(401);
+  });
+});
+
+describe('échéance', () => {
+  it('se pose, se change, se retire, et figure dans la vue du board', async () => {
+    const { id } = await readCard(await createCard('Pain'));
+    const path = `${boardPath}/cards/${id}/due-date`;
+    const set = await server.send('PUT', path, { cookie: ada, body: { dueOn: '2026-12-31' } });
+    expect(set.status).toBe(200);
+    expect(await set.json()).toMatchObject({ id, dueOn: '2026-12-31' });
+    expect((await readView()).columns[0]?.cards[0]).toMatchObject({ dueOn: '2026-12-31' });
+    await server.send('PUT', path, { cookie: ada, body: { dueOn: null } });
+    expect((await readView()).columns[0]?.cards[0]).toMatchObject({ dueOn: null });
+  });
+
+  it.each(['2026-02-30', '31/12/2026', 'demain', ''])('refuse la date « %s »', async (dueOn) => {
+    const { id } = await readCard(await createCard('Pain'));
+    const response = await server.send('PUT', `${boardPath}/cards/${id}/due-date`, {
+      cookie: ada,
+      body: { dueOn },
+    });
+    expect(response.status).toBe(400);
+  });
+
+  it('est réservée aux membres et inscrite à l’historique', async () => {
+    const { id } = await readCard(await createCard('Pain'));
+    const path = `${boardPath}/cards/${id}/due-date`;
+    expect((await server.send('PUT', path, { cookie: bob, body: { dueOn: null } })).status).toBe(
+      404,
+    );
+    await server.send('PUT', path, { cookie: ada, body: { dueOn: '2027-01-15' } });
+    await server.send('PUT', path, { cookie: ada, body: { dueOn: null } });
+    const history = (await (
+      await server.send('GET', `${boardPath}/cards/${id}/activities`, { cookie: ada })
+    ).json()) as {
+      items: { details: unknown }[];
+    };
+    expect(history.items.map(({ details }) => details).slice(0, 2)).toEqual([
+      { type: 'card-due-removed', cardTitle: 'Pain' },
+      { type: 'card-due-set', cardTitle: 'Pain', dueOn: '2027-01-15' },
+    ]);
   });
 });

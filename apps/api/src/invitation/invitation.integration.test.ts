@@ -209,6 +209,7 @@ describe('table des droits', () => {
     ['DELETE', `/columns/${id}`, undefined, 404, 404],
     ['POST', `/columns/${id}/cards`, card, 404, 404],
     ['PATCH', `/cards/${id}`, card, 404, 404],
+    ['PUT', `/cards/${id}/due-date`, { dueOn: null }, 404, 404],
     ['PATCH', `/cards/${id}/position`, cardMove, 404, 404],
     ['DELETE', `/cards/${id}`, undefined, 404, 404],
     ['GET', '/labels', undefined, 200, 200],

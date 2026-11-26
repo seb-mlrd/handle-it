@@ -81,6 +81,8 @@ model Card {
   columnId    String @map("column_id") @db.Uuid
   title       String
   description String
+  /// Échéance sans heure ; facultative.
+  dueOn       DateTime? @map("due_on") @db.Date
   rank        String
   column      Column @relation(fields: [columnId], references: [id], onDelete: Cascade)
   labels      CardLabel[]
