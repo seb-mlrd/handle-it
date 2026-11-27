@@ -23,7 +23,7 @@ export function LabelPicker({ boardId, cardId }: LabelPickerProps) {
   const setCardLabel = useSetCardLabel(boardId, cardId);
   return (
     <fieldset className="flex flex-col gap-3">
-      <legend className="mb-2 text-lg font-semibold">Labels</legend>
+      <legend className="mb-2 text-headline font-semibold">Labels</legend>
       {labels.length === 0 ? (
         <p className="text-muted">
           Ce tableau n'a pas encore de label.{' '}

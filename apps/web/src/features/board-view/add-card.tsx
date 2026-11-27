@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { SingleFieldForm } from '../../shared/forms/single-field-form';
 import { useReturnFocus } from '../../shared/focus/use-return-focus';
 import { Button } from '../../shared/ui/button';
+import { Icon } from '../../shared/ui/icon';
 import { useCreateCard } from './use-board-content';
 
 interface AddCardProps {
@@ -19,9 +20,11 @@ export function AddCard({ boardId, column }: AddCardProps) {
       <Button
         ref={openerReference}
         variant="ghost"
+        className="justify-start!"
         aria-label={`Ajouter une carte à ${column.name}`}
         onClick={() => setIsOpen(true)}
       >
+        <Icon name="plus" className="size-4" />
         Ajouter une carte
       </Button>
     );

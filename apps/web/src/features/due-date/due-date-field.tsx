@@ -19,7 +19,7 @@ export function DueDateField({ boardId, cardId, dueOn }: DueDateFieldProps) {
     setDueDate.mutate({ dueOn: nextValue }, { onSuccess: () => setValue(nextValue ?? '') });
   return (
     <section aria-label="Échéance" className="flex flex-col gap-3">
-      <h3 className="text-lg font-semibold">Échéance</h3>
+      <h3 className="text-headline font-semibold">Échéance</h3>
       <p className="text-muted">{dueOn ? `Le ${formatDueDate(dueOn)}` : 'Aucune échéance.'}</p>
       <TextField
         label="Date d'échéance"

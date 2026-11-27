@@ -6,7 +6,7 @@ interface CommentCountProps {
 export function CommentCount({ count }: CommentCountProps) {
   if (count === 0) return null;
   return (
-    <span className="mt-2 block text-sm text-muted">
+    <span className="text-sm text-muted">
       {count} {count === 1 ? 'commentaire' : 'commentaires'}
     </span>
   );

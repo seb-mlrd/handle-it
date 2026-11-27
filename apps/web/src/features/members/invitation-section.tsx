@@ -23,7 +23,7 @@ export function InvitationSection({ boardId }: InvitationSectionProps) {
   const isCreatedActive = activeInvitations.some(({ id }) => id === created?.id);
   return (
     <section aria-label="Invitations" className="flex flex-col gap-4">
-      <h3 className="text-lg font-semibold">Inviter quelqu'un</h3>
+      <h3 className="text-headline font-semibold">Inviter quelqu'un</h3>
       <p className="text-muted">Un lien sert à une seule personne.</p>
       <CreateInvitationForm submit={createInvitation.mutateAsync} />
       {created && isCreatedActive && (

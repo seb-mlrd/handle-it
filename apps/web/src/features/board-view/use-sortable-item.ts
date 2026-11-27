@@ -3,7 +3,8 @@ import { CSS } from '@dnd-kit/utilities';
 import type { DragItem } from './drag-item';
 import { useReducedMotion } from './use-reduced-motion';
 
-const TRANSITION = { duration: 200, easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)' };
+// Écrit dans un style en ligne : var() s'y résout, la courbe reste celle d'index.css.
+const TRANSITION = { duration: 340, easing: 'var(--ease-spring)' };
 
 /** Élément triable, immobile si l'utilisateur limite les animations. */
 export function useSortableItem(item: DragItem, role: string, roleDescription: string) {

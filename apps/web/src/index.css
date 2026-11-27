@@ -5,13 +5,19 @@
   --color-*: initial;
   --color-canvas: light-dark(#f3f5f4, #131615);
   --color-surface: light-dark(#ffffff, #1c201e);
+  /* Fond des colonnes : un creux sous les cartes, qui ressortent sans bordure. */
+  --color-well: light-dark(#e8ecea, #181b1a);
+  /* Cartes posées sur un creux : en sombre, plus claires que la surface pour se détacher. */
+  --color-raised: light-dark(#ffffff, #242927);
   --color-ink: light-dark(#191d1b, #edf1ee);
   --color-muted: light-dark(#565f5a, #a5afa9);
-  --color-line: light-dark(#d5dbd7, #343a37);
+  --color-line: light-dark(#dde2df, #2f3532);
   --color-control: light-dark(#78827c, #77817b);
   --color-accent: light-dark(#f5bd1f, #f5bd1f);
   --color-accent-strong: light-dark(#e3aa05, #ffd04d);
   --color-on-accent: light-dark(#191d1b, #191d1b);
+  /* Matériau translucide : le contenu défile dessous, l'en-tête garde sa place sans bande opaque. */
+  --color-material: light-dark(rgb(255 255 255 / 0.74), rgb(28 32 30 / 0.74));
   /* Labels : fond pâle et texte foncé en clair, l'inverse en sombre ; contraste 7:1 au moins. */
   --color-label-gray: light-dark(#e4e7e5, #3a403d);
   --color-on-label-gray: light-dark(#2d3330, #e8ece9);
@@ -32,14 +38,114 @@
   --color-on-danger: light-dark(#ffffff, #191d1b);
   --color-danger: light-dark(#b3261e, #ff9c93);
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Police système : elle porte déjà l'optical sizing et les tables d'approche de chaque plateforme. */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* L'approche se resserre quand le corps grandit : une seule valeur serait fausse quelque part. */
   --text-display: 2rem;
-  --text-display--line-height: 1.15;
-  --text-display--letter-spacing: -0.02em;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.022em;
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.3;
+  --text-title--letter-spacing: -0.014em;
+  --text-headline: 0.9375rem;
+  --text-headline--line-height: 1.35;
+  --text-headline--letter-spacing: -0.006em;
 
   --spacing: 0.25rem;
-  --radius-control: 0.5rem;
-  --radius-card: 0.75rem;
+  --radius-control: 0.625rem;
+  --radius-card: 0.875rem;
+  --radius-sheet: 1.25rem;
+
+  /* Trois niveaux de profondeur : posé, soulevé au survol, flottant au-dessus de la page. */
+  --shadow-raised:
+    0 1px 2px light-dark(rgb(25 29 27 / 0.08), rgb(0 0 0 / 0.45)),
+    0 0 0 1px light-dark(rgb(25 29 27 / 0.06), rgb(255 255 255 / 0.05));
+  --shadow-lifted:
+    0 6px 16px -4px light-dark(rgb(25 29 27 / 0.14), rgb(0 0 0 / 0.55)),
+    0 0 0 1px light-dark(rgb(25 29 27 / 0.07), rgb(255 255 255 / 0.08));
+  --shadow-overlay:
+    0 24px 56px -12px light-dark(rgb(25 29 27 / 0.3), rgb(0 0 0 / 0.65)),
+    0 0 0 1px light-dark(rgb(25 29 27 / 0.08), rgb(255 255 255 / 0.1));
+
+  /*
+   * Ressorts tracés en linear() : critiquement amorti par défaut (aucun rebond), légèrement
+   * sous-amorti (0,8) seulement quand un geste a donné de l'élan, comme le lâcher d'une carte.
+   */
+  --ease-spring: linear(
+    0,
+    0.049,
+    0.157,
+    0.285,
+    0.411,
+    0.525,
+    0.623,
+    0.705,
+    0.771,
+    0.824,
+    0.866,
+    0.898,
+    0.923,
+    0.943,
+    0.957,
+    0.968,
+    0.976,
+    0.982,
+    0.987,
+    0.99,
+    0.993,
+    0.995,
+    0.996,
+    0.997,
+    1
+  );
+  --ease-spring-bounce: linear(
+    0,
+    0.027,
+    0.096,
+    0.188,
+    0.292,
+    0.398,
+    0.5,
+    0.594,
+    0.678,
+    0.75,
+    0.812,
+    0.863,
+    0.904,
+    0.936,
+    0.962,
+    0.98,
+    0.994,
+    1.003,
+    1.009,
+    1.013,
+    1.015,
+    1.015,
+    1.015,
+    1.014,
+    1.012,
+    1.011,
+    1.009,
+    1.007,
+    1.006,
+    1.005,
+    1.004,
+    1.003,
+    1
+  );
+  --default-transition-timing-function: var(--ease-spring);
+  --default-transition-duration: 340ms;
+}
+
+/* Barre translucide ; plus opaque si l'utilisateur limite la transparence. */
+@utility material {
+  background-color: var(--color-material);
+  backdrop-filter: blur(20px) saturate(180%);
+
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--color-surface);
+    backdrop-filter: none;
+  }
 }
 
 @layer base {
@@ -50,6 +156,8 @@
   body {
     background: var(--color-canvas);
     color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* Edge ajoute son propre œil, en double avec le nôtre. */
@@ -60,5 +168,114 @@
   :focus-visible {
     outline: 2px solid var(--color-ink);
     outline-offset: 2px;
+  }
+
+  @media (prefers-contrast: more) {
+    :root {
+      --color-line: light-dark(#78827c, #77817b);
+      --color-material: var(--color-surface);
+    }
+  }
+}
+
+@layer components {
+  /*
+   * Fenêtres : le panneau latéral arrive par la droite, le dialogue central grandit à peine depuis
+   * son centre. Seule l'entrée s'anime : la fenêtre quitte la page avec sa route.
+   */
+  .modal {
+    transition:
+      opacity 220ms var(--ease-spring),
+      translate 520ms var(--ease-spring),
+      scale 420ms var(--ease-spring);
+  }
+
+  .modal::backdrop {
+    background: rgb(10 12 11 / 0.42);
+    backdrop-filter: blur(4px);
+    transition: opacity 300ms var(--ease-spring);
+  }
+
+  @starting-style {
+    .modal[open]::backdrop {
+      opacity: 0;
+    }
+
+    .modal[data-placement='center'][open] {
+      opacity: 0;
+      scale: 0.96;
+    }
+
+    .modal[data-placement='side'][open] {
+      translate: 100% 0;
+    }
+  }
+
+  /* Menu d'actions : posé sous son bouton, il en sort comme d'une origine. */
+  .action-menu {
+    transform-origin: top right;
+    transition:
+      opacity 160ms var(--ease-spring),
+      scale 300ms var(--ease-spring),
+      display 300ms allow-discrete,
+      overlay 300ms allow-discrete;
+  }
+
+  @starting-style {
+    .action-menu:popover-open {
+      opacity: 0;
+      scale: 0.94;
+    }
+  }
+
+  @supports (position-area: bottom) {
+    .action-menu {
+      inset: auto;
+      margin: 0.25rem 0 0;
+      position-area: bottom span-left;
+      position-try-fallbacks: flip-block, flip-inline;
+    }
+  }
+
+  /* La copie saisie se soulève : elle grandit un peu et son ombre s'allonge. */
+  .drag-lift {
+    animation: drag-lift 300ms var(--ease-spring) both;
+  }
+
+  @keyframes drag-lift {
+    from {
+      scale: 1;
+      box-shadow: var(--shadow-raised);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modal,
+    .action-menu {
+      transition: opacity 200ms ease;
+    }
+
+    @starting-style {
+      .modal[data-placement][open] {
+        opacity: 0;
+        translate: none;
+        scale: none;
+      }
+
+      .action-menu:popover-open {
+        scale: none;
+      }
+    }
+
+    .drag-lift {
+      animation: none;
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .modal::backdrop {
+      backdrop-filter: none;
+      background: rgb(10 12 11 / 0.6);
+    }
   }
 }

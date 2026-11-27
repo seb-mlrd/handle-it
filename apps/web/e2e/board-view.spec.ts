@@ -50,10 +50,12 @@ test('un board complet survit au rechargement', async ({ page }) => {
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(cards).toHaveText(['Lait', 'Œufs', 'Sel', 'Riz']);
 
+  await page.getByRole('button', { name: 'Actions de la colonne Fait' }).click();
   await page.getByRole('button', { name: 'Renommer la colonne Fait' }).click();
   await page.getByLabel('Nom de la colonne').fill('Terminé');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: 'Terminé' })).toBeVisible();
+  await page.getByRole('button', { name: 'Actions de la colonne À faire' }).click();
   await page.getByRole('button', { name: 'Supprimer la colonne À faire' }).click();
   await page.getByRole('button', { name: 'Supprimer', exact: true }).click();
   await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Terminé']);

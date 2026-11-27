@@ -1,8 +1,7 @@
 import type { CardViewResponse } from '@handle-it/contracts';
 import { Link } from 'react-router';
-import { CommentCount } from '../comments/comment-count';
-import { DueDateChip } from '../due-date/due-date-chip';
-import { CardLabels } from '../labels/card-labels';
+import { CardFace } from './card-face';
+import { CARD_CLASS_NAME, DROP_SLOT_CLASS_NAME } from './card-styles';
 import { useSortableItem } from './use-sortable-item';
 
 interface BoardCardProps {
@@ -25,12 +24,9 @@ export function BoardCard({ boardId, columnId, card }: BoardCardProps) {
         ref={sortable.setActivatorNodeRef}
         to={`/boards/${boardId}/cards/${card.id}`}
         draggable={false}
-        className={`block touch-manipulation rounded-control border border-line bg-canvas px-3 py-2.5 wrap-anywhere select-none [-webkit-touch-callout:none] hover:border-control active:border-control ${sortable.isDragging ? 'opacity-40' : ''}`}
+        className={`${CARD_CLASS_NAME} touch-manipulation shadow-raised transition-[box-shadow,translate,scale] select-none [-webkit-touch-callout:none] hover:shadow-lifted motion-safe:hover:-translate-y-px motion-safe:active:scale-[0.98] motion-safe:active:duration-100 motion-reduce:transition-none ${sortable.isDragging ? DROP_SLOT_CLASS_NAME : ''}`}
       >
-        {card.title}
-        <CardLabels boardId={boardId} labelIds={card.labelIds} />
-        {card.dueOn && <DueDateChip dueOn={card.dueOn} />}
-        <CommentCount count={card.commentCount} />
+        <CardFace boardId={boardId} card={card} />
       </Link>
     </li>
   );

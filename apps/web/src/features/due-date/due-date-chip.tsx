@@ -16,7 +16,7 @@ export function DueDateChip({ dueOn }: DueDateChipProps) {
   const today = useToday();
   return (
     <span
-      className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-sm font-medium ${STATUS_CLASSES[getDueStatus(dueOn, today)]}`}
+      className={`inline-flex rounded-full px-2 text-[0.8125rem] leading-5 font-medium tracking-[0.01em] ${STATUS_CLASSES[getDueStatus(dueOn, today)]}`}
     >
       {describeDueDate(dueOn, today)}
     </span>

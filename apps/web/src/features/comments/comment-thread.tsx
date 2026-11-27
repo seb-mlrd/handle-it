@@ -36,7 +36,7 @@ export function CommentThread({ boardId, cardId }: CommentThreadProps) {
     editing !== null && comments.data && !items.some(({ id }) => id === editing.commentId);
   return (
     <section aria-labelledby={titleId} className="flex flex-col gap-4">
-      <h3 id={titleId} className="text-lg font-semibold">
+      <h3 id={titleId} className="text-headline font-semibold">
         Commentaires
       </h3>
       {!comments.data ? (

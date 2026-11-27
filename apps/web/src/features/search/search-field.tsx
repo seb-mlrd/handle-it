@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import { useDebouncedValue } from '../../shared/time/use-debounced-value';
+import { FIELD_CLASS_NAME } from '../../shared/ui/field-styles';
+import { Icon } from '../../shared/ui/icon';
 import { SEARCH_PATH } from './search-path';
 import { SEARCH_DELAY_MILLISECONDS } from './search-text';
 import { useSlashShortcut } from './use-slash-shortcut';
@@ -31,7 +33,7 @@ export function SearchField() {
   return (
     <form
       role="search"
-      className="min-w-0 grow sm:max-w-sm"
+      className="relative min-w-0 grow sm:max-w-xs"
       onSubmit={(event) => {
         event.preventDefault();
         showResults(text, isOnSearchPage);
@@ -42,11 +44,22 @@ export function SearchField() {
         type="search"
         aria-label="Rechercher une carte"
         aria-keyshortcuts="/"
-        placeholder="Rechercher ( / )"
+        placeholder="Rechercher"
         value={text}
         onChange={(event) => setText(event.target.value)}
-        className="h-11 w-full rounded-control border border-control bg-canvas px-3 text-base"
+        className={`peer h-11 pr-10 pl-10 ${FIELD_CLASS_NAME}`}
       />
+      <Icon
+        name="search"
+        className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted"
+      />
+      {/* Rappel du raccourci, masqué dès que le champ sert : il gênerait la saisie. */}
+      <kbd
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 right-2.5 flex h-6 min-w-6 -translate-y-1/2 items-center justify-center rounded-md border border-line font-sans text-sm text-muted peer-focus:hidden peer-[:not(:placeholder-shown)]:hidden max-sm:hidden"
+      >
+        /
+      </kbd>
     </form>
   );
 }

@@ -17,19 +17,21 @@ export function BoardViewPage() {
   return (
     <div className="flex h-dvh flex-col">
       <title>{`${(!isMissing && board?.name) || 'Tableau'} · Handle It`}</title>
-      <AppHeader />
+      <AppHeader currentPage={isMissing ? undefined : board?.name} />
       <main
         id={MAIN_CONTENT_ID}
         tabIndex={-1}
-        className="outline-none flex min-h-0 grow flex-col gap-4 py-6"
+        className="outline-none flex min-h-0 grow flex-col gap-5 pt-6"
       >
-        <Link to="/" className="mx-6 self-start text-muted underline">
-          Mes tableaux
-        </Link>
         {isMissing ? (
           <div className="flex flex-col gap-2 px-6">
             <h1 className="text-display font-bold">Tableau introuvable</h1>
-            <p role="alert">Ce tableau n'existe pas, ou tu n'y as pas accès.</p>
+            <p role="alert" className="text-muted">
+              Ce tableau n'existe pas, ou tu n'y as pas accès.
+            </p>
+            <Link to="/" className="self-start font-semibold underline">
+              Retour à mes tableaux
+            </Link>
           </div>
         ) : board ? (
           <BoardContent board={board} />

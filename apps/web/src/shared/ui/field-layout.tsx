@@ -4,6 +4,8 @@ export interface FieldLayoutProps {
   readonly label: string;
   readonly hint?: string | undefined;
   readonly errors?: readonly string[] | undefined;
+  /** Libellé lu mais non affiché, quand une icône et un texte d'exemple suffisent à l'œil. */
+  readonly isLabelHidden?: boolean | undefined;
 }
 
 interface ControlAttributes {
@@ -21,6 +23,7 @@ export function FieldLayout({
   label,
   hint,
   errors = [],
+  isLabelHidden = false,
   renderControl,
 }: FieldLayoutWithControlProps) {
   const id = useId();
@@ -30,7 +33,7 @@ export function FieldLayout({
   const descriptions = [hint && hintId, isInvalid && errorId].filter(Boolean).join(' ');
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium">
+      <label htmlFor={id} className={isLabelHidden ? 'sr-only' : 'text-sm font-medium'}>
         {label}
       </label>
       {renderControl({

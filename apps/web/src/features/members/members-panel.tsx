@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { Button } from '../../shared/ui/button';
 import { Modal } from '../../shared/ui/modal';
+import { SheetHeader } from '../../shared/ui/sheet-header';
 import { useLoadedBoard } from '../board-view/use-board-content';
 import { InvitationSection } from './invitation-section';
 import { LeaveBoard } from './leave-board';
@@ -17,15 +17,8 @@ export function MembersPanel() {
   const close = () => void navigate(`/boards/${boardId}`);
   return (
     <Modal titleId={titleId} placement="side" close={close}>
+      <SheetHeader titleId={titleId} title="Membres" close={close} />
       <div className="flex flex-col gap-8">
-        <div className="flex items-center justify-between gap-4">
-          <h2 id={titleId} className="text-xl font-bold">
-            Membres
-          </h2>
-          <Button variant="secondary" onClick={close}>
-            Fermer
-          </Button>
-        </div>
         <MemberList boardId={boardId} canManage={isOwner} />
         {isOwner && <InvitationSection boardId={boardId} />}
         {board?.role === 'member' && <LeaveBoard boardId={boardId} boardName={board.name} />}

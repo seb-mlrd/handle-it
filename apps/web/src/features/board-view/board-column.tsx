@@ -2,6 +2,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import type { ColumnViewResponse } from '@handle-it/contracts';
 import { AddCard } from './add-card';
 import { BoardCard } from './board-card';
+import { DROP_SLOT_CLASS_NAME } from './card-styles';
 import { ColumnDragHandle } from './column-drag-handle';
 import { ColumnHeader } from './column-header';
 import { useSortableItem } from './use-sortable-item';
@@ -21,7 +22,7 @@ export function BoardColumn({ boardId, column }: BoardColumnProps) {
     <li
       ref={sortable.setNodeRef}
       style={sortable.style}
-      className={`flex max-h-full w-72 shrink-0 snap-start flex-col gap-3 rounded-card border border-line bg-surface p-3 ${sortable.isDragging ? 'opacity-40' : ''}`}
+      className={`flex max-h-full w-72 shrink-0 snap-start flex-col gap-2 rounded-card bg-well p-2 ${sortable.isDragging ? DROP_SLOT_CLASS_NAME : ''}`}
     >
       <ColumnHeader
         boardId={boardId}
@@ -42,7 +43,7 @@ export function BoardColumn({ boardId, column }: BoardColumnProps) {
         >
           <ul
             aria-label={`Cartes de ${column.name}`}
-            className="flex min-h-0 flex-col gap-2 overflow-y-auto p-0.5"
+            className="-m-1 flex min-h-0 flex-col gap-2 overflow-y-auto p-1"
           >
             {column.cards.map((card) => (
               <BoardCard key={card.id} boardId={boardId} columnId={column.id} card={card} />
