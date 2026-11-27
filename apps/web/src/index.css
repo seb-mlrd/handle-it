@@ -22,7 +22,7 @@
   --color-label-yellow: light-dark(#fbefc0, #4d3e0a);
   --color-on-label-yellow: light-dark(#5c4500, #fbe7a6);
   --color-label-green: light-dark(#dcf0dc, #1f4325);
-  --color-on-label-green: light-dark(#1e5a26, #cdeccf);
+  --color-on-label-green: light-dark(#1c5724, #cdeccf);
   --color-label-teal: light-dark(#d4efec, #154440);
   --color-on-label-teal: light-dark(#0d544e, #c4ece7);
   --color-label-blue: light-dark(#dce8fb, #1d3659);
@@ -31,6 +31,10 @@
   --color-on-label-pink: light-dark(#86184e, #fbd3e6);
   --color-on-danger: light-dark(#ffffff, #191d1b);
   --color-danger: light-dark(#b3261e, #ff9c93);
+  /* Voile des modales : le reset ci-dessus supprime le noir par défaut de Tailwind. */
+  --color-scrim: rgb(0 0 0 / 0.6);
+  /* Ombre des éléments flottants : bien plus opaque en sombre, sinon elle disparaît sur la surface. */
+  --color-shadow: light-dark(rgb(0 0 0 / 0.14), rgb(0 0 0 / 0.6));
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --text-display: 2rem;
@@ -40,6 +44,8 @@
   --spacing: 0.25rem;
   --radius-control: 0.5rem;
   --radius-card: 0.75rem;
+
+  --shadow-overlay: 0 8px 24px -4px var(--color-shadow);
 }
 
 @layer base {

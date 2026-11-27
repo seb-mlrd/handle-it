@@ -44,7 +44,7 @@ export function Modal({
       aria-labelledby={titleId}
       onCancel={(event) => isEscapeBlocked && event.preventDefault()}
       onClose={handleClose}
-      className={`w-full border border-line bg-surface p-6 text-ink backdrop:bg-black/60 ${PLACEMENT_CLASSES[placement]}`}
+      className={`w-full border border-line bg-surface p-6 text-ink backdrop:bg-scrim ${PLACEMENT_CLASSES[placement]}`}
     >
       {children}
     </dialog>

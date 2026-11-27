@@ -47,7 +47,7 @@ export function BoardFilterBar(props: BoardFilterBarProps) {
           <summary className="flex h-11 cursor-pointer items-center rounded-control border border-control bg-surface px-4 font-semibold">
             Filtrer par label{filter.labelIds.length > 0 ? ` (${filter.labelIds.length})` : ''}
           </summary>
-          <fieldset className="absolute z-10 mt-1 flex w-64 flex-col gap-1 rounded-card border border-line bg-surface p-3 shadow-lg">
+          <fieldset className="absolute z-10 mt-1 flex w-64 flex-col gap-1 rounded-card border border-line bg-surface p-3 shadow-overlay">
             <legend className="sr-only">Labels à afficher</legend>
             {labels.map((label) => (
               <label key={label.id} className="flex min-h-11 cursor-pointer items-center gap-3">

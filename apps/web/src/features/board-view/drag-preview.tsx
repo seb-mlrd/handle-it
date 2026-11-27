@@ -11,14 +11,14 @@ export function DragPreview({ item, columns }: DragPreviewProps) {
   if (item.type === 'card') {
     const cards = findColumnOfCard(columns, item.id)?.cards;
     return (
-      <div className="cursor-grabbing rounded-control border border-control bg-canvas px-3 py-2.5 wrap-anywhere shadow-lg">
+      <div className="cursor-grabbing rounded-control border border-control bg-canvas px-3 py-2.5 wrap-anywhere shadow-overlay">
         {cards?.find(({ id }) => id === item.id)?.title}
       </div>
     );
   }
   const column = columns.find(({ id }) => id === item.id);
   return (
-    <div className="flex cursor-grabbing flex-col gap-2 rounded-card border border-control bg-surface p-3 shadow-lg">
+    <div className="flex cursor-grabbing flex-col gap-2 rounded-card border border-control bg-surface p-3 shadow-overlay">
       <p className="px-1 text-lg font-semibold wrap-anywhere">{column?.name}</p>
       {column?.cards.map((card) => (
         <div
