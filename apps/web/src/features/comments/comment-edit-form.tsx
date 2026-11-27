@@ -36,6 +36,7 @@ export function CommentEditForm(props: CommentEditFormProps) {
         label="Modifier le commentaire"
         name="body"
         rows={EDIT_ROWS}
+        autoFocus
         value={props.draft}
         onChange={(event) => props.changeDraft(event.target.value)}
         onKeyDown={submitOnShortcut}

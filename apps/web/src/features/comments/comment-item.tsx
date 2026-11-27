@@ -11,11 +11,14 @@ interface CommentItemProps {
   readonly cardId: string;
   readonly comment: CommentResponse;
   readonly now: number;
+  /** Vrai au retour d'une modification : le bouton « Modifier » reprend le focus. */
+  readonly isEditButtonFocused: boolean;
   readonly startEditing: () => void;
 }
 
 /** Un commentaire du fil, avec les actions que l'API autorise. */
-export function CommentItem({ boardId, cardId, comment, now, startEditing }: CommentItemProps) {
+export function CommentItem(props: CommentItemProps) {
+  const { boardId, cardId, comment, now, startEditing } = props;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const deleteComment = useDeleteComment(boardId, cardId, comment.id);
   const authorName = comment.authorName ?? FORMER_MEMBER_NAME;
@@ -42,6 +45,7 @@ export function CommentItem({ boardId, cardId, comment, now, startEditing }: Com
           {comment.canEdit && (
             <Button
               variant="ghost"
+              autoFocus={props.isEditButtonFocused}
               aria-label={`Modifier le commentaire de ${authorName}`}
               onClick={startEditing}
             >

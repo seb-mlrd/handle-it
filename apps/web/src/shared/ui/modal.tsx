@@ -16,7 +16,7 @@ interface ModalProps {
   readonly children: ReactNode;
 }
 
-/** Fenêtre modale native : focus retenu, puis rendu à l'élément d'origine. */
+/** Fenêtre modale native : focus retenu, puis rendu à l'élément qui l'avait à l'ouverture. */
 export function Modal({
   titleId,
   placement = 'center',
@@ -28,8 +28,14 @@ export function Modal({
 
   useEffect(() => {
     const dialog = dialogReference.current;
+    const opener = document.activeElement;
     dialog?.showModal();
-    return () => dialog?.close();
+    return () => {
+      dialog?.close();
+      // La fenêtre est déjà retirée de la page quand elle se ferme ici : le navigateur ne rend plus
+      // le focus de lui-même.
+      if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
+    };
   }, []);
 
   const handleClose = (event: SyntheticEvent<HTMLDialogElement>) => {

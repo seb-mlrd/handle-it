@@ -1,6 +1,7 @@
 import { columnRequestSchema } from '@handle-it/contracts';
 import { useState } from 'react';
 import { SingleFieldForm } from '../../shared/forms/single-field-form';
+import { useReturnFocus } from '../../shared/focus/use-return-focus';
 import { Button } from '../../shared/ui/button';
 import { useCreateColumn } from './use-board-content';
 
@@ -12,6 +13,7 @@ interface AddColumnProps {
 export function AddColumn({ boardId, isFirst }: AddColumnProps) {
   const [isOpen, setIsOpen] = useState(false);
   const createColumn = useCreateColumn(boardId);
+  const openerReference = useReturnFocus<HTMLButtonElement>(isOpen);
   return (
     <li className="flex w-72 shrink-0 snap-start flex-col gap-3">
       {isFirst && (
@@ -30,7 +32,7 @@ export function AddColumn({ boardId, isFirst }: AddColumnProps) {
           />
         </div>
       ) : (
-        <Button variant="secondary" onClick={() => setIsOpen(true)}>
+        <Button ref={openerReference} variant="secondary" onClick={() => setIsOpen(true)}>
           Ajouter une colonne
         </Button>
       )}

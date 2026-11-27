@@ -1,5 +1,6 @@
 import type { LabelResponse } from '@handle-it/contracts';
 import { useState } from 'react';
+import { useReturnFocus } from '../../shared/focus/use-return-focus';
 import { Button } from '../../shared/ui/button';
 import { ConfirmDialog } from '../../shared/ui/confirm-dialog';
 import { useDeleteLabel, useUpdateLabel } from '../board-view/use-board-content';
@@ -17,6 +18,7 @@ export function LabelItem({ boardId, label }: LabelItemProps) {
   const close = () => setOpenPanel(null);
   const updateLabel = useUpdateLabel(boardId, label.id);
   const deleteLabel = useDeleteLabel(boardId, label.id);
+  const editOpenerReference = useReturnFocus<HTMLButtonElement>(openPanel === 'edit');
   if (openPanel === 'edit') {
     return (
       <li className="py-3">
@@ -37,6 +39,7 @@ export function LabelItem({ boardId, label }: LabelItemProps) {
       </div>
       <div className="flex gap-2">
         <Button
+          ref={editOpenerReference}
           variant="secondary"
           aria-label={`Modifier le label ${label.name}`}
           onClick={() => setOpenPanel('edit')}

@@ -158,3 +158,77 @@ test('la vitrine est accessible, tient de 320 à 1280 px et charge sans erreur',
   }
   expect(failures).toEqual([]);
 });
+
+// Le nom du lien d'une carte comprend son nombre de commentaires.
+const getCard = (page: Page, title: string) =>
+  page.getByRole('link', { name: new RegExp(`^${title}`) });
+
+/** Board d'une colonne, d'une carte commentée et d'un label, ouvert à l'écran. */
+async function openBoardWithCard(page: Page) {
+  await register(page, `${randomUUID()}@example.com`);
+  await expect(page.getByRole('heading', { name: 'Mes tableaux' })).toBeVisible();
+  const boardId = await post(page, '/boards', { name: 'Focus' });
+  const columnId = await post(page, `/boards/${boardId}/columns`, { name: 'À faire' });
+  const cardId = await post(page, `/boards/${boardId}/columns/${columnId}/cards`, {
+    title: 'Pain',
+  });
+  await post(page, `/boards/${boardId}/cards/${cardId}/comments`, { body: 'Du complet.' });
+  await post(page, `/boards/${boardId}/labels`, { name: 'Urgent', color: 'red' });
+  await page.goto(`/boards/${boardId}`);
+  await expect(getCard(page, 'Pain')).toBeVisible();
+}
+
+test('le focus revient au bouton qui a ouvert un formulaire ou une fenêtre', async ({ page }) => {
+  await openBoardWithCard(page);
+  const addCard = page.getByRole('button', { name: 'Ajouter une carte à À faire' });
+  await addCard.click();
+  await page.keyboard.press('Escape');
+  await expect(addCard).toBeFocused();
+
+  const rename = page.getByRole('button', { name: 'Renommer la colonne À faire' });
+  await rename.click();
+  await page.getByRole('button', { name: 'Annuler' }).click();
+  await expect(rename).toBeFocused();
+
+  const deleteColumn = page.getByRole('button', { name: 'Supprimer la colonne À faire' });
+  await deleteColumn.click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Annuler' }).click();
+  await expect(deleteColumn).toBeFocused();
+
+  await getCard(page, 'Pain').click();
+  const dialog = page.getByRole('dialog');
+  const editComment = dialog.getByRole('button', { name: /^Modifier le commentaire/ });
+  await editComment.click();
+  await expect(dialog.getByLabel('Modifier le commentaire')).toBeFocused();
+  await dialog.getByRole('button', { name: 'Annuler' }).click();
+  await expect(editComment).toBeFocused();
+  await dialog.getByRole('button', { name: 'Fermer', exact: true }).click();
+  await expect(getCard(page, 'Pain')).toBeFocused();
+});
+
+test('le menu des labels se ferme par Échap ou par un clic ailleurs', async ({ page }) => {
+  await openBoardWithCard(page);
+  const menu = page.locator('details');
+  const summary = page.getByText('Filtrer par label', { exact: true });
+  await summary.click();
+  await expect(page.getByRole('checkbox', { name: 'Urgent' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(menu).not.toHaveAttribute('open');
+  await expect(summary).toBeFocused();
+
+  await summary.click();
+  await page.getByRole('heading', { name: 'Focus' }).click();
+  await expect(menu).not.toHaveAttribute('open');
+});
+
+test('un board s’affiche sans erreur dans la console', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text());
+  });
+  await openBoardWithCard(page);
+  await page.getByRole('link', { name: 'Labels' }).click();
+  await expect(page.getByRole('heading', { name: 'Labels' })).toBeVisible();
+  // L'inscription vérifie d'abord la session, absente : sa réponse 401 est attendue.
+  expect(errors.filter((error) => !error.includes('401'))).toEqual([]);
+});

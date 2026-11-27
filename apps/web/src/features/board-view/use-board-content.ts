@@ -6,13 +6,18 @@ import type {
   SetDueDateRequest,
   UpdateCardRequest,
 } from '@handle-it/contracts';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBoardKey, getCardKey } from '../boards/board-keys';
 import { useBoardContentGateway } from './board-content-gateway-context';
 
-export function useBoardView(boardId: string) {
+/** Lecture d'un board, partagée par tous ses lecteurs : chacun connaît la même façon de le charger. */
+function useBoardQueryOptions(boardId: string) {
   const gateway = useBoardContentGateway();
-  return useQuery({ queryKey: getBoardKey(boardId), queryFn: () => gateway.getBoard(boardId) });
+  return queryOptions({ queryKey: getBoardKey(boardId), queryFn: () => gateway.getBoard(boardId) });
+}
+
+export function useBoardView(boardId: string) {
+  return useQuery(useBoardQueryOptions(boardId));
 }
 
 export function useCard(boardId: string, cardId: string) {
@@ -158,7 +163,7 @@ export function useLoadedBoard<Selected>(
   boardId: string,
   select: (board: BoardViewResponse) => Selected,
 ) {
-  return useQuery({ queryKey: getBoardKey(boardId), enabled: false, select });
+  return useQuery({ ...useBoardQueryOptions(boardId), enabled: false, select });
 }
 
 const selectLabels = (board: BoardViewResponse) => board.labels;

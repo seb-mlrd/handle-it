@@ -1,6 +1,7 @@
 import { type ColumnViewResponse, createCardRequestSchema } from '@handle-it/contracts';
 import { useState } from 'react';
 import { SingleFieldForm } from '../../shared/forms/single-field-form';
+import { useReturnFocus } from '../../shared/focus/use-return-focus';
 import { Button } from '../../shared/ui/button';
 import { useCreateCard } from './use-board-content';
 
@@ -12,9 +13,11 @@ interface AddCardProps {
 export function AddCard({ boardId, column }: AddCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const createCard = useCreateCard(boardId, column.id);
+  const openerReference = useReturnFocus<HTMLButtonElement>(isOpen);
   if (!isOpen) {
     return (
       <Button
+        ref={openerReference}
         variant="ghost"
         aria-label={`Ajouter une carte à ${column.name}`}
         onClick={() => setIsOpen(true)}
