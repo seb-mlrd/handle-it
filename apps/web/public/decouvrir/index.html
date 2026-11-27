@@ -33,6 +33,9 @@
     <meta name="page-type" content="software" />
     <script>
       document.documentElement.classList.add('mo-js');
+      // Entrée du héros au chargement (motion.md) : sans script, rien ne reste caché.
+      document.documentElement.classList.add('m-enter');
+      setTimeout(() => document.documentElement.classList.add('m-enter-done'), 700);
       setTimeout(() => document.documentElement.classList.add('mo-safe'), 2500);
     </script>
     <link rel="modulepreload" href="/decouvrir/assets/moments/moments.js" />
@@ -56,7 +59,7 @@
         --p-bg: #f3f5f4;
         --p-surface: #ffffff;
         --p-ink: #191d1b;
-        --p-muted: #565f5a;
+        --p-muted: #4a524e;
         --p-accent: #f5bd1f;
         --p-accent-ink: #111111;
         --p-action: #191d1b;
@@ -64,7 +67,7 @@
         --p-inv-bg: #191d1b;
         --p-inv-surface: #252927;
         --p-inv-ink: #f3f5f4;
-        --p-inv-muted: #989b99;
+        --p-inv-muted: #a5afa9;
         --p-inv-accent: #f5bd1f;
         --p-inv-accent-ink: #111111;
         --p-inv-action: #f5bd1f;
@@ -256,9 +259,44 @@
       #fonctions .panel {
         --p-h: 240px;
       }
+      @media (min-width: 640px) and (max-width: 1023px) {
+        /* Un écran de tablette en hauteur va de 1 024 à 1 180 px : les panneaux suivent sa hauteur. */
+        #fonctions .panel {
+          --p-h: max(360px, calc(100svh - 540px));
+        }
+        #questions .panel {
+          --p-h: 220px;
+        }
+      }
       @media (max-width: 639px) {
         #fonctions .panel {
-          --p-h: 200px;
+          --p-h: 170px;
+        }
+        #clavier .frame--split {
+          --ratio: 80%;
+        }
+        /* Sur téléphone, la section tient sur un écran : une question et l'introduction en moins. */
+        #questions .panel {
+          --p-h: 250px;
+        }
+        #questions .stack-4 > .muted,
+        #questions .faq__item:nth-child(2) {
+          display: none;
+        }
+        .hero__c .pill .muted {
+          display: none;
+        }
+      }
+      /* À 320 px, le bouton de la barre ne tient plus à côté du menu : il reste dans le menu et le héros. */
+      @media (max-width: 359px) {
+        .nav:not(.is-open) .nav__actions {
+          display: none;
+        }
+      }
+      /* Tablette : le tableau ouvert garde des cartes entières au-dessus de son fondu. */
+      @media (max-width: 1023px) {
+        .app__pane--open .hi-card:nth-of-type(n + 5) {
+          display: none;
         }
       }
       /* La maquette monte depuis le bas du cadre, coupée par son fondu : jamais un widget seul au milieu. */
@@ -342,6 +380,39 @@
         border-color: #b58600;
       }
 
+      /* Labels et échéance d'une carte, aux couleurs de l'application. */
+      @media (min-width: 1024px) {
+        #questions .panel {
+          --p-h: max(360px, calc(100svh - 380px));
+        }
+        #clavier .frame--split {
+          --ratio: 100%;
+        }
+      }
+      .hi-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .hi-tag {
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .hi-tag[data-tone='red'] {
+        background: #fde2df;
+        color: #8a1c12;
+      }
+      .hi-tag[data-tone='blue'] {
+        background: #dce8fb;
+        color: #1d4a8f;
+      }
+      .hi-tag[data-tone='gray'] {
+        background: #e4e7e5;
+        color: #2d3330;
+      }
+
       /* Thème sombre de l'application, montré dans la section sur le clavier. */
       .hi-dark {
         background: #131615;
@@ -351,8 +422,9 @@
         width: min(520px, calc(100% - 48px));
       }
       .hi-dark .hi-col {
-        background: #1c201e;
-        border-color: #343a37;
+        padding: 0;
+        background: none;
+        border: 0;
       }
       .hi-dark .hi-col__title {
         color: #edf1ee;
@@ -436,7 +508,7 @@
               role="img"
               aria-label="Un tableau Handle It : la carte « Réserver le train » passe de la colonne À faire à la colonne En cours, et l’écran indique qu’il est en direct"
             >
-              <div class="ly-piece d-win" aria-hidden="true">
+              <div class="ly-piece d-win ui" aria-hidden="true">
                 <div class="d-win__bar">
                   <span class="d-win__dots"><i></i><i></i><i></i></span
                   ><span><b>Week-end à Annecy</b> · 3 colonnes</span><span class="sp"></span
@@ -610,9 +682,7 @@
         <div class="wrap">
           <div class="group">
             <div class="section-head">
-              <h2 id="fonctions-h">
-                Ce que fait Handle It. <span class="muted">Quatre gestes, sans réglage.</span>
-              </h2>
+              <h2 id="fonctions-h">Quatre fonctions de tes tableaux partagés</h2>
             </div>
             <div class="grid">
               <article class="card card--row card--open span-6 m-nolift">
@@ -624,7 +694,7 @@
                 <div class="panel frame--lit" data-visual>
                   <div class="stage stage--fade-b">
                     <div
-                      class="hi-mini"
+                      class="hi-mini ui"
                       role="img"
                       aria-label="Une carte entourée par le focus clavier, avec l’annonce de sa nouvelle position"
                     >
@@ -650,7 +720,7 @@
                 <div class="panel frame--lit" data-visual>
                   <div class="stage stage--fade-b">
                     <div
-                      class="hi-mini"
+                      class="hi-mini ui"
                       role="img"
                       aria-label="Le panneau d’invitation : la durée de validité, le lien créé et son temps restant"
                     >
@@ -660,7 +730,7 @@
                       </div>
                       <div class="hi-field">
                         <b>Lien d’invitation</b>
-                        <div class="hi-input">/invitation#token=i6qSXKThP_sxw…</div>
+                        <div class="hi-input">/invitation#token=i6qSXK…</div>
                       </div>
                       <div class="hi-row">
                         <span>Lien actif encore 24 heures</span
@@ -686,7 +756,7 @@
               <div class="panel frame--lit" data-visual>
                 <div class="stage stage--fade-b">
                   <div
-                    class="hi-mini"
+                    class="hi-mini ui"
                     role="img"
                     aria-label="La liste des membres d’un tableau, avec un bouton Retirer à côté de chaque membre"
                   >
@@ -722,7 +792,7 @@
               <div class="panel frame--lit" data-visual>
                 <div class="stage stage--fade-b">
                   <div
-                    class="hi-mini"
+                    class="hi-mini ui"
                     role="img"
                     aria-label="L’indicateur de connexion passe de Hors ligne à En direct"
                   >
@@ -752,7 +822,7 @@
         <div class="wrap">
           <div class="grid">
             <div class="span-5 stack-4">
-              <h2 id="clavier-h">Utilisable sans souris</h2>
+              <h2 id="clavier-h">Des tableaux utilisables sans souris</h2>
               <p class="t-lead">
                 Chaque écran se parcourt au clavier, et un lien d’évitement mène droit au contenu.
                 Le thème clair ou sombre suit celui de ton système.
@@ -764,7 +834,7 @@
             <div class="frame frame--split span-6 start-7" data-visual>
               <div class="stage stage--fade-br">
                 <div
-                  class="hi-mini hi-dark"
+                  class="hi-mini ui hi-dark"
                   role="img"
                   aria-label="Le tableau en thème sombre, une carte prise au clavier pendant son déplacement"
                 >
@@ -777,7 +847,6 @@
                       <div class="hi-card">Acheter les billets</div>
                       <div class="hi-card is-focus">Réserver le train</div>
                       <div class="hi-card">Prévoir le pique-nique</div>
-                      <div class="hi-card">Trouver un parking</div>
                     </div>
                     <div class="hi-col">
                       <p class="hi-col__title">En cours</p>
@@ -804,10 +873,47 @@
               <p class="muted">
                 Ce que Handle It fait aujourd’hui, et ce qu’il ne fait pas encore.
               </p>
+              <div class="panel frame--lit" data-visual>
+                <div class="stage stage--fade-b">
+                  <div
+                    class="hi-mini ui"
+                    role="img"
+                    aria-label="Une carte ouverte avec deux labels, sa description, son échéance et quatre commentaires"
+                  >
+                    <p class="hi-col__title">Réserver le train</p>
+                    <p class="hi-tags">
+                      <span class="hi-tag" data-tone="red">Urgent</span
+                      ><span class="hi-tag" data-tone="blue">Transport</span
+                      ><span class="hi-tag" data-tone="gray">12 déc.</span>
+                    </p>
+                    <div class="hi-field">
+                      <b>Description</b>
+                      <p>
+                        Train du samedi matin, retour le dimanche soir. Quatre places côte à côte.
+                      </p>
+                    </div>
+                    <div class="hi-field">
+                      <b>Échéance</b>
+                      <div class="hi-input">12/12/2026</div>
+                    </div>
+                    <p class="hi-say">4 commentaires</p>
+                    <div class="hi-row">
+                      <b>Toi</b><span>Les horaires du matin sont moins chers.</span>
+                    </div>
+                    <div class="hi-row">
+                      <b>Membre invité hier</b><span>Je réserve ce soir.</span>
+                    </div>
+                    <div class="hi-row"><b>Toi</b><span>Pense à la carte de réduction.</span></div>
+                    <div class="hi-row">
+                      <b>Membre invité hier</b><span>C’est fait, billets envoyés.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="faq span-6 start-7">
               <div class="faq__item">
-                <h3>Faut-il installer quelque chose ?</h3>
+                <h3>Faut-il installer Handle It ?</h3>
                 <p>
                   Non. Handle It fonctionne dans le navigateur, sur ordinateur, tablette ou
                   téléphone.
@@ -825,9 +931,10 @@
                 <p>Pas encore. Tu copies le lien et tu l’envoies par le moyen de ton choix.</p>
               </div>
               <div class="faq__item">
-                <h3>Y a-t-il des étiquettes ou des échéances ?</h3>
+                <h3>Que peut contenir une carte ?</h3>
                 <p>
-                  Pas dans cette version : une carte a un titre et une description, rien de plus.
+                  Une description, des labels de huit couleurs, une échéance et des commentaires. La
+                  recherche les retrouve dans tous tes tableaux.
                 </p>
               </div>
             </div>
