@@ -265,12 +265,12 @@
           --p-h: max(360px, calc(100svh - 540px));
         }
         #questions .panel {
-          --p-h: 220px;
+          --p-h: max(220px, calc(100svh - 800px));
         }
       }
       @media (max-width: 639px) {
         #fonctions .panel {
-          --p-h: 170px;
+          --p-h: 150px;
         }
         #clavier .frame--split {
           --ratio: 80%;
@@ -293,8 +293,8 @@
           display: none;
         }
       }
-      /* Tablette : le tableau ouvert garde des cartes entières au-dessus de son fondu. */
-      @media (max-width: 1023px) {
+      /* Jusqu'à 1 279 px, le tableau ouvert garde des cartes entières au-dessus de son fondu. */
+      @media (max-width: 1279px) {
         .app__pane--open .hi-card:nth-of-type(n + 5) {
           display: none;
         }
@@ -387,6 +387,18 @@
         }
         #clavier .frame--split {
           --ratio: 100%;
+        }
+      }
+      @media (min-width: 1024px) and (max-width: 1279px) {
+        #clavier .frame--split {
+          --ratio: 130%;
+        }
+        .app__pane--open .hi-card:nth-of-type(n + 4) {
+          display: none;
+        }
+        /* La barre centrée manque de place à cette largeur : « Se connecter » reste dans le héros. */
+        .nav__actions > .nav__link {
+          display: none;
         }
       }
       .hi-tags {
@@ -847,11 +859,14 @@
                       <div class="hi-card">Acheter les billets</div>
                       <div class="hi-card is-focus">Réserver le train</div>
                       <div class="hi-card">Prévoir le pique-nique</div>
+                      <div class="hi-card">Trouver un parking</div>
+                      <div class="hi-card">Préparer les sacs</div>
                     </div>
                     <div class="hi-col">
                       <p class="hi-col__title">En cours</p>
                       <div class="hi-card">Comparer deux locations</div>
                       <div class="hi-card">Fixer les dates</div>
+                      <div class="hi-card">Réserver le restaurant</div>
                     </div>
                   </div>
                   <p class="hi-say">
