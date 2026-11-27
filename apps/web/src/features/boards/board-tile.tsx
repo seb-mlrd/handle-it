@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { SingleFieldForm } from '../../shared/forms/single-field-form';
 import { useReturnFocus } from '../../shared/focus/use-return-focus';
-import { Button } from '../../shared/ui/button';
+import { ActionMenu } from '../../shared/ui/action-menu';
 import { ConfirmDialog } from '../../shared/ui/confirm-dialog';
+import { BoardMonogram } from './board-monogram';
 import { ROLE_LABELS } from './role-labels';
 import { useDeleteBoard, useRenameBoard } from './use-boards';
 
@@ -17,9 +18,9 @@ export function BoardTile({ board }: BoardTileProps) {
   const close = () => setOpenPanel(null);
   const renameBoard = useRenameBoard(board.id);
   const deleteBoard = useDeleteBoard(board.id);
-  const renameOpenerReference = useReturnFocus<HTMLButtonElement>(openPanel === 'rename');
+  const menuTriggerReference = useReturnFocus<HTMLButtonElement>(openPanel === 'rename');
   return (
-    <li className="flex flex-col gap-4 rounded-card border border-line bg-surface p-4">
+    <li className="relative flex min-h-36 flex-col gap-4 rounded-card bg-surface p-4 shadow-raised transition-[box-shadow,translate] has-[a:hover]:shadow-lifted motion-safe:has-[a:hover]:-translate-y-0.5 motion-reduce:transition-none">
       {openPanel === 'rename' ? (
         <SingleFieldForm
           schema={boardRequestSchema}
@@ -32,33 +33,43 @@ export function BoardTile({ board }: BoardTileProps) {
         />
       ) : (
         <>
-          <div className="grow">
-            <h2 className="text-lg font-semibold wrap-anywhere">
-              <Link to={`/boards/${board.id}`} className="hover:underline">
+          <div className="flex items-start justify-between gap-2">
+            <BoardMonogram boardId={board.id} name={board.name} />
+            {board.role === 'owner' && (
+              // Au-dessus du lien qui couvre la tuile, pour rester cliquable.
+              <div className="relative z-10 -mt-1.5 -mr-1.5">
+                <ActionMenu
+                  label={`Actions de ${board.name}`}
+                  triggerReference={menuTriggerReference}
+                  items={[
+                    {
+                      label: 'Renommer',
+                      accessibleName: `Renommer ${board.name}`,
+                      select: () => setOpenPanel('rename'),
+                    },
+                    {
+                      label: 'Supprimer',
+                      accessibleName: `Supprimer ${board.name}`,
+                      isDestructive: true,
+                      select: () => setOpenPanel('delete'),
+                    },
+                  ]}
+                />
+              </div>
+            )}
+          </div>
+          <div className="mt-auto">
+            <h2 className="text-headline font-semibold wrap-anywhere">
+              {/* Le lien couvre toute la tuile : elle se clique partout, sans lien imbriqué. */}
+              <Link
+                to={`/boards/${board.id}`}
+                className="rounded-card after:absolute after:inset-0 after:rounded-card focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-ink"
+              >
                 {board.name}
               </Link>
             </h2>
             <p className="text-sm text-muted">{ROLE_LABELS[board.role]}</p>
           </div>
-          {board.role === 'owner' && (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                ref={renameOpenerReference}
-                variant="secondary"
-                aria-label={`Renommer ${board.name}`}
-                onClick={() => setOpenPanel('rename')}
-              >
-                Renommer
-              </Button>
-              <Button
-                variant="secondary"
-                aria-label={`Supprimer ${board.name}`}
-                onClick={() => setOpenPanel('delete')}
-              >
-                Supprimer
-              </Button>
-            </div>
-          )}
         </>
       )}
       {openPanel === 'delete' && (

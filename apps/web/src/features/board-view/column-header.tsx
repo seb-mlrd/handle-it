@@ -2,7 +2,7 @@ import { type ColumnViewResponse, columnRequestSchema } from '@handle-it/contrac
 import { type ReactNode, useState } from 'react';
 import { SingleFieldForm } from '../../shared/forms/single-field-form';
 import { useReturnFocus } from '../../shared/focus/use-return-focus';
-import { Button } from '../../shared/ui/button';
+import { ActionMenu } from '../../shared/ui/action-menu';
 import { ConfirmDialog } from '../../shared/ui/confirm-dialog';
 import { useDeleteColumn, useRenameColumn } from './use-board-content';
 
@@ -17,7 +17,7 @@ export function ColumnHeader({ boardId, column, handle }: ColumnHeaderProps) {
   const close = () => setOpenPanel(null);
   const renameColumn = useRenameColumn(boardId, column.id);
   const deleteColumn = useDeleteColumn(boardId, column.id);
-  const renameOpenerReference = useReturnFocus<HTMLButtonElement>(openPanel === 'rename');
+  const menuTriggerReference = useReturnFocus<HTMLButtonElement>(openPanel === 'rename');
   if (openPanel === 'rename') {
     return (
       <SingleFieldForm
@@ -33,26 +33,35 @@ export function ColumnHeader({ boardId, column, handle }: ColumnHeaderProps) {
   }
   return (
     <div>
-      <div className="flex items-start justify-between gap-2">
-        <h2 className="px-1 py-2 text-lg font-semibold wrap-anywhere">{column.name}</h2>
+      <div className="flex items-start gap-1">
+        <h2 className="min-w-0 grow px-2 py-2.5 text-headline font-semibold wrap-anywhere">
+          {column.name}
+        </h2>
+        {/* Décoratif : la liste des cartes annonce déjà son nombre d'éléments. */}
+        <span
+          aria-hidden="true"
+          className="mt-2.5 rounded-full bg-ink/6 px-2 text-sm leading-6 font-medium text-muted tabular-nums"
+        >
+          {column.cards.length}
+        </span>
+        <ActionMenu
+          label={`Actions de la colonne ${column.name}`}
+          triggerReference={menuTriggerReference}
+          items={[
+            {
+              label: 'Renommer',
+              accessibleName: `Renommer la colonne ${column.name}`,
+              select: () => setOpenPanel('rename'),
+            },
+            {
+              label: 'Supprimer',
+              accessibleName: `Supprimer la colonne ${column.name}`,
+              isDestructive: true,
+              select: () => setOpenPanel('delete'),
+            },
+          ]}
+        />
         {handle}
-      </div>
-      <div className="flex">
-        <Button
-          ref={renameOpenerReference}
-          variant="ghost"
-          aria-label={`Renommer la colonne ${column.name}`}
-          onClick={() => setOpenPanel('rename')}
-        >
-          Renommer
-        </Button>
-        <Button
-          variant="ghost"
-          aria-label={`Supprimer la colonne ${column.name}`}
-          onClick={() => setOpenPanel('delete')}
-        >
-          Supprimer
-        </Button>
       </div>
       {openPanel === 'delete' && (
         <ConfirmDialog

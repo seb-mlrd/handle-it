@@ -16,7 +16,7 @@ export function SearchResultItem({ result }: SearchResultItemProps) {
     <li>
       <Link
         to={`/boards/${result.boardId}/cards/${result.cardId}`}
-        className="flex flex-col gap-1 rounded-card border border-line bg-surface p-4 hover:border-control"
+        className="flex flex-col gap-1 rounded-card bg-surface p-4 shadow-raised transition-[box-shadow,translate,scale] hover:shadow-lifted motion-safe:hover:-translate-y-px motion-safe:active:scale-[0.99] motion-reduce:transition-none"
       >
         <span className="font-semibold wrap-anywhere">
           {result.matchedIn === 'title' ? (

@@ -1,9 +1,9 @@
 import { useId, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ApiError } from '../../shared/http/api-error';
-import { Button } from '../../shared/ui/button';
 import { LoadError } from '../../shared/ui/load-error';
 import { Modal } from '../../shared/ui/modal';
+import { SheetHeader } from '../../shared/ui/sheet-header';
 import { DueDateField } from '../due-date/due-date-field';
 import { LabelPicker } from '../labels/label-picker';
 import { ActivityList } from '../activity/activity-list';
@@ -23,14 +23,12 @@ export function CardPanel() {
   const close = () => void navigate(`/boards/${boardId}`);
   return (
     <Modal titleId={titleId} placement="side" isEscapeBlocked={isDirty} close={close}>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <h2 id={titleId} className="text-xl font-bold">
-          Détail de la carte
-        </h2>
-        <Button variant="secondary" onClick={close}>
-          {isDirty ? 'Fermer sans enregistrer' : 'Fermer'}
-        </Button>
-      </div>
+      <SheetHeader
+        titleId={titleId}
+        title="Détail de la carte"
+        closeLabel={isDirty ? 'Fermer sans enregistrer' : 'Fermer'}
+        close={close}
+      />
       {isDeleted ? (
         <p role="alert">Cette carte a été supprimée.</p>
       ) : card ? (
@@ -51,7 +49,7 @@ export function CardPanel() {
             <CommentThread boardId={boardId} cardId={cardId} />
           </div>
           <section aria-labelledby={activityTitleId} className="mt-10 flex flex-col gap-4">
-            <h3 id={activityTitleId} className="text-lg font-semibold">
+            <h3 id={activityTitleId} className="text-headline font-semibold">
               Activité
             </h3>
             <ActivityList

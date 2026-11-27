@@ -15,10 +15,14 @@ export function BoardList() {
     );
   }
   if (boards.length === 0) {
-    return <p className="text-muted">Aucun tableau pour l'instant. Crée le premier ci-dessus.</p>;
+    return (
+      <p className="rounded-card border-2 border-dashed border-ink/12 px-6 py-10 text-center text-muted">
+        Aucun tableau pour l'instant. Crée le premier ci-dessus.
+      </p>
+    );
   }
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {boards.map((board) => (
         <BoardTile key={board.id} board={board} />
       ))}

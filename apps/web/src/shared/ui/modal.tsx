@@ -2,9 +2,10 @@ import { type ReactNode, type SyntheticEvent, useEffect, useRef } from 'react';
 
 type ModalPlacement = 'center' | 'side';
 
+// Le panneau latéral flotte à quelques pixels des bords ; sur un téléphone, il prend tout l'écran.
 const PLACEMENT_CLASSES: Record<ModalPlacement, string> = {
-  center: 'm-auto max-w-md rounded-card',
-  side: 'mr-0 ml-auto h-dvh max-h-none max-w-lg',
+  center: 'm-auto max-w-md rounded-sheet p-6',
+  side: 'mr-0 ml-auto h-dvh max-h-none max-w-lg px-6 pb-6 sm:my-2 sm:mr-2 sm:h-[calc(100dvh-1rem)] sm:rounded-sheet',
 };
 
 interface ModalProps {
@@ -50,7 +51,8 @@ export function Modal({
       aria-labelledby={titleId}
       onCancel={(event) => isEscapeBlocked && event.preventDefault()}
       onClose={handleClose}
-      className={`w-full border border-line bg-surface p-6 text-ink backdrop:bg-black/60 ${PLACEMENT_CLASSES[placement]}`}
+      data-placement={placement}
+      className={`modal w-full overscroll-contain bg-surface text-ink shadow-overlay ${PLACEMENT_CLASSES[placement]}`}
     >
       {children}
     </dialog>

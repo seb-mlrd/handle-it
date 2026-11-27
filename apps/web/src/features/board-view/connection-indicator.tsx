@@ -12,10 +12,13 @@ interface ConnectionIndicatorProps {
 
 export function ConnectionIndicator({ status }: ConnectionIndicatorProps) {
   return (
-    <p role="status" className="flex items-center gap-2 text-sm text-muted">
+    <p
+      role="status"
+      className={`flex h-7 items-center gap-2 rounded-full pr-3 pl-2.5 text-sm font-medium ${status === 'live' ? 'bg-label-green text-on-label-green' : 'bg-label-gray text-on-label-gray'}`}
+    >
       <span
         aria-hidden="true"
-        className={`size-2.5 rounded-full ${status === 'live' ? 'bg-accent' : 'border-2 border-control'}`}
+        className={`size-2 rounded-full ${status === 'live' ? 'bg-current' : 'border-[1.5px] border-current'}`}
       />
       {LABELS[status]}
     </p>

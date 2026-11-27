@@ -1,6 +1,5 @@
 import {
   DndContext,
-  type DropAnimation,
   DragOverlay,
   KeyboardCode,
   KeyboardSensor,
@@ -12,6 +11,7 @@ import {
 } from '@dnd-kit/core';
 import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import type { BoardViewResponse } from '@handle-it/contracts';
+import { useMemo } from 'react';
 import { getErrorMessage } from '../../shared/http/error-message';
 import { FormAlert } from '../../shared/ui/form-alert';
 import { AddColumn } from './add-column';
@@ -20,6 +20,7 @@ import { createAnnouncements, SCREEN_READER_INSTRUCTIONS } from './drag-announce
 import { detectCollisions } from './drag-collision';
 import { getKeyboardCoordinates } from './drag-keyboard';
 import { DragPreview } from './drag-preview';
+import { createDropAnimation } from './drop-animation';
 import type { Columns } from './board-order';
 import { useBoardDrag } from './use-board-drag';
 import { useLoadedBoard } from './use-board-content';
@@ -39,7 +40,6 @@ const KEYBOARD_OPTIONS = {
 };
 // Les cartes changent de colonne pendant le geste : les positions doivent être remesurées.
 const MEASURING = { droppable: { strategy: MeasuringStrategy.Always } };
-const DROP_ANIMATION: DropAnimation = { duration: 220, easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)' };
 
 /** Cartes affichées : un filtre en masque, sans jamais masquer de colonne. */
 type SelectVisibleColumns = (columns: Columns) => Columns;
@@ -64,6 +64,7 @@ interface BoardColumnsContentProps {
 
 function BoardColumnsContent({ board, visibleColumns }: BoardColumnsContentProps) {
   const isMotionReduced = useReducedMotion();
+  const dropAnimation = useMemo(createDropAnimation, []);
   const drag = useBoardDrag(board.id, board.columns, visibleColumns);
   const sensors = useSensors(
     useSensor(MouseSensor, MOUSE_OPTIONS),
@@ -84,7 +85,8 @@ function BoardColumnsContent({ board, visibleColumns }: BoardColumnsContentProps
       onDragEnd={drag.handleDragEnd}
       onDragCancel={drag.cancelDrag}
     >
-      <div className="px-6 empty:hidden">
+      {/* L'alerte reste dans la page pour être annoncée ; vide, elle ne double pas l'espacement. */}
+      <div className="-mt-5 px-6 has-[p]:mt-0">
         <FormAlert message={drag.error && `Déplacement annulé. ${getErrorMessage(drag.error)}`} />
       </div>
       <SortableContext
@@ -93,7 +95,7 @@ function BoardColumnsContent({ board, visibleColumns }: BoardColumnsContentProps
       >
         <ul
           aria-label="Colonnes"
-          className={`flex min-h-0 grow scroll-px-6 items-start gap-4 overflow-x-auto px-6 pb-4 ${drag.draggedItem ? '' : 'snap-x'}`}
+          className={`flex min-h-0 grow scroll-px-6 items-start gap-3 overflow-x-auto px-6 pt-1 pb-6 ${drag.draggedItem ? '' : 'snap-x'}`}
         >
           {drag.columns.map((column) => (
             <BoardColumn key={column.id} boardId={board.id} column={column} />
@@ -101,8 +103,10 @@ function BoardColumnsContent({ board, visibleColumns }: BoardColumnsContentProps
           <AddColumn boardId={board.id} isFirst={board.columns.length === 0} />
         </ul>
       </SortableContext>
-      <DragOverlay dropAnimation={isMotionReduced ? null : DROP_ANIMATION}>
-        {drag.draggedItem && <DragPreview item={drag.draggedItem} columns={drag.columns} />}
+      <DragOverlay dropAnimation={isMotionReduced ? null : dropAnimation}>
+        {drag.draggedItem && (
+          <DragPreview boardId={board.id} item={drag.draggedItem} columns={drag.columns} />
+        )}
       </DragOverlay>
     </DndContext>
   );

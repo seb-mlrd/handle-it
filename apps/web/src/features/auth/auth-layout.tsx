@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { LANDING_PATH } from '../layout/landing-path';
 import { BoardIllustration } from './board-illustration';
+import { BrandMark } from '../layout/brand-mark';
 import { MAIN_CONTENT_ID } from '../layout/skip-link';
 
 interface AuthLayoutProps {
@@ -16,7 +17,11 @@ export function AuthLayout({ title, children }: AuthLayoutProps) {
         tabIndex={-1}
         className="outline-none flex flex-col px-6 py-8 sm:px-12"
       >
-        <a href={LANDING_PATH} className="self-start text-lg font-bold">
+        <a
+          href={LANDING_PATH}
+          className="flex h-11 items-center gap-2.5 self-start rounded-control pr-2 text-lg font-bold tracking-[-0.01em]"
+        >
+          <BrandMark />
           Handle It
         </a>
         <div className="m-auto flex w-full max-w-sm flex-col gap-6 py-10">
@@ -24,7 +29,7 @@ export function AuthLayout({ title, children }: AuthLayoutProps) {
           {children}
         </div>
       </main>
-      <div className="hidden items-center justify-center border-l border-line bg-surface p-12 lg:flex">
+      <div className="m-2 hidden items-center justify-center rounded-sheet bg-[color-mix(in_oklab,var(--color-accent)_16%,var(--color-surface))] p-12 lg:flex">
         <BoardIllustration />
       </div>
     </div>

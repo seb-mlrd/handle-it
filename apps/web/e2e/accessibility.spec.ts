@@ -185,15 +185,17 @@ test('le focus revient au bouton qui a ouvert un formulaire ou une fenêtre', as
   await page.keyboard.press('Escape');
   await expect(addCard).toBeFocused();
 
-  const rename = page.getByRole('button', { name: 'Renommer la colonne À faire' });
-  await rename.click();
+  // Les actions d'une colonne sont rangées dans un menu : le focus revient au bouton qui l'ouvre.
+  const columnActions = page.getByRole('button', { name: 'Actions de la colonne À faire' });
+  await columnActions.click();
+  await page.getByRole('button', { name: 'Renommer la colonne À faire' }).click();
   await page.getByRole('button', { name: 'Annuler' }).click();
-  await expect(rename).toBeFocused();
+  await expect(columnActions).toBeFocused();
 
-  const deleteColumn = page.getByRole('button', { name: 'Supprimer la colonne À faire' });
-  await deleteColumn.click();
+  await columnActions.click();
+  await page.getByRole('button', { name: 'Supprimer la colonne À faire' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Annuler' }).click();
-  await expect(deleteColumn).toBeFocused();
+  await expect(columnActions).toBeFocused();
 
   await getCard(page, 'Pain').click();
   const dialog = page.getByRole('dialog');

@@ -11,7 +11,7 @@ export function BoardsPage() {
       <main
         id={MAIN_CONTENT_ID}
         tabIndex={-1}
-        className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10"
+        className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10 outline-none"
       >
         <h1 className="text-display font-bold">Mes tableaux</h1>
         <CreateBoardForm />

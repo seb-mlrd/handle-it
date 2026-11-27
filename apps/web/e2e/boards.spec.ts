@@ -16,6 +16,7 @@ test('créer, renommer puis supprimer un tableau', async ({ page }) => {
   await expect(page.getByText('Propriétaire')).toBeVisible();
   await expect(page.getByLabel('Nouveau tableau')).toHaveValue('');
 
+  await page.getByRole('button', { name: 'Actions de Maison' }).click();
   await page.getByRole('button', { name: 'Renommer Maison' }).click();
   await expect(page.getByLabel('Nom du tableau')).toBeFocused();
   await page.getByLabel('Nom du tableau').fill('Travail');
@@ -24,11 +25,15 @@ test('créer, renommer puis supprimer un tableau', async ({ page }) => {
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Travail' })).toBeVisible();
 
+  const actions = page.getByRole('button', { name: 'Actions de Travail' });
+  await actions.click();
   await page.getByRole('button', { name: 'Supprimer Travail' }).click();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toBeHidden();
   await expect(page.getByRole('heading', { name: 'Travail' })).toBeVisible();
+  await expect(actions).toBeFocused();
 
+  await actions.click();
   await page.getByRole('button', { name: 'Supprimer Travail' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Supprimer' }).click();
   await expect(page.getByText('Aucun tableau pour l')).toBeVisible();
