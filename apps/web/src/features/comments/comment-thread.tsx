@@ -25,6 +25,12 @@ export function CommentThread({ boardId, cardId }: CommentThreadProps) {
   const comments = useComments(boardId, cardId);
   // Gardé ici plutôt que dans le commentaire : sa suppression ailleurs ne fait pas perdre le texte.
   const [editing, setEditing] = useState<Editing | null>(null);
+  // Commentaire dont le bouton « Modifier » reprend le focus quand sa modification se ferme.
+  const [editedCommentId, setEditedCommentId] = useState<string | null>(null);
+  const stopEditing = () => {
+    setEditedCommentId(editing?.commentId ?? null);
+    setEditing(null);
+  };
   const items = comments.data?.pages.flatMap((page) => page.items) ?? [];
   const isEditedCommentGone =
     editing !== null && comments.data && !items.some(({ id }) => id === editing.commentId);
@@ -58,7 +64,7 @@ export function CommentThread({ boardId, cardId }: CommentThreadProps) {
                   commentId={comment.id}
                   draft={editing.draft}
                   changeDraft={(draft) => setEditing({ commentId: comment.id, draft })}
-                  close={() => setEditing(null)}
+                  close={stopEditing}
                 />
               ) : (
                 <CommentItem
@@ -66,6 +72,7 @@ export function CommentThread({ boardId, cardId }: CommentThreadProps) {
                   cardId={cardId}
                   comment={comment}
                   now={now}
+                  isEditButtonFocused={editedCommentId === comment.id}
                   startEditing={() => setEditing({ commentId: comment.id, draft: comment.body })}
                 />
               )}

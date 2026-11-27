@@ -1,6 +1,7 @@
 import { getErrorMessage } from '../../shared/http/error-message';
 import { Button } from '../../shared/ui/button';
 import { TextField } from '../../shared/ui/text-field';
+import { useDismissibleDetails } from '../../shared/ui/use-dismissible-details';
 import { useBoardLabels } from '../board-view/use-board-content';
 import { LabelChip } from '../labels/label-chip';
 import { type BoardFilter, EMPTY_BOARD_FILTER } from './board-filter';
@@ -20,6 +21,7 @@ interface BoardFilterBarProps {
 export function BoardFilterBar(props: BoardFilterBarProps) {
   const { filter, change } = props;
   const { data: labels = [] } = useBoardLabels(props.boardId);
+  const labelMenuReference = useDismissibleDetails();
   const toggleLabel = (labelId: string, isChecked: boolean) =>
     change({
       ...filter,
@@ -43,7 +45,7 @@ export function BoardFilterBar(props: BoardFilterBarProps) {
         <DueFilterSelect value={filter.due} change={(due) => change({ ...filter, due })} />
       </div>
       {labels.length > 0 && (
-        <details className="relative">
+        <details ref={labelMenuReference} className="relative">
           <summary className="flex h-11 cursor-pointer items-center rounded-control border border-control bg-surface px-4 font-semibold">
             Filtrer par label{filter.labelIds.length > 0 ? ` (${filter.labelIds.length})` : ''}
           </summary>

@@ -2,6 +2,7 @@ import { type BoardResponse, boardRequestSchema } from '@handle-it/contracts';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { SingleFieldForm } from '../../shared/forms/single-field-form';
+import { useReturnFocus } from '../../shared/focus/use-return-focus';
 import { Button } from '../../shared/ui/button';
 import { ConfirmDialog } from '../../shared/ui/confirm-dialog';
 import { ROLE_LABELS } from './role-labels';
@@ -16,6 +17,7 @@ export function BoardTile({ board }: BoardTileProps) {
   const close = () => setOpenPanel(null);
   const renameBoard = useRenameBoard(board.id);
   const deleteBoard = useDeleteBoard(board.id);
+  const renameOpenerReference = useReturnFocus<HTMLButtonElement>(openPanel === 'rename');
   return (
     <li className="flex flex-col gap-4 rounded-card border border-line bg-surface p-4">
       {openPanel === 'rename' ? (
@@ -41,6 +43,7 @@ export function BoardTile({ board }: BoardTileProps) {
           {board.role === 'owner' && (
             <div className="flex flex-wrap gap-2">
               <Button
+                ref={renameOpenerReference}
                 variant="secondary"
                 aria-label={`Renommer ${board.name}`}
                 onClick={() => setOpenPanel('rename')}
